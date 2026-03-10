@@ -183,7 +183,10 @@ window.chatApp = {
             // Oculta o campo de título novo se estiver aparecendo
             document.getElementById('ai-studio-new-title').style.display = 'none';
             document.getElementById('ai-studio-suggest-btn').style.display = 'none';
+            document.getElementById('ai-studio-preview-btn').style.display = 'block';
             document.getElementById('ai-studio-item').style.display = 'block';
+            
+            this.updateAbidusScore();
 
             addMessage(`Acabei de carregar o componente **${data.title.rendered}** na sua tela visual. O que você gostaria de mudar nele?`);
         } else {
@@ -247,6 +250,7 @@ window.chatApp = {
             this.currentType = type;
             titleInput.style.display = 'none';
             document.getElementById('ai-studio-suggest-btn').style.display = 'none';
+            document.getElementById('ai-studio-preview-btn').style.display = 'block';
             document.getElementById('ai-studio-title').innerText = `Editando Rascunho: ${result.title.rendered || newTitle}`;
             alert(`Sucesso! ${isNew ? 'Criado e ' : ''}salvo no WordPress como Rascunho (ID: ${result.id}).`);
             
@@ -279,15 +283,104 @@ Retorne APENAS uma sugestão de título curta e impactante.`;
             titleInput.value = suggestion;
             addMessage(`💡 Sugestão de Título: **"${suggestion}"**. O que achou?`);
         }
+    },
+
+    toggleChecklist() {
+        const panel = document.getElementById('abidus-checklist-panel');
+        panel.style.display = panel.style.display === 'none' ? 'block' : 'none';
+    },
+
+    updateAbidusScore() {
+        const html = document.getElementById('live-preview').innerHTML;
+        const text = document.getElementById('live-preview').innerText;
+        let score = 0;
+        let suggestions = [];
+
+        // 1. SEO Local
+        const hasGoiania = text.toLowerCase().includes('goiânia');
+        if (hasGoiania) {
+            score += 20;
+            document.getElementById('check-seo').innerHTML = '✅ SEO Local: Goiânia detectado';
+            document.getElementById('check-seo').style.color = '#059669';
+        } else {
+            suggestions.push("Adicione 'Goiânia' para melhorar o SEO local.");
+            document.getElementById('check-seo').innerHTML = '❌ SEO Local: Menção a Goiânia';
+            document.getElementById('check-seo').style.color = '#dc2626';
+        }
+
+        // 2. E-E-A-T
+        const eatKeywords = ['crp', 'crm', 'psicoterapeuta', 'psicóloga', 'doutor', 'especialista'];
+        if (eatKeywords.some(k => text.toLowerCase().includes(k))) {
+            score += 20;
+            document.getElementById('check-eat').innerHTML = '✅ E-E-A-T: Autoridade Confirmada';
+            document.getElementById('check-eat').style.color = '#059669';
+        } else {
+            suggestions.push("Mencione seu CRP ou especialidade para gerar confiança.");
+            document.getElementById('check-eat').innerHTML = '❌ E-E-A-T: Registro Profissional/CRM';
+            document.getElementById('check-eat').style.color = '#dc2626';
+        }
+
+        // 3. Dor (Neurodivergência)
+        const painKeywords = ['tea', 'autismo', 'masking', 'burnout', 'neurodivergente', 'dificuldade', 'sofrimento'];
+        if (painKeywords.some(k => text.toLowerCase().includes(k))) {
+            score += 20;
+            document.getElementById('check-pain').innerHTML = '✅ Copy: Foco na Dor validado';
+            document.getElementById('check-pain').style.color = '#059669';
+        } else {
+            suggestions.push("Foque mais na dor do autismo leve/masking.");
+            document.getElementById('check-pain').innerHTML = '❌ Copy: Foco na Dor (Neurodivergência)';
+            document.getElementById('check-pain').style.color = '#dc2626';
+        }
+
+        // 4. CTA / Conversão
+        if (html.toLowerCase().includes('href') && (html.toLowerCase().includes('agende') || html.toLowerCase().includes('whatsapp') || html.toLowerCase().includes('contato'))) {
+            score += 20;
+            document.getElementById('check-cta').innerHTML = '✅ Conversão: CTA detectado';
+            document.getElementById('check-cta').style.color = '#059669';
+        } else {
+            suggestions.push("Falta um botão de agendamento claro.");
+            document.getElementById('check-cta').innerHTML = '❌ Conversão: Botão de Agendamento';
+            document.getElementById('check-cta').style.color = '#dc2626';
+        }
+
+        // 5. Keyword no H1
+        const h1 = document.querySelector('#live-preview h1');
+        if (h1 && (h1.innerText.toLowerCase().includes('autismo') || h1.innerText.toLowerCase().includes('tea') || h1.innerText.toLowerCase().includes('terapia'))) {
+            score += 20;
+            document.getElementById('check-keyword').innerHTML = '✅ Palavra-Chave no H1';
+            document.getElementById('check-keyword').style.color = '#059669';
+        } else {
+            suggestions.push("Coloque a palavra-chave principal no título (H1).");
+            document.getElementById('check-keyword').innerHTML = '❌ Palavra-Chave Principal no H1';
+            document.getElementById('check-keyword').style.color = '#dc2626';
+        }
+
+        // Atualiza Barra e Texto
+        document.getElementById('abidus-progress').style.width = score + '%';
+        document.getElementById('abidus-percentage').innerText = score + '%';
+        const suggestionText = score === 100 ? "🚀 Conteúdo 100% otimizado!" : "💡 Falta: " + (suggestions[0] || "");
+        document.getElementById('abidus-suggestion').innerText = suggestionText;
+    },
+
+    previewDraft() {
+        if (!this.currentItemId) return alert("Salve o rascunho primeiro para visualizar.");
+        
+        // Constrói URL de Preview do WordPress
+        // A URL base está no wpAPI.url (removemos o /wp-json/wp/v2)
+        const baseUrl = wpAPI.url.replace('/wp-json/wp/v2', '');
+        const previewUrl = `${baseUrl}/?p=${this.currentItemId}&preview=true`;
+        window.open(previewUrl, '_blank');
     }
 };
 
-// Função Global para o botão "Aplicar no Live Preview"
+// Injeta código e atualiza checklist
 window.injectCode = function(btn) {
     const code = decodeURIComponent(btn.getAttribute('data-code'));
     const preview = document.getElementById('live-preview');
     if (preview) {
         preview.innerHTML = code;
+        window.chatApp.updateAbidusScore();
+        
         // Feedback visual no chat
         const status = document.createElement('div');
         status.style.fontSize = '10px';
