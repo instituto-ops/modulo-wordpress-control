@@ -331,3 +331,22 @@ select:focus {
     font-size: 0.875rem;
     color: #1E3A8A;
 }
+/* Element Selection for Fine-Tuning */
+.element-selected {
+    outline: 3px solid #EF4444 !important;
+    outline-offset: 2px !important;
+    position: relative !important;
+}
+
+.element-selected::after {
+    content: "Selecionado";
+    position: absolute;
+    top: -20px;
+    right: 0;
+    background: #EF4444;
+    color: white;
+    font-size: 10px;
+    padding: 2px 5px;
+    border-radius: 4px;
+    pointer-events: none;
+}
