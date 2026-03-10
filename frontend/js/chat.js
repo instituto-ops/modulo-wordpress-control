@@ -214,9 +214,10 @@ window.chatApp = {
             document.getElementById('live-preview').innerHTML = data.content.rendered;
             titleSpan.innerText = `Editando: ${data.title.rendered}`;
             
-            document.getElementById('ai-studio-new-title').style.display = 'none';
-            document.getElementById('ai-studio-suggest-btn').style.display = 'none';
-            document.getElementById('ai-studio-preview-btn').style.display = 'block';
+        document.getElementById('ai-studio-new-title').style.display = 'none';
+        document.getElementById('ai-studio-accept-btn').style.display = 'none';
+        document.getElementById('ai-studio-suggest-btn').style.display = 'none';
+        document.getElementById('ai-studio-preview-btn').style.display = 'block';
             document.getElementById('ai-studio-item').style.display = 'block';
             
             this.updateAbidusScore();
@@ -234,11 +235,19 @@ window.chatApp = {
         titleInput.value = "";
         titleInput.focus();
         
+        document.getElementById('ai-studio-accept-btn').style.display = 'block';
         document.getElementById('ai-studio-suggest-btn').style.display = 'block';
         document.getElementById('live-preview').innerHTML = '<h1 style="color: #1a202c; font-size: 24px; text-align: center; margin-top: 50px; opacity: 0.5;">Comece a escrever seu novo rascunho ou peça para a IA...</h1>';
         document.getElementById('ai-studio-title').innerText = "Novo Rascunho";
         
-        this.addMessage(`Pronto! Digite o título e use os botões de prompts rápidos para começar.`);
+        this.addMessage(`Pronto! Digite o título, clique em ✅ para confirmar e use os botões de prompts rápidos para começar.`);
+    },
+
+    acceptTitle() {
+        const title = document.getElementById('ai-studio-new-title').value.trim();
+        if(!title) return alert("Digite o título primeiro.");
+        this.addMessage(`Título **"${title}"** aceito! Vou usá-lo como base para os comandos.`);
+        document.getElementById('ai-studio-title').innerText = `Rascunho: ${title}`;
     },
 
     async saveToWP() {
@@ -336,7 +345,9 @@ REGRAS CRÍTICAS:
 
     runQuickPrompt(type) {
         const keyword = document.getElementById('ai-studio-keyword').value || "TEA em Adultos";
+        const title = document.getElementById('ai-studio-new-title').value || "Psicoterapia Especializada";
         const prompts = {
+            full: `Crie um conteúdo completo e otimizado para o Título: "${title}". Use a keyword "${keyword}". Inclua uma Dobra Hero, seção de dores/problemas, benefícios do tratamento, uma breve bio do especialista e o link obrigatório para a home www.hipnolawrence.com. NUNCA mencione a palavra Abidos.`,
             hero: `Crie uma dobra Hero (Header) focada em conversão para "${keyword}". Regra: Título de impacto focado na dor do paciente, subtexto de autoridade e um botão de CTA para WhatsApp em Goiânia. NUNCA use a palavra Abidos no texto. OBRIGATÓRIO: Inclua um link orgânico para a home em www.hipnolawrence.com.`,
             social: `Gere uma seção de depoimentos de pacientes adultos com TEA. Use um design limpo e inclua um link sutil para 'Conhecer nossa história' levando a www.hipnolawrence.com. NUNCA cite a palavra Abidos.`,
             faq: `Crie um FAQ quebra-objeções focado em TEA Adulto e Hipnose. As respostas devem ser acolhedoras e citar a página inicial www.hipnolawrence.com para mais detalhes sobre a clínica.`,

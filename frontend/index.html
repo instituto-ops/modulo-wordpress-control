@@ -264,6 +264,7 @@
                     <div style="display: flex; gap: 10px; align-items: center;">
                         <span style="font-size: 12px; font-weight: 700; color: #64748b; text-transform: uppercase;">📝 Draft:</span>
                         <input type="text" id="ai-studio-new-title" style="flex: 2; padding: 6px; display: none; font-size: 13px;" placeholder="Título do novo post/página...">
+                        <button id="ai-studio-accept-btn" class="btn" style="padding: 4px 10px; display: none; background: #dcfce7; border: 1px solid #22c55e; color: #166534; font-size: 12px;" onclick="window.chatApp.acceptTitle()">✅ Aceitar</button>
                         <button id="ai-studio-suggest-btn" class="btn" style="padding: 4px 10px; display: none; background: #fef3c7; border: 1px solid #f59e0b; color: #b45309; font-size: 12px;" onclick="window.chatApp.suggestTitle()">✨ Sugerir</button>
                         
                         <select id="ai-studio-keyword" style="flex: 1; min-width: 180px; padding: 6px; background: #eff6ff; border: 1px solid #3b82f6; color: #1e40af; border-radius: 4px; font-size: 13px;">
@@ -346,6 +347,7 @@
                         <div style="padding: 15px; border-top: 1px solid var(--color-border); background: #f9fafb;">
                             <!-- Barra de Prompts Rápidos (Abidos Templates) -->
                             <div style="display: flex; gap: 5px; overflow-x: auto; margin-bottom: 15px; padding-bottom: 5px; scrollbar-width: none;">
+                                <button class="btn" style="background: #eef2ff; border: 1px solid #6366f1; color: #4338ca; font-size: 11px; white-space: nowrap; font-weight: bold; box-shadow: var(--shadow-sm);" onclick="window.chatApp.runQuickPrompt('full')">📝 Criar p/ Título</button>
                                 <button class="btn" style="background: white; border: 1px solid #e2e8f0; font-size: 11px; white-space: nowrap; box-shadow: var(--shadow-sm);" onclick="window.chatApp.runQuickPrompt('hero')">🎯 Dobra Hero</button>
                                 <button class="btn" style="background: white; border: 1px solid #e2e8f0; font-size: 11px; white-space: nowrap; box-shadow: var(--shadow-sm);" onclick="window.chatApp.runQuickPrompt('social')">⭐ Prova Social</button>
                                 <button class="btn" style="background: white; border: 1px solid #e2e8f0; font-size: 11px; white-space: nowrap; box-shadow: var(--shadow-sm);" onclick="window.chatApp.runQuickPrompt('faq')">❓ FAQ Objeções</button>
