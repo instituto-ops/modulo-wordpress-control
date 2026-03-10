@@ -8,10 +8,11 @@ const wpAPI = {
         return "Basic " + btoa(this.username + ":" + this.appPassword);
     },
 
-    async fetchContent(type = 'pages') {
-        app.showLoadingTable();
+    async fetchContent(type = 'pages', full = false) {
+        if (type !== 'media') app.showLoadingTable();
         try {
-            const response = await fetch(`${this.url}/${type}?_fields=id,title,status,type&per_page=100`, {
+            const fields = full ? 'id,title,status,type,content,featured_media' : 'id,title,status,type';
+            const response = await fetch(`${this.url}/${type}?_fields=${fields}&per_page=100&status=publish,draft,future,private`, {
                 headers: {
                     "Authorization": this.getAuthHeader()
                 }
@@ -20,7 +21,6 @@ const wpAPI = {
             return await response.json();
         } catch (error) {
             console.error("WP API Fetch Error:", error);
-            alert("Não foi possível carregar o conteúdo. Verifique as chaves de Application Password no WP.");
             return [];
         }
     },
@@ -100,9 +100,9 @@ const wpAPI = {
         }
     },
 
-    async fetchMedia() {
+    async fetchMedia(limit = 100) {
         try {
-            const response = await fetch(`${this.url}/media?per_page=50&_fields=id,source_url,alt_text,title,media_details`, {
+            const response = await fetch(`${this.url}/media?per_page=${limit}&_fields=id,source_url,alt_text,title`, {
                 headers: { "Authorization": this.getAuthHeader() }
             });
             return await response.json();
@@ -112,11 +112,11 @@ const wpAPI = {
         }
     },
 
-    async uploadMedia(file, altText) {
+    async uploadMedia(file, altText, title = "") {
         const formData = new FormData();
         formData.append('file', file);
         formData.append('alt_text', altText);
-        formData.append('title', file.name);
+        formData.append('title', title || file.name);
 
         try {
             const response = await fetch(`${this.url}/media`, {
@@ -129,5 +129,37 @@ const wpAPI = {
             console.error("Upload error:", error);
             return null;
         }
+    },
+
+    async updateMedia(id, data) {
+        try {
+            const response = await fetch(`${this.url}/media/${id}`, {
+                method: "POST",
+                headers: { 
+                    "Authorization": this.getAuthHeader(),
+                    "Content-Type": "application/json"
+                },
+                body: JSON.stringify(data)
+            });
+            return await response.json();
+        } catch (error) {
+            console.error("Update media error:", error);
+            return null;
+        }
+    },
+
+    async deleteMedia(id) {
+        try {
+            const response = await fetch(`${this.url}/media/${id}?force=true`, {
+                method: "DELETE",
+                headers: { 
+                    "Authorization": this.getAuthHeader()
+                }
+            });
+            return await response.json();
+        } catch (error) {
+            console.error("Delete media error:", error);
+            return null;
+        }
     }
-};
+}

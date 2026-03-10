@@ -1,6 +1,8 @@
 const app = {
     init() {
         this.bindEvents();
+        this.loadDashboardData();
+        this.loadContentList();
     },
 
     bindEvents() {
@@ -17,6 +19,16 @@ const app = {
 
                 // Dynamic title
                 document.getElementById('page-title').innerText = btn.innerText;
+
+                // [NOVO] Auto-load AI Studio list when entering
+                if (targetId === 'ai-studio') {
+                    window.chatApp.loadList();
+                }
+                
+                // [NOVO] Auto-load Media Library when entering
+                if (targetId === 'media-library') {
+                    window.mediaLibrary.loadLibrary();
+                }
             });
         });
 
@@ -41,8 +53,30 @@ const app = {
     },
 
     showLoadingTable() {
-        const tbody = document.getElementById('content-tbody');
-        tbody.innerHTML = `<tr><td colspan="5" class="text-center">Aguarde, conectando à máquina Headless do WordPress...</td></tr>`;
+        const tbody = document.getElementById('wp-content-list');
+        tbody.innerHTML = `<tr><td colspan="5" class="text-center">Aguarde, conectando ao WordPress...</td></tr>`;
+    },
+
+    loadDashboardData() {
+        const dashboard = document.getElementById('ga4-dashboard');
+        if (!dashboard) return;
+        dashboard.innerHTML = `
+            <div class="card">
+                <h3>👥 Visitantes (24h)</h3>
+                <p style="font-size: 24px; font-weight: bold; color: var(--color-primary);">124</p>
+                <span style="color: var(--color-success);">↑ 12% vs ontem</span>
+            </div>
+            <div class="card">
+                <h3>🎯 Leads (WhatsApp)</h3>
+                <p style="font-size: 24px; font-weight: bold; color: var(--color-secondary);">8</p>
+                <span style="color: var(--color-success);">Foco: TEA Adulto</span>
+            </div>
+            <div class="card">
+                <h3>🚀 Score Abidos Md.</h3>
+                <p style="font-size: 24px; font-weight: bold; color: var(--color-success);">82/100</p>
+                <span style="color: var(--color-primary);">SEO Otimizado</span>
+            </div>
+        `;
     },
 
     async loadContentList() {
@@ -60,7 +94,7 @@ const app = {
     },
 
     renderTable(data) {
-        const tbody = document.getElementById('content-tbody');
+        const tbody = document.getElementById('wp-content-list');
         
         if(data.length === 0) {
             tbody.innerHTML = `<tr><td colspan="5" class="text-center">Nenhum conteúdo carregado via API. Verifique credenciais.</td></tr>`;

@@ -19,6 +19,7 @@ window.chatApp = {
             whatsapp: "62 98217-1845"
         }
     },
+    mediaGallery: [], // Cache de mídias para a IA
 
     init() {
         this.setupEventListeners();
@@ -152,6 +153,14 @@ window.chatApp = {
         WhatsApp: ${this.authorityContext.socials.whatsapp}.
         IMPORTANTE: Sempre inclua o CRP próximo ao nome do especialista em seções de autoridade.`;
 
+        // 1.2 Contexto de Mídia (Imagens Reais)
+        if (this.mediaGallery && this.mediaGallery.length > 0) {
+            const mediaLinks = this.mediaGallery.map(m => `[ID: ${m.id}] Title: ${m.title.rendered} | Alt: ${m.alt_text || 'vazio'} | URL: ${m.source_url}`).join('\n');
+            promptContext += `\n\n[ATIVOS DE MÍDIA DISPONÍVEIS]: Você tem acesso às seguintes imagens reais do banco de dados do usuário:
+            ${mediaLinks}
+            SYSTEM NOTE: Sempre que gerar um código HTML (<img src>), utilize EXCLUSIVAMENTE as URLs reais desta lista que sejam mais adequadas ao contexto gerado no Método Abidos. Se nenhuma servir, use um placeholder de cor sólida condizente com a paleta.`;
+        }
+
         // 2. Contexto de Ajuste Fino (Elemento Selecionado)
         if (this.selectedElement) {
             const elHtml = this.selectedElement.outerHTML;
@@ -197,7 +206,7 @@ window.chatApp = {
 
     // --- WP INTEGRATION ---
 
-    async loadList() {
+    async loadList(selectedId = null) {
         const typeSelect = document.getElementById('ai-studio-type');
         const itemSelect = document.getElementById('ai-studio-item');
         const type = typeSelect.value;
@@ -207,6 +216,9 @@ window.chatApp = {
 
         const data = await wpAPI.fetchContent(type);
         
+        // Sincroniza mídias para o contexto da IA
+        this.mediaGallery = await wpAPI.fetchMedia(20);
+        
         if(!data || data.length === 0) {
             itemSelect.innerHTML = '<option>Nenhum item encontrado.</option>';
             return;
@@ -215,7 +227,8 @@ window.chatApp = {
         itemSelect.innerHTML = '<option value="">-- Selecione para Editar --</option>';
         data.forEach(item => {
             const title = item.title && item.title.rendered ? item.title.rendered : `Sem Título #${item.id}`;
-            itemSelect.innerHTML += `<option value="${item.id}">${title}</option>`;
+            const isSelected = selectedId && parseInt(item.id) === parseInt(selectedId) ? 'selected' : '';
+            itemSelect.innerHTML += `<option value="${item.id}" ${isSelected}>${title}</option>`;
         });
         
         document.getElementById('ai-studio-load-btn')?.remove(); // Not needed if we use onchange or separate btn
@@ -312,6 +325,9 @@ window.chatApp = {
             document.getElementById('ai-studio-preview-btn').style.display = 'block';
             document.getElementById('ai-studio-title').innerText = `Rascunho: ${result.title.rendered || newTitle}`;
             alert("Rascunho salvo!");
+            
+            // Recarrega a lista para o novo rascunho aparecer no dropdown e mantém selecionado
+            this.loadList(result.id);
         }
     },
 

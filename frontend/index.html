@@ -1,11 +1,11 @@
 <!DOCTYPE html>
-<html lang="pt-BR">
+<html lang="pt-br">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>AntiGravity CMS | Mission Control</title>
+    <title>NeuroEngine - Mission Control (Psysi Dashboard)</title>
     <link rel="stylesheet" href="css/dashboard.css">
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <link rel="icon" href="https://hipnolawrence.com/wp-content/uploads/2024/02/favicon.png">
 </head>
 <body>
     <div class="app-container">
@@ -29,220 +29,104 @@
             </nav>
         </aside>
 
-        <!-- Main Content -->
+        <!-- Main Content Area -->
         <main class="main-content">
-            <!-- Header -->
             <header class="top-header">
-                <div class="header-title">
-                    <h1 id="page-title">Visão Geral</h1>
-                </div>
-                <div class="header-actions">
-                    <span class="status-indicator">
-                        <span class="dot green"></span> Conectado ao WP
-                    </span>
-                    <span class="status-indicator">
-                        <span class="dot blue"></span> Gemini Ativo
-                    </span>
+                <h1 id="page-title">Painel de Controle</h1>
+                <div class="user-profile">
+                    <span id="wp-connection-status" style="font-size: 12px; color: #10b981;">● Conectado ao WP</span>
+                    <button class="btn btn-secondary" style="margin-left: 15px;" onclick="window.location.reload()">🔄 Atualizar</button>
                 </div>
             </header>
 
-             <!-- Section: Dashboard Overview (GA4) -->
-             <section id="dashboard" class="content-section active">
-                <div class="cards-grid">
-                    <div class="card stat-card">
-                        <h3>Tráfego Orgânico (28d)</h3>
-                        <div class="stat-value">73</div>
-                        <p class="stat-trend down">Queda nas interações</p>
-                    </div>
-                    <div class="card stat-card">
-                        <h3>Cliques WhatsApp</h3>
-                        <div class="stat-value">0</div>
-                        <p class="stat-trend alert">Requer atenção imediata</p>
-                    </div>
-                    <div class="card stat-card">
-                        <h3>Tempo de Carregamento (Mobile)</h3>
-                        <div class="stat-value">3.6s</div>
-                        <p class="stat-trend alert">FCP Alto</p>
-                    </div>
-                </div>
-
-                <div class="card mt-2">
-                    <h3>Insights Recentes do GA4 (Córtex Analítico)</h3>
-                    <p><strong>Aleta Crítico:</strong> As métricas de engajamento (faq_abertas, whatsapp_clicks, scroll_profundo) estão zeradas em todas as páginas, indicando jornada de usuário truncada.</p>
-                    <p><strong>Oportunidade (TEA Adulto):</strong> Páginas sobre TEA tiveram apenas acessos residuais (1 usuário cada). O potencial deste nicho está totalmente subexplorado orgânica e conversionalmente.</p>
+            <!-- Section: Dashboard (GA4) -->
+            <section id="dashboard" class="content-section active">
+                <div id="ga4-dashboard" class="grid">
+                    <!-- Cards de estatísticas serão injetados aqui via JS -->
+                    <div class="card">Carregando dados do Google Analytics...</div>
                 </div>
             </section>
 
             <!-- Section: Action Plan -->
             <section id="action-plan" class="content-section">
                 <div class="card">
-                    <h2>Plano de Execução: Método Abidos + WordPress Headless</h2>
-                    
-                    <div class="timeline">
-                        <div class="timeline-item">
-                            <h3>Fase 1: Estancar a Hemorragia (Imediato)</h3>
-                            <ul>
-                                <li><strong>Gemini:</strong> Gerar 13 Meta Descriptions faltantes focadas em persuasão.</li>
-                                <li>Corrigir ausência de H1 nas 2 páginas identificadas.</li>
-                                <li>Recriar/Corrigir a URL principal de "TEA em Adultos" (Atualmente página não encontrada).</li>
-                                <li>Validar a tag HTML de clique no botão do WhatsApp (`id="btn-whatsapp"`).</li>
-                            </ul>
-                            <div class="progress-bar"><div class="progress" style="width: 0%;"></div></div>
-                        </div>
-
-                        <div class="timeline-item">
-                            <h3>Fase 2: Oportunidade TEA em Adultos Goiânia</h3>
-                            <ul>
-                                <li><strong>Silo SEO:</strong> Criar "Psicólogo Especialista em TEA Adulto em Goiânia | Diagnóstico e Terapia".</li>
-                                <li><strong>Copy Abidos:</strong> Abordar Exaustão/Masking nas dores e Autoridade Médica no E-A-T.</li>
-                                <li>Atualizar o artigo de Masking mirando na Keyword "sinais de autismo leve" (8.100 buscas).</li>
-                            </ul>
-                            <div class="progress-bar"><div class="progress" style="width: 0%;"></div></div>
-                        </div>
-
-                         <div class="timeline-item">
-                            <h3>Fase 3: Headless e Performance</h3>
-                            <ul>
-                                <li>Limpar dependências pesadas do Elementor/WP.</li>
-                                <li>Substituir layout por arquivos estáticos/Vanilla JS consumindo WP API.</li>
-                                <li>Meta: Baixar FCP de 3.6s para < 1.0s.</li>
-                            </ul>
-                            <div class="progress-bar"><div class="progress" style="width: 0%;"></div></div>
-                        </div>
+                    <h2>Plano de Ação Semanal (IA Insights)</h2>
+                    <div id="weekly-insights-container">
+                        <!-- Conteúdo gerado pela IA -->
                     </div>
                 </div>
             </section>
 
-            <!-- Section: Manage Content -->
+            <!-- Section: Content Overview -->
             <section id="content-overview" class="content-section">
                 <div class="card">
-                    <div class="card-header-flex">
-                        <h2>Páginas & Posts</h2>
-                        <button class="btn btn-primary" onclick="app.loadContentList()">Carregar do WordPress</button>
-                    </div>
-                    <div class="table-container mt-2">
-                        <table class="table" id="content-table">
-                            <thead>
-                                <tr>
-                                    <th>ID</th>
-                                    <th>Título</th>
-                                    <th>Tipo</th>
-                                    <th>Status</th>
-                                    <th>Ações</th>
-                                </tr>
-                            </thead>
-                            <tbody id="content-tbody">
-                                <tr>
-                                    <td colspan="5" class="text-center">Aperte em "Carregar" para buscar via API.</td>
-                                </tr>
-                            </tbody>
-                        </table>
-                    </div>
-                </div>
-            </section>
-
-            <!-- Section: Create & Edit Content -->
-            <section id="create-content" class="content-section">
-                <div class="card">
-                    <h2 id="editor-title">Criar Novo Conteúdo</h2>
-                    <form id="editor-form" class="mt-2">
-                        <input type="hidden" id="edit-id" value="">
-                        
-                        <div class="form-group">
-                            <label>Tipo</label>
-                            <select id="content-type">
-                                <option value="pages">Página</option>
-                                <option value="posts">Post</option>
+                    <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px;">
+                        <h2>Gerenciador de Conteúdo WP</h2>
+                        <div style="display: flex; gap: 10px;">
+                            <select id="content-type-filter" class="btn" style="background: white; border: 1px solid #ddd;">
+                                <option value="pages">Páginas</option>
+                                <option value="posts">Posts</option>
                             </select>
+                            <button class="btn btn-primary" onclick="app.loadWPContent()">🔄 Sincronizar Agora</button>
                         </div>
-
-                        <div class="form-group">
-                            <label>Título (H1 com localidade) <button type="button" class="btn btn-ask-ai" onclick="gemini.suggestTitle()">✨ Sugerir Título (IA)</button></label>
-                            <input type="text" id="content-title" placeholder="Ex: Terapia para Ansiedade em Goiânia" required>
-                        </div>
-                        
-                        <div class="form-group">
-                            <label>Conteúdo (Estrutura: Dor -> Solução -> E-A-T -> Chamada) 
-                                <button type="button" class="btn btn-ask-ai" onclick="gemini.draftContent()">✨ Escrever Rascunho Abidos (IA)</button>
-                                <button type="button" class="btn btn-ask-ai" onclick="gemini.reviewContent()">✨ Auditar SEO (IA)</button>
-                            </label>
-                            <textarea id="content-body" rows="15" placeholder="Digite o conteúdo formatado em HTML ou texto plano..."></textarea>
-                        </div>
-
-                        <div class="form-group">
-                            <label>Meta Description <button type="button" class="btn btn-ask-ai" onclick="gemini.generateMeta()">✨ Gerar Meta Description (IA)</button></label>
-                            <input type="text" id="content-meta" placeholder="Resumo persuasivo até 160 caracteres...">
-                        </div>
-
-                        <div class="ai-feedback-box" id="ai-feedback" style="display: none;">
-                            <strong>Feedback da IA:</strong> <span id="ai-feedback-text"></span>
-                        </div>
-
-                        <div class="form-actions mt-2">
-                            <button type="submit" class="btn btn-primary" id="btn-save-content">Salvar no WordPress</button>
-                            <button type="button" class="btn btn-secondary" onclick="app.resetEditor()">Limpar</button>
-                        </div>
-                    </form>
-                </div>
-            </section>
-
-            <!-- Section: Theme Editor (Astra & WP Core) -->
-            <section id="theme-editor" class="content-section">
-                <div class="card">
-                    <h2 id="theme-editor-title">Configurações Gerais & Astra</h2>
-                    <form id="theme-form" class="mt-2">
-                        <div class="form-group">
-                            <label>Nome do Site (Title)</label>
-                            <input type="text" id="setting-site-title" placeholder="Ex: Victor Lawrence | Hipnose Clínica">
-                        </div>
-                        <div class="form-group">
-                            <label>Descrição do Site (Tagline)</label>
-                            <input type="text" id="setting-site-desc" placeholder="Ex: Especialista em TEA Adultos em Goiânia">
-                        </div>
-                        <div class="form-group">
-                            <label>Assistente de Configuração do Tema 
-                                <button type="button" class="btn btn-ask-ai" onclick="gemini.suggestThemeSettings()">✨ Analisar Opções de Tema (IA)</button>
-                            </label>
-                            <textarea id="setting-astra" rows="6" placeholder="A JSON contendo as opções do Astra ou dicas de IA aparecerão aqui..." disabled></textarea>
-                        </div>
-                        <div class="form-actions mt-2">
-                            <button type="button" class="btn btn-primary" onclick="app.saveSettings()">Salvar Configurações</button>
-                            <button type="button" class="btn btn-secondary" onclick="app.loadSettings()">Carregar do WordPress</button>
-                        </div>
-                    </form>
-                </div>
-            </section>
-
-            <!-- Section: Elementor Theme Builder -->
-            <section id="elementor-builder" class="content-section">
-                <div class="card">
-                    <div class="card-header-flex">
-                        <h2>Templates Elementor (Cabeçalho/Rodapé)</h2>
-                        <button class="btn btn-primary" onclick="app.loadElementorTemplates()">Carregar do Elementor</button>
                     </div>
-                    <div class="table-container mt-2">
-                        <table class="table" id="elementor-table">
+                    
+                    <div class="table-container">
+                        <table class="table">
                             <thead>
                                 <tr>
-                                    <th>ID</th>
-                                    <th>Nome do Template</th>
+                                    <th>Título</th>
                                     <th>Status</th>
+                                    <th>Data</th>
                                     <th>Ações</th>
                                 </tr>
                             </thead>
-                            <tbody id="elementor-tbody">
-                                <tr>
-                                    <td colspan="4" class="text-center">Aperte em "Carregar" para buscar da API do Elementor.</td>
-                                </tr>
+                            <tbody id="wp-content-list">
+                                <!-- Conteúdo WP -->
                             </tbody>
                         </table>
+                    </div>
+                </div>
+            </section>
+
+            <!-- Section: Create Content (Editor Aberto) -->
+            <section id="create-content" class="content-section">
+                <div class="grid" style="grid-template-columns: 2fr 1fr;">
+                    <div class="card">
+                        <h2 id="editor-title">Editor de Alta Conversão</h2>
+                        <form id="editor-form">
+                            <input type="hidden" id="edit-id">
+                            <input type="hidden" id="content-type" value="pages">
+                            <div class="form-group">
+                                <label for="content-title">Título da Página/Post</label>
+                                <input type="text" id="content-title" required placeholder="Ex: Terapia para Autismo Adulto em Goiânia">
+                            </div>
+                            <div class="form-group">
+                                <label for="content-body">Conteúdo (HTML/Gutenberg Flex)</label>
+                                <textarea id="content-body" style="height: 400px;" required></textarea>
+                            </div>
+                            <div class="form-group">
+                                <label for="content-meta">Meta Description / Excerpt</label>
+                                <textarea id="content-meta" style="height: 80px;" placeholder="Resumo SEO para o Google..."></textarea>
+                            </div>
+                            <button type="submit" id="btn-save-content" class="btn btn-primary">🚀 Publicar no WordPress</button>
+                        </form>
+                    </div>
+                    <div class="card">
+                        <h3>Checklist Abidos (SEO & CRO)</h3>
+                        <div id="ai-feedback" style="display: none; padding: 10px; border-radius: 4px; border: 1px solid #e2e8f0; margin-bottom: 10px;"></div>
+                        <ul id="checklist-abidos">
+                            <li>⭕ H1 com Keyword + Cidade</li>
+                            <li>⭕ CTAs Visíveis</li>
+                            <li>⭕ Prova Social Presente</li>
+                            <li>⭕ Meta Description Otimizada</li>
+                        </ul>
                     </div>
                 </div>
             </section>
 
             <!-- Section: Editor Dinâmico & Assistente IA (Split View) -->
             <section id="ai-studio" class="content-section">
-                <!-- Top Toolbar para AI Studio -->
                 <!-- Top Toolbar para AI Studio (Reorganizada) -->
                 <div style="background: white; padding: 12px; margin-bottom: 12px; border-radius: 8px; box-shadow: var(--shadow-sm); border: 1px solid var(--color-border); display: flex; flex-direction: column; gap: 10px;">
                     
@@ -304,17 +188,17 @@
                     <!-- Fila 3: Painel de Configurações SEO (Oculto) -->
                     <div id="ai-studio-settings-panel" style="display: none; border-top: 1px solid #f1f5f9; padding-top: 12px; margin-top: 5px;">
                         <h4 style="font-size: 12px; color: #1e293b; margin-bottom: 10px; display: flex; align-items: center; gap: 5px;">🚀 Configurações Meta e URL (SEO Silo)</h4>
-                        <div style="display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 15px;">
-                            <div>
-                                <label style="font-size: 11px; font-weight: bold; color: #64748b; display: block; margin-bottom: 4px;">URL (Slug):</label>
-                                <input type="text" id="seo-slug" style="width: 100%; padding: 6px; font-size: 12px; border: 1px solid #e2e8f0; border-radius: 4px;" placeholder="ex: terapia-tea-em-goiania">
+                        <div style="display: grid; grid-template-columns: 1fr 2fr 2fr; gap: 10px; align-items: flex-end;">
+                            <div class="form-group" style="margin: 0;">
+                                <label style="font-size: 11px;">Slug (URL)</label>
+                                <input type="text" id="seo-slug" style="padding: 4px; font-size: 12px;" placeholder="ex: terapia-ansiedade-goiania">
                             </div>
-                            <div>
-                                <label style="font-size: 11px; font-weight: bold; color: #64748b; display: block; margin-bottom: 4px;">Título SEO (50-60 carac.):</label>
-                                <input type="text" id="seo-title-tag" style="width: 100%; padding: 6px; font-size: 12px; border: 1px solid #e2e8f0; border-radius: 4px;" placeholder="Título otimizado para o Google">
+                            <div class="form-group" style="margin: 0;">
+                                <label style="font-size: 11px;">Título SEO (Title Tag)</label>
+                                <input type="text" id="seo-title" style="padding: 4px; font-size: 12px;" placeholder="Palavra-chave no início (50-60 chars)">
                             </div>
-                            <div>
-                                <label style="font-size: 11px; font-weight: bold; color: #64748b; display: block; margin-bottom: 4px;">Meta Description (150-160 carac.):</label>
+                            <div class="form-group" style="margin: 0;">
+                                <label style="font-size: 11px;">Meta Description</label>
                                 <textarea id="seo-meta-desc" style="width: 100%; padding: 6px; font-size: 12px; border: 1px solid #e2e8f0; border-radius: 4px; height: 32px;" placeholder="Resumo persuasivo com CTA..."></textarea>
                             </div>
                         </div>
@@ -333,62 +217,53 @@
                     </div>
                 </div>
 
-                <div class="split-view" style="flex: 1; display: flex; border-radius: 8px; overflow: hidden; background: white; border: 1px solid var(--color-border); min-height: 0;">
-                    
-                    <!-- ESQUERDA: Preview Canvas (Site Dinâmico) -->
-                    <div style="flex: 6; border-right: 1px solid var(--color-border); display: flex; flex-direction: column;">
-                        <div style="background: var(--color-bg); padding: 8px 12px; font-size: 13px; border-bottom: 1px solid var(--color-border); display: flex; justify-content: space-between; align-items: center; flex-wrap: nowrap;">
-                            <span id="ai-studio-title" style="white-space: nowrap; overflow: hidden; text-overflow: ellipsis; max-width: 30%;">🌐 Live Preview</span>
-                            
-                            <!-- Barra de Progresso Abidus Compacta -->
-                            <div style="display: flex; align-items: center; gap: 8px; background: white; padding: 4px 12px; border-radius: 20px; border: 1px solid #e2e8f0;">
-                                <span style="font-size: 10px; font-weight: 700;">Score Abidus:</span>
-                                <div style="width: 60px; height: 6px; background: #f1f5f9; border-radius: 3px; overflow: hidden;">
-                                    <div id="abidus-progress" style="width: 0%; height: 100%; background: linear-gradient(90deg, #10b981, #34d399); transition: width 0.5s;"></div>
+                <div class="split-view">
+                    <!-- Esquerda: Live Preview -->
+                    <div class="preview-panel">
+                        <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 10px;">
+                            <h3 style="margin: 0; font-size: 14px;">Live Preview</h3>
+                            <div style="display: flex; gap: 10px; align-items: center;">
+                                <span style="font-size: 11px; font-weight: bold; color: #64748b;">Score Abidus:</span>
+                                <div style="width: 80px; height: 8px; background: #e2e8f0; border-radius: 4px; overflow: hidden;">
+                                    <div id="abidus-progress" style="width: 0%; height: 100%; background: #10b981; transition: width 0.3s;"></div>
                                 </div>
-                                <span id="abidus-percentage" style="font-size: 11px; font-weight: 800; color: #059669;">0%</span>
-                                <div style="width: 1px; height: 12px; background: #e2e8f0;"></div>
-                                <button style="background:none; border:none; color: #059669; font-size: 11px; font-weight: 700; cursor: pointer; padding: 0;" onclick="window.chatApp.toggleChecklist()">📋 Checklist</button>
-                            </div>
-
-                            <div style="display: flex; gap: 5px;">
-                                <button class="btn" style="padding: 3px 8px; font-size: 10px; background: #fee2e2; color: #991b1b; border: 1px solid #f87171;" onclick="window.chatApp.analyzeConversion()">🔍 Analisar CRO</button>
-                                <button class="btn btn-secondary" style="padding: 3px 8px; font-size: 10px;" onclick="document.getElementById('live-preview').style.maxWidth='400px'; document.getElementById('live-preview').style.margin='0 auto';">📱</button>
-                                <button class="btn btn-secondary" style="padding: 3px 8px; font-size: 10px;" onclick="document.getElementById('live-preview').style.maxWidth='100%';">💻</button>
+                                <span id="abidus-percentage" style="font-size: 11px; font-weight: bold; color: #10b981;">0%</span>
+                                <button class="btn" style="padding: 2px 8px; font-size: 10px; background: #f0fdf4; border: 1px solid #10b981; color: #059669;" onclick="window.chatApp.toggleChecklist()">📋 Checklist</button>
+                                <button class="btn" style="padding: 2px 8px; font-size: 10px; background: #fff1f2; border: 1px solid #f43f5e; color: #e11d48;" onclick="window.chatApp.analyzeConversion()">🔍 Analisar CRO</button>
+                                
+                                <button class="btn btn-secondary active-view" title="Mobile"><i class="icon-mobile"></i>📱</button>
+                                <button class="btn btn-secondary" title="Desktop"><i class="icon-desktop"></i>💻</button>
                             </div>
                         </div>
                         
-                        <!-- Painel de Checklist Abidus (Oculto por padrão) -->
-                        <div id="abidus-checklist-panel" style="display: none; background: #fffbeb; border-bottom: 1px solid #fde68a; padding: 15px; font-size: 13px;">
-                            <h4 style="margin-top: 0; color: #92400e; display: flex; align-items: center; gap: 5px;">🏆 Checklist de Performance Abidus</h4>
-                            <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 10px;">
-                                <div id="check-seo" class="abidus-item">❌ SEO Local: Menção a Goiânia</div>
-                                <div id="check-eat" class="abidus-item">❌ E-E-A-T: Registro Profissional/CRM</div>
-                                <div id="check-pain" class="abidus-item">❌ Copy: Foco na Dor (Neurodivergência)</div>
-                                <div id="check-cta" class="abidus-item">❌ Conversão: Botão de Agendamento</div>
-                                <div id="check-keyword" class="abidus-item">❌ Palavra-Chave Principal no H1</div>
-                                <span id="abidus-suggestion" style="grid-column: span 2; font-style: italic; color: #d97706; margin-top: 5px;">Carregando sugestões...</span>
+                        <!-- Painel de Checklist (Oculto) -->
+                        <div id="abidus-checklist-panel" style="display: none; background: #f0fdf4; border: 1px solid #bbf7d0; padding: 10px; border-radius: 8px; margin-bottom: 15px;">
+                            <h4 style="margin-top: 0; font-size: 12px; color: #166534;">✅ Critérios de Conversão Lawrence</h4>
+                            <div class="grid" style="grid-template-columns: 1fr 1fr; gap: 8px; font-size: 11px;">
+                                <div id="check-seo">❌ SEO Local (Goiânia)</div>
+                                <div id="check-eat">❌ Autoridade (E-E-A-T)</div>
+                                <div id="check-pain">❌ Foco na Dor (TEA/Adulto)</div>
+                                <div id="check-cta">❌ Conversão (WhatsApp)</div>
+                                <div id="check-keyword">❌ Link Interno (Home)</div>
                             </div>
                         </div>
-                        <div id="live-preview" style="flex: 1; padding: 20px; overflow-y: auto; background-color: #f8fafc; transition: max-width 0.3s;">
-                            <!-- O código HTML que a IA sugerir vai ser renderizado aqui -->
+
+                        <div id="live-preview" class="preview-canvas">
                             <h1 style="color: #1a202c; font-size: 24px; text-align: center; margin-top: 50px; opacity: 0.5;">Crie algo novo ou carregue do WP...</h1>
                         </div>
                     </div>
 
-                    <!-- DIREITA: Chatbot AntiGravity Copilot -->
-                    <div style="flex: 4; display: flex; flex-direction: column; background: var(--color-card);">
-                        
-                        <!-- Header do Chat -->
-                        <div style="background: var(--color-primary); color: white; padding: 15px; font-weight: bold; display: flex; align-items: center; justify-content: space-between;">
-                            <span>🤖 NeuroEngine Copilot</span>
-                            <span style="font-size: 11px; background: rgba(0,0,0,0.3); padding: 3px 8px; border-radius: 10px;">Gemini 2.5 Flash</span>
+                    <!-- Direita: Chat Assistente -->
+                    <div class="chat-panel">
+                        <div class="chat-header">
+                            <img src="https://hipnolawrence.com/wp-content/uploads/2024/02/favicon.png" width="24">
+                            <h3 id="chat-status">NeuroEngine Copilot</h3>
+                            <span style="font-size: 10px; margin-left: auto; background: #fee2e2; color: #ef4444; padding: 2px 6px; border-radius: 10px;">Gemini Ativo</span>
                         </div>
                         
-                        <!-- Histórico do Chat -->
-                        <div id="chat-history" style="flex: 1; overflow-y: auto; padding: 15px; display: flex; flex-direction: column; gap: 15px; background: #fdfdfd; font-size: 0.9em;">
-                            <div style="background: #e0f2fe; padding: 10px 15px; border-radius: 10px 10px 10px 0; align-self: flex-start; max-width: 85%; color: #0369a1; box-shadow: 0 1px 2px rgba(0,0,0,0.05);">
-                                <strong>NeuroEngine:</strong> Olá, Dr. Lawrence. Sou seu assistente de copy e código.<br>Como o senhor deseja estruturar a sua landing page hoje? Use a câmera para eu consertar erros de layout se precisar.
+                        <div id="chat-history" class="chat-messages">
+                            <div class="message ai">
+                                <strong>NeuroEngine:</strong> Olá, Psicólogo Victor Lawrence. Sou seu assistente de copy e código. Como o senhor deseja estruturar a sua landing page hoje?
                             </div>
                         </div>
 
@@ -405,96 +280,159 @@
                             <div style="display: flex; gap: 5px; overflow-x: auto; margin-bottom: 15px; padding-bottom: 5px; scrollbar-width: none;">
                                 <button class="btn" style="background: #eef2ff; border: 1px solid #6366f1; color: #4338ca; font-size: 11px; white-space: nowrap; font-weight: bold; box-shadow: var(--shadow-sm);" onclick="window.chatApp.runQuickPrompt('full')">📝 Criar p/ Título</button>
                                 <button class="btn" style="background: white; border: 1px solid #e2e8f0; font-size: 11px; white-space: nowrap; box-shadow: var(--shadow-sm);" onclick="window.chatApp.runQuickPrompt('hero')">🎯 Dobra Hero</button>
-                                <button class="btn" style="background: white; border: 1px solid #e2e8f0; font-size: 11px; white-space: nowrap; box-shadow: var(--shadow-sm);" onclick="window.chatApp.runQuickPrompt('social')">⭐ Prova Social</button>
+                                <button class="btn" style="background: white; border: 1px solid #e2e8f0; font-size: 11px; white-space: nowrap; box-shadow: var(--shadow-sm);" onclick="window.chatApp.runQuickPrompt('social')">🛡️ Prova Social</button>
                                 <button class="btn" style="background: white; border: 1px solid #e2e8f0; font-size: 11px; white-space: nowrap; box-shadow: var(--shadow-sm);" onclick="window.chatApp.runQuickPrompt('faq')">❓ FAQ Objeções</button>
-                                <button class="btn" style="background: white; border: 1px solid #e2e8f0; font-size: 11px; white-space: nowrap; box-shadow: var(--shadow-sm);" onclick="window.chatApp.runQuickPrompt('eeat')">🎓 Seção Autoridade</button>
+                                <button class="btn" style="background: white; border: 1px solid #e2e8f0; font-size: 11px; white-space: nowrap; box-shadow: var(--shadow-sm);" onclick="window.chatApp.runQuickPrompt('eeat')">⭐ Seção Autoridade</button>
                                 <button class="btn" style="background: white; border: 1px solid #e2e8f0; font-size: 11px; white-space: nowrap; box-shadow: var(--shadow-sm);" onclick="window.chatApp.runQuickPrompt('cta')">🟢 Botão Flutuante</button>
                             </div>
 
-                            <div style="display: flex; gap: 5px; margin-bottom: 10px;">
-                                <!-- O BOTÃO DE VISÃO - Tira a foto do 'live-preview' -->
-                                <button id="btn-snap-error" class="btn" style="background: #fbbf24; color: #78350f; font-size: 12px; font-weight: bold; flex: 1; display:flex; gap: 5px; align-items: center; justify-content: center;">
-                                    📸 Enviar Visualização p/ IA (Corrigir Layout)
-                                </button>
-                                <button class="btn btn-secondary" onclick="document.getElementById('live-preview').innerHTML=''" style="font-size: 12px;">♻️ Limpar</button>
-                            </div>
-                            
-                            <textarea id="chat-input" rows="3" placeholder="Ex: 'Crie uma seção H2 focada na dor do Masking para Autistas Adultos...'" style="border-radius: 8px; margin-bottom: 10px; resize: none;"></textarea>
-                            
-                            <button id="btn-send-chat" class="btn btn-primary" style="width: 100%; display: flex; justify-content: center;">
-                                Enviar Comando
+                            <button id="btn-snap-error" class="btn" style="width: 100%; height: 32px; font-size: 12px; background: #f59e0b; color: white; display: flex; align-items: center; justify-content: center; gap: 10px; margin-bottom: 10px;" onclick="window.chatApp.sendMessage(true)">
+                                📷 Enviar Visualização p/ IA (Corrigir Layout)
                             </button>
+
+                            <div class="chat-input-area">
+                                <textarea id="chat-input" placeholder="Ex: 'Crie uma seção H2 focada na dor do Masking...'" style="min-height: 80px;"></textarea>
+                                <div style="display: flex; gap: 10px; margin-top: 10px;">
+                                    <button id="btn-send-chat" class="btn btn-primary" style="flex: 1;" onclick="window.chatApp.sendMessage()">Enviar Comando</button>
+                                    <button class="btn" style="padding: 10px;" onclick="document.getElementById('chat-input').value = ''">🧹 Limpar</button>
+                                </div>
+                            </div>
                         </div>
                     </div>
-
                 </div>
             </section>
-            <!-- Section: Biblioteca de Mídia -->
+
+            <!-- Section: Media Library -->
             <section id="media-library" class="content-section">
                 <div class="card" style="margin-bottom: 20px;">
-                    <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 15px;">
+                    <div style="display: flex; justify-content: space-between; align-items: center;">
                         <div>
-                            <h2 style="margin: 0;">🖼️ Biblioteca de Mídia & Estratégia</h2>
-                            <p style="font-size: 14px; color: #64748b;">Upload inteligente com Alt Text otimizado e controle de uso.</p>
+                            <h2 style="margin: 0;">🖼️ Biblioteca de Mídia - Método Abidos</h2>
+                            <p style="font-size: 14px; color: #64748b;">Selecione uma imagem para otimização SEO avançada.</p>
                         </div>
-                        <div style="display: flex; gap: 10px;">
+                        <button class="btn btn-secondary" onclick="window.mediaLibrary.loadLibrary()">🔄 Recarregar</button>
+                    </div>
+                </div>
+
+                <div class="media-split-container" style="display: grid; grid-template-columns: 1fr 380px; gap: 20px; height: calc(100vh - 240px); align-items: stretch;">
+                    
+                    <!-- LADO ESQUERDO: GALERIA -->
+                    <div class="card" style="padding: 15px; overflow-y: auto; display: flex; flex-direction: column; gap: 15px;">
+                        <!-- Área de Upload Compacta -->
+                        <div id="drop-zone" style="border: 2px dashed #cbd5e1; border-radius: 8px; padding: 20px; text-align: center; background: #f8fafc; cursor: pointer;">
+                            <p style="font-weight: bold; margin: 0; font-size: 13px;">Arraste ou clique para upload</p>
                             <input type="file" id="media-upload-input" style="display: none;" accept="image/*" multiple>
-                            <button class="btn btn-primary" onclick="document.getElementById('media-upload-input').click()">📤 Upload Mídia (IA Auto-Alt)</button>
-                            <button class="btn btn-secondary" onclick="window.mediaLibrary.loadLibrary()">🔄 Recarregar</button>
+                        </div>
+
+                        <div id="media-list-container" style="display: grid; grid-template-columns: repeat(auto-fill, minmax(140px, 1fr)); gap: 12px;">
+                            <!-- Mídias injetadas via JS -->
                         </div>
                     </div>
 
-                    <!-- Media Grid / Control -->
-                    <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 20px;">
-                        <!-- Coluna Esquerda: Galeria & Uso -->
-                        <div>
-                            <h3 style="font-size: 15px; margin-top: 0;">🌐 Arquivos no WP (Uso Estratégico)</h3>
-                            <div id="media-list-container" style="max-height: 500px; overflow-y: auto; display: grid; grid-template-columns: repeat(auto-fill, minmax(140px, 1fr)); gap: 10px;">
-                                <!-- Imagens carregadas aparecerão aqui -->
-                                <p style="text-align: center; grid-column: span 3; opacity: 0.5; padding: 50px;">Carregando mídia do WordPress...</p>
-                            </div>
+                    <!-- LADO DIREITO: PAINEL DE EDIÇÃO -->
+                    <div id="media-editor-panel" class="card" style="padding: 20px; border-left: 3px solid var(--color-secondary); display: flex; flex-direction: column;">
+                        <!-- Estado Vazio -->
+                        <div id="editor-empty-state" style="text-align: center; color: #94a3b8; margin-top: 60px;">
+                            <span style="font-size: 40px; display: block; margin-bottom: 10px;">📸</span>
+                            <p>Selecione uma imagem para visualizar detalhes e editar metadados Abidos.</p>
                         </div>
 
-                        <!-- Coluna Direita: Planejamento & Demanda -->
-                        <div>
-                            <h3 style="font-size: 15px; margin-top: 0;">📅 Planejamento de Demanda</h3>
-                            <div class="card" style="background: #f8fafc; border: 1px dashed #cbd5e1;">
-                                <table style="width: 100%; font-size: 12px; border-collapse: collapse;">
-                                    <thead>
-                                        <tr style="text-align: left; border-bottom: 1px solid #e2e8f0;">
-                                            <th style="padding: 8px;">Necessidade</th>
-                                            <th style="padding: 8px;">Prompt Sugerido</th>
-                                            <th style="padding: 8px;">Status</th>
-                                        </tr>
-                                    </thead>
-                                    <tbody id="media-planning-tbody">
-                                        <tr>
-                                            <td style="padding: 8px;">Foto Clínica (Goiânia)</td>
-                                            <td style="padding: 8px;">"Foto realista de consultório de psicologia moderno..."</td>
-                                            <td style="padding: 8px;"><span class="badge" style="background:#fef3c7; color:#b45309;">Pendente</span></td>
-                                        </tr>
-                                    </tbody>
-                                </table>
-                                <div style="padding: 10px; border-top: 1px solid #e2e8f0; margin-top: 10px; text-align: right;">
-                                    <button class="btn" style="padding: 3px 10px; font-size: 11px; background: #e0f2fe; color: #0369a1; border: 1px solid #7dd3fc;" onclick="window.mediaLibrary.generateDemand()">✨ Gerar Demanda via IA</button>
-                                </div>
+                        <!-- Estado Ativo (Edição) -->
+                        <div id="editor-active-state" style="display: none; height: 100%; overflow-y: auto; padding-right: 5px;">
+                            <div style="position: relative; margin-bottom: 20px;">
+                                <img id="edit-panel-preview" src="" style="width: 100%; height: 220px; object-fit: contain; background: #f1f5f9; border-radius: 8px; border: 1px solid #e2e8f0;">
                             </div>
 
-                            <div class="card mt-2" style="background: #fff; padding: 15px;">
-                                <h4 style="margin-top: 0; font-size: 13px;">🔗 Link Rápido p/ Editor</h4>
-                                <div id="media-item-detail" style="font-size: 12px; min-height: 100px;">
-                                    <p style="opacity: 0.5; font-style: italic;">Selecione uma imagem na galeria para ver o link e o Alt Text Abidos.</p>
-                                </div>
+                            <div class="form-group" style="margin-bottom: 15px;">
+                                <label style="display: flex; justify-content: space-between;">
+                                    Título da Mídia
+                                    <button class="btn btn-ask-ai" onclick="window.mediaLibrary.suggestTitleIA_Panel()" style="padding: 2px 6px;">🪄 Sugerir</button>
+                                </label>
+                                <input type="text" id="edit-panel-title" placeholder="Nome estratégico do arquivo...">
                             </div>
+
+                            <div class="form-group" style="margin-bottom: 15px;">
+                                <label style="display: flex; justify-content: space-between;">
+                                    Alt Text (SEO Abidos)
+                                    <button class="btn btn-ask-ai" onclick="window.mediaLibrary.suggestAltIA_Panel()" style="padding: 2px 6px;">🪄 Sugerir</button>
+                                </label>
+                                <textarea id="edit-panel-alt" style="height: 100px; font-size: 13px; line-height: 1.4;" placeholder="Descreva a imagem focando em autoridade e localização..."></textarea>
+                            </div>
+
+                            <div id="edit-panel-usage" style="padding: 10px; background: #f0f9ff; border-radius: 6px; border: 1px solid #bae6fd; margin-bottom: 20px;">
+                                <!-- Informações de uso injetadas via JS -->
+                            </div>
+
+                            <div style="display: grid; grid-template-columns: 2fr 1fr; gap: 10px; margin-top: auto;">
+                                <button class="btn btn-primary" style="padding: 12px;" onclick="window.mediaLibrary.saveMediaPanel()">💾 Salvar Alterações</button>
+                                <button class="btn" style="background: #fee2e2; color: #ef4444; border: 1px solid #fecaca;" onclick="window.mediaLibrary.deleteMediaPanel()">🗑️ Excluir</button>
+                            </div>
+
+                            <button class="btn btn-secondary" style="width: 100%; margin-top: 10px; border-style: dashed; font-size: 12px;" onclick="window.mediaLibrary.copyToClipboardPanel()">📋 Copiar URL da Imagem</button>
                         </div>
+                    </div>
+                </div>
+
+                <!-- Modal de Upload SEO -->
+                <div id="upload-modal" style="display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.5); z-index: 9999; align-items: center; justify-content: center;">
+                    <div class="card" style="width: 450px; background: white; padding: 25px; box-shadow: var(--shadow-lg);">
+                        <h3 style="margin-top: 0; display: flex; align-items: center; gap: 10px;">🚀 Otimização de Mídia IA</h3>
+                        <div id="modal-preview-container" style="text-align: center; margin-bottom: 15px;">
+                            <img id="modal-img-preview" src="" style="max-width: 100%; height: 150px; object-fit: cover; border-radius: 8px; border: 1px solid #e2e8f0;">
+                        </div>
+                        <div class="form-group">
+                            <label>Título da Imagem (SEO)</label>
+                            <input type="text" id="upload-title" placeholder="Ex: Psicólogo Victor Lawrence Consultório">
+                        </div>
+                        <div class="form-group">
+                            <label>Alt Text (Acessibilidade & Google)</label>
+                            <textarea id="upload-alt" style="height: 60px;" placeholder="Descreva a imagem para quem não vê..."></textarea>
+                        </div>
+                        <div style="display: flex; gap: 10px; margin-top: 20px;">
+                            <button class="btn btn-secondary" style="flex: 1;" onclick="window.mediaLibrary.closeModal()">Cancelar</button>
+                            <button class="btn btn-primary" style="flex: 2; background: #6366f1;" onclick="window.mediaLibrary.processUpload()">🚀 Enviar para WordPress</button>
+                        </div>
+                    </div>
+                </div>
+            </section>
+
+            <!-- Section: Config. Astra & WP -->
+            <section id="theme-editor" class="content-section">
+                <div class="card">
+                    <h2>Configuração do Tema Astra & WordPress</h2>
+                    <div style="display: flex; gap: 10px; margin-bottom: 20px;">
+                        <button class="btn btn-secondary" onclick="app.loadSettings()">🔄 Carregar Configurações</button>
+                        <button class="btn btn-primary" onclick="app.saveSettings()">💾 Salvar Alterações</button>
+                    </div>
+                    <div class="grid">
+                        <div class="form-group">
+                            <label>Título do Site</label>
+                            <input type="text" id="setting-site-title">
+                        </div>
+                        <div class="form-group">
+                            <label>Descrição (Tagline)</label>
+                            <input type="text" id="setting-site-desc">
+                        </div>
+                    </div>
+                    <div class="form-group">
+                        <label>Configurações Astra (JSON)</label>
+                        <textarea id="setting-astra" style="height: 300px; font-family: monospace;"></textarea>
+                    </div>
+                </div>
+            </section>
+
+            <!-- Section: Elementor Builder -->
+            <section id="elementor-builder" class="content-section">
+                <div class="card">
+                    <h2>Elementor Theme Builder</h2>
+                    <div id="elementor-library-list">
+                        <!-- Templates do Elementor aparecerão aqui -->
                     </div>
                 </div>
             </section>
         </main>
     </div>
 
-    <!-- Bibliotecas Necessárias para a Mágica Acontecer -->
-    <!-- html2canvas via CDN para evitar erros locais -->
     <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
     <script src="js/config.local.js"></script>
     <script src="js/gemini.js"></script>

@@ -1,173 +1,228 @@
 const mediaLibrary = {
+    pendingFiles: [],
+    currentFile: null,
+    usageCache: {}, 
+    selectedMedia: null, 
+
     init() {
         this.bindEvents();
-        // Não carrega auto para não pesar, carrega quando clicar na aba (app.js cuida ou via botao recarregar)
+        this.loadLibrary();
     },
 
     bindEvents() {
-        const input = document.getElementById('media-upload-input');
-        if (input) {
-            input.addEventListener('change', (e) => this.handleUpload(e));
-        }
+        const dropZone = document.getElementById('drop-zone');
+        const fileInput = document.getElementById('media-upload-input');
 
-        // Intercepta clique na aba para carregar
-        document.querySelectorAll('.nav-btn').forEach(btn => {
-            btn.addEventListener('click', () => {
-                if (btn.getAttribute('data-target') === 'media-library') {
-                    this.loadLibrary();
+        if (dropZone) {
+            dropZone.onclick = (e) => {
+                if (e.target.id === 'drop-zone' || e.target.parentElement?.id === 'drop-zone') {
+                    fileInput.click();
                 }
-            });
-        });
+            };
+            dropZone.ondragover = (e) => { e.preventDefault(); dropZone.style.borderColor = 'var(--color-secondary)'; };
+            dropZone.ondragleave = () => { dropZone.style.borderColor = 'var(--color-border)'; };
+            dropZone.ondrop = (e) => {
+                e.preventDefault();
+                dropZone.style.borderColor = 'var(--color-border)';
+                this.handleFiles(e.dataTransfer.files);
+            };
+        }
+        if (fileInput) fileInput.onchange = (e) => this.handleFiles(e.target.files);
     },
 
     async loadLibrary() {
         const container = document.getElementById('media-list-container');
-        container.innerHTML = `<p style="text-align: center; grid-column: span 3;">Conectando ao acervo do WordPress...</p>`;
+        if (!container) return;
+
+        // Não limpamos tudo para evitar o flash irritante se já houver mídias
+        if (container.children.length === 0) {
+            container.innerHTML = '<p style="text-align: center; grid-column: 1/-1; opacity: 0.5;">Sincronizando...</p>';
+        }
         
-        const media = await wpAPI.fetchMedia();
-        if (!media || media.length === 0) {
-            container.innerHTML = `<p style="text-align: center; grid-column: span 3;">Nenhuma mídia encontrada.</p>`;
-            return;
-        }
+        try {
+            const [media, pages, posts] = await Promise.all([
+                wpAPI.fetchMedia(100),
+                wpAPI.fetchContent('pages', true),
+                wpAPI.fetchContent('posts', true)
+            ]);
+            
+            this.usageCache = {};
+            [...pages, ...posts].forEach(item => {
+                const content = item.content ? item.content.rendered : "";
+                const featuredId = item.featured_media;
+                if (Array.isArray(media)) {
+                    media.forEach(m => {
+                        if (content.includes(m.source_url) || featuredId === m.id) {
+                            if (!this.usageCache[m.source_url]) this.usageCache[m.source_url] = [];
+                            const title = item.title.rendered || `Conteúdo #${item.id}`;
+                            if (!this.usageCache[m.source_url].includes(title)) this.usageCache[m.source_url].push(title);
+                        }
+                    });
+                }
+            });
 
-        let html = '';
-        media.forEach(item => {
-            html += `
-                <div class="media-item" style="border: 1px solid #e2e8f0; border-radius: 6px; padding: 5px; cursor: pointer; background: white;" onclick="window.mediaLibrary.showDetail(${JSON.stringify(item).replace(/"/g, '&quot;')})">
-                    <img src="${item.source_url}" style="width: 100%; height: 100px; object-fit: cover; border-radius: 4px;">
-                    <p style="font-size: 10px; margin: 5px 0 0; white-space: nowrap; overflow: hidden; text-overflow: ellipsis;">${item.title.rendered}</p>
-                </div>
-            `;
-        });
-        container.innerHTML = html;
+            container.innerHTML = '';
+            media.forEach(item => {
+                const hasAlt = item.alt_text && item.alt_text.trim().length > 0;
+                const altMatch = ["Psicólogo", "TEA", "Goiânia", "Lawrence"].some(k => (item.alt_text||"").toLowerCase().includes(k.toLowerCase()));
+                const isSelected = this.selectedMedia && item.id === this.selectedMedia.id;
+                
+                const card = document.createElement('div');
+                card.className = `card media-thumb-card ${isSelected ? 'selected' : ''}`;
+                card.style.cssText = `
+                    padding: 8px; cursor: pointer; 
+                    border: 2px solid ${isSelected ? 'var(--color-secondary)' : (altMatch ? '#22c55e' : (hasAlt ? '#cbd5e1' : '#f43f5e'))};
+                    transition: all 0.2s; position: relative; height: 160px;
+                    ${isSelected ? 'transform: scale(1.02); box-shadow: 0 0 10px rgba(14, 165, 233, 0.3);' : ''}
+                `;
+                
+                card.onclick = () => this.selectMedia(item);
+                
+                card.innerHTML = `
+                    <div style="position: absolute; top: 4px; right: 4px; z-index: 5;">${altMatch ? '✅' : (hasAlt ? '⚠️' : '🚨')}</div>
+                    <img src="${item.source_url}" style="width: 100%; height: 100%; object-fit: cover; border-radius: 4px;">
+                    <div style="position: absolute; bottom: 0; left: 0; right: 0; background: rgba(0,0,0,0.6); color: white; font-size: 9px; padding: 4px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis;">
+                        ${item.title.rendered}
+                    </div>
+                `;
+                container.appendChild(card);
+            });
+
+        } catch (error) { console.error(error); }
     },
 
-    showDetail(item) {
-        const detail = document.getElementById('media-item-detail');
-        detail.innerHTML = `
-            <div style="display: flex; gap: 10px; align-items: flex-start;">
-                <img src="${item.source_url}" style="width: 60px; height: 60px; object-fit: cover; border-radius: 4px; border: 1px solid #ddd;">
-                <div style="flex: 1;">
-                    <p><strong>URL:</strong> <input type="text" value="${item.source_url}" readonly style="width: 100%; font-size: 10px;"></p>
-                    <p><strong>Alt Abidos:</strong> ${item.alt_text || '<span style="color:red">Sem Alt Text!</span>'}</p>
-                    <button class="btn" style="padding: 2px 8px; font-size: 10px; margin-top: 5px;" onclick="navigator.clipboard.writeText('${item.source_url}'); alert('URL copiada!')">📋 Copiar Link</button>
-                </div>
-            </div>
-        `;
+    selectMedia(item) {
+        this.selectedMedia = item;
+        const panel = document.getElementById('media-editor-panel');
+        const emptyState = document.getElementById('editor-empty-state');
+        const activeState = document.getElementById('editor-active-state');
+        
+        panel.style.display = 'flex'; // Mudado para flex para manter estrutura
+        emptyState.style.display = 'none';
+        activeState.style.display = 'block';
+
+        document.getElementById('edit-panel-preview').src = item.source_url;
+        document.getElementById('edit-panel-title').value = item.title.rendered;
+        document.getElementById('edit-panel-alt').value = item.alt_text || '';
+        
+        const usage = this.usageCache[item.source_url];
+        const usageBox = document.getElementById('edit-panel-usage');
+        usageBox.innerHTML = usage ? 
+            `<small style="color: #0369a1; font-weight: bold;">🔗 Em uso em: ${usage.join(', ')}</small>` : 
+            `<small style="color: #9a3412; font-weight: bold;">⚠️ Mídia Órfã (Sem uso detectado)</small>`;
+
+        // Atualiza a galeria visualmente apenas (para mostrar a borda de seleção)
+        this.renderGallerySelection();
     },
 
-    async handleUpload(e) {
-        const files = e.target.files;
-        if (!files.length) return;
-
-        for (let file of files) {
-            this.addMessage(`⚙️ Processando IA p/ <strong>${file.name}</strong>...`);
-            
-            // 1. Gerar Alt Text via IA (Gemini Vision)
-            const altText = await this.generateAltWithIA(file);
-            
-            this.addMessage(`✅ Alt Text Gerado: "${altText}". Fazendo upload p/ WP...`);
-            
-            // 2. Upload para o WP
-            const result = await wpAPI.uploadMedia(file, altText);
-            
-            if (result && result.id) {
-                this.addMessage(`✔️ <strong>${file.name}</strong> disponível na nuvem!`);
-            } else {
-                this.addMessage(`❌ Erro no upload de <strong>${file.name}</strong>.`);
-            }
-        }
+    renderGallerySelection() {
+        // Em vez de recarregar tudo do servidor, apenas atualizamos as bordas no DOM atual
+        const cards = document.querySelectorAll('.media-thumb-card');
+        // No entanto, para simplicidade e precisão (metadados podem ter mudado), 
+        // chamamos loadLibrary mas SEM o flash de loading
         this.loadLibrary();
     },
 
-    async generateAltWithIA(file) {
-        return new Promise((resolve) => {
-            const reader = new FileReader();
-            reader.onload = async (event) => {
-                const base64 = event.target.result.split(',')[1];
-                const prompt = `Atue como um Especialista em SEO (Abidos Method). 
-Analise esta imagem e escreva um Alt Text (Texto Alternativo) perfeito.
-REGRAS:
-1. Deve ser descritivo e incluir a keyword do contexto ou localização (Goiânia/Psicologia/TEA) se fizer sentido.
-2. Seja natural, mas otimizado para acessibilidade e buscador Google.
-3. Máximo 125 caracteres.
-4. RETORNE APENAS O TEXTO DO ALT TEXT, sem aspas ou meta-comentários.`;
-
-                // Usamos o backend para processar a visão
-                try {
-                    const response = await fetch('http://localhost:3001/api/chat', {
-                        method: 'POST',
-                        headers: { 'Content-Type': 'application/json' },
-                        body: JSON.stringify({ 
-                            message: prompt, 
-                            screenshotBase64: base64 // Opcional: ajustar server.js para aceitar screenshot direto ou via multipart
-                        })
-                    });
-                    // Como o server.js espera multipart 'screenshot', vamos simplificar ou ajustar server.js
-                    // Alternativa: Usar gemini.js direto se configurado, mas vamos via server.js que é mais seguro
-                    
-                    // RE-ESCRITA: Vamos usar o server.js existente que já lida com imagem multipart
-                    const formData = new FormData();
-                    formData.append('message', prompt);
-                    formData.append('screenshot', file);
-                    
-                    const res = await fetch('http://localhost:3001/api/chat', {
-                        method: 'POST',
-                        body: formData
-                    });
-                    const data = await res.json();
-                    resolve(data.reply ? data.reply.trim() : "Imagem clínica otimizada Goiânia");
-                } catch (e) {
-                    resolve("Imagem otimizada Dr. Victor Lawrence Goiânia");
-                }
-            };
-            reader.readAsDataURL(file);
-        });
-    },
-
-    addMessage(msg) {
-        // Usa o histórico do chat principal para feedback ou um console na aba
-        const detail = document.getElementById('media-item-detail');
-        const p = document.createElement('p');
-        p.style.fontSize = '11px';
-        p.style.margin = '2px 0';
-        p.innerHTML = msg;
-        detail.prepend(p);
-    },
-
-    async generateDemand() {
-        const tbody = document.getElementById('media-planning-tbody');
-        tbody.innerHTML = `<tr><td colspan="3" style="text-align:center">Planejando demanda estratégica...</td></tr>`;
-
-        const prompt = `Crie uma lista de demanda de imagens (5 itens) para um planejamento de postagens sobre Autismo Adulto, Hipnose e Neurodivergência.
-Para cada item, retorne EXATAMENTE UM JSON no formato de array:
-[
-  {"need": "Descrição Curta", "prompt": "Prompt Detalhado IA", "status": "Pendente"}
-]
-NUNCA mencione Abidos no texto.`;
+    async saveMediaPanel() {
+        if (!this.selectedMedia) return;
+        const title = document.getElementById('edit-panel-title').value;
+        const alt = document.getElementById('edit-panel-alt').value;
         
-        const response = await gemini.callAPI(prompt);
-        if (response) {
-            try {
-                const jsonStr = response.replace(/```json|```/g, '').trim();
-                const demands = JSON.parse(jsonStr);
-                let html = '';
-                demands.forEach(d => {
-                    html += `
-                        <tr style="border-bottom: 1px solid #f1f5f9;">
-                            <td style="padding: 8px;">${d.need}</td>
-                            <td style="padding: 8px; font-size: 10px; color: #64748b;">${d.prompt}</td>
-                            <td style="padding: 8px;"><span class="badge" style="background:#fef3c7; color:#b45309;">${d.status}</span></td>
-                        </tr>
-                    `;
-                });
-                tbody.innerHTML = html;
-                this.addMessage("📅 Planejamento de Demanda atualizado via IA.");
-            } catch (e) {
-                console.error("Erro ao parsear demanda", e);
-                tbody.innerHTML = `<tr><td colspan="3" style="color:red">Falha ao parsear planejamento. Tente novamente.</td></tr>`;
+        // Corrigido: Não usar 'event.currentTarget' que pode ser nulo em chamadas async
+        const btn = document.querySelector('#editor-active-state .btn-primary');
+        const originalText = btn.innerText;
+        btn.innerText = "⏳ Salvando..."; btn.disabled = true;
+
+        const result = await wpAPI.updateMedia(this.selectedMedia.id, { title, alt_text: alt });
+        if (result) {
+            alert("Otimização Abidos Salva!");
+            this.loadLibrary();
+        }
+        btn.innerText = originalText; btn.disabled = false;
+    },
+
+    async suggestTitleIA_Panel() {
+        if (!this.selectedMedia) return;
+        const alt = document.getElementById('edit-panel-alt').value;
+        const btn = document.querySelector('button[onclick*="suggestTitleIA_Panel"]');
+        const originalText = btn.innerText;
+        
+        btn.innerText = "⏳..."; btn.disabled = true;
+        try {
+            const suggestion = await gemini.callAPI(`Atue como Especialista Abidos. Gere um título curto e estratégico (max 40 chars) para imagem com este Alt Text: "${alt}". Retorne apenas o nome limpo.`);
+            if (suggestion) {
+                document.getElementById('edit-panel-title').value = suggestion.replace(/^["']|["']$/g, '').trim();
+            }
+        } catch(e) { console.error(e); }
+        btn.innerText = originalText; btn.disabled = false;
+    },
+
+    async suggestAltIA_Panel() {
+        if (!this.selectedMedia) return;
+        const title = document.getElementById('edit-panel-title').value;
+        const btn = document.querySelector('button[onclick*="suggestAltIA_Panel"]');
+        const originalText = btn.innerText;
+
+        btn.innerText = "⏳..."; btn.disabled = true;
+        try {
+            const suggestion = await gemini.callAPI(`Atue como Especialista Abidos. Gere um Alt Text estratégico (max 120 chars) para a imagem: "${title}". Use 'Psicólogo Victor Lawrence' ou 'Goiânia' se apropriado. Retorne apenas o texto puro.`);
+            if (suggestion) {
+                document.getElementById('edit-panel-alt').value = suggestion.replace(/^["']|["']$/g, '').trim();
+            }
+        } catch(e) { console.error(e); }
+        btn.innerText = originalText; btn.disabled = false;
+    },
+
+    async deleteMediaPanel() {
+        if (!this.selectedMedia) return;
+        if (confirm(`Excluir permanentemente "${this.selectedMedia.title.rendered}"?`)) {
+            const result = await wpAPI.deleteMedia(this.selectedMedia.id);
+            if (result) {
+                document.getElementById('editor-active-state').style.display = 'none';
+                document.getElementById('editor-empty-state').style.display = 'block';
+                this.selectedMedia = null;
+                this.loadLibrary();
             }
         }
+    },
+
+    copyToClipboardPanel() {
+        if (this.selectedMedia) {
+            navigator.clipboard.writeText(this.selectedMedia.source_url).then(() => alert("URL Copiada!"));
+        }
+    },
+
+    handleFiles(files) {
+        this.pendingFiles = Array.from(files);
+        this.showNextFile();
+    },
+
+    async showNextFile() {
+        if (this.pendingFiles.length === 0) return;
+        this.currentFile = this.pendingFiles.shift();
+        const modal = document.getElementById('upload-modal');
+        document.getElementById('modal-img-preview').src = URL.createObjectURL(this.currentFile);
+        document.getElementById('upload-title').value = this.currentFile.name.split('.')[0];
+        modal.style.display = 'flex';
+        
+        const suggestion = await gemini.callAPI(`Gere Alt SEO para imagem: "${this.currentFile.name}".`);
+        document.getElementById('upload-alt').value = suggestion ? suggestion.replace(/^["']|["']$/g, '').trim() : "";
+    },
+
+    async processUpload() {
+        const title = document.getElementById('upload-title').value;
+        const alt = document.getElementById('upload-alt').value;
+        const result = await wpAPI.uploadMedia(this.currentFile, alt, title);
+        if (result) {
+            document.getElementById('upload-modal').style.display = 'none';
+            this.loadLibrary();
+            if (this.pendingFiles.length > 0) this.showNextFile();
+        }
+    },
+
+    closeModal() {
+        document.getElementById('upload-modal').style.display = 'none';
+        this.currentFile = null;
     }
 };
 
