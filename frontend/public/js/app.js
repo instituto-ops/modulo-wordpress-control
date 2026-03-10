@@ -29,6 +29,11 @@ const app = {
                 if (targetId === 'media-library') {
                     window.mediaLibrary.loadLibrary();
                 }
+
+                // [NOVO] Auto-load Abidos Review Table when entering
+                if (targetId === 'abidos-review') {
+                    if(window.abidosReview) window.abidosReview.loadDrafts();
+                }
             });
         });
 

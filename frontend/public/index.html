@@ -22,6 +22,7 @@
                 <button class="nav-btn" data-target="content-overview">📝 <span>Gerenciar Conteúdo</span></button>
                 <button class="nav-btn" data-target="create-content">💻 <span>Editor Aberto</span></button>
                 <button class="nav-btn" data-target="ai-studio">🤖 <span>AI Studio (Copilot)</span></button>
+                <button class="nav-btn" data-target="abidos-review">📑 <span>Tabela de Revisão</span></button>
                 <button class="nav-btn" data-target="media-library">🖼️ <span>Biblioteca Mídia</span></button>
                 <hr style="border-color: #374151; margin: 5px 0;">
                 <button class="nav-btn" data-target="theme-editor">⚙️ <span>Config. Astra & WP</span></button>
@@ -85,6 +86,59 @@
                                 <!-- Conteúdo WP -->
                             </tbody>
                         </table>
+                    </div>
+                </div>
+            </section>
+
+            <!-- Section: Revisão Abidos -->
+            <section id="abidos-review" class="content-section">
+                <div class="card">
+                    <h2>📑 Tabela de Revisão de Rascunhos (Human-in-the-Loop)</h2>
+                    <p style="color: #64748b; font-size: 14px; margin-bottom: 20px;">
+                        Aprove ou rejeite os rascunhos elaborados pelos Agentes. Os textos aqui já passaram pelo crivo do <strong>Agente Abidos</strong> e <strong>Compliance Checking</strong>.
+                    </p>
+                    <div class="table-container">
+                        <table class="table">
+                            <thead>
+                                <tr>
+                                    <th>ID / Data</th>
+                                    <th>Tema Central (STAG)</th>
+                                    <th>Status de Validação</th>
+                                    <th>Fontes (RAG)</th>
+                                    <th>Ações</th>
+                                </tr>
+                            </thead>
+                            <tbody id="drafts-list">
+                                <!-- Drafts injetados via JS -->
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+
+                <!-- Modal de Edição/Aprovação do Rascunho -->
+                <div id="draft-modal" class="modal" style="display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.5); z-index: 1000; align-items: center; justify-content: center;">
+                    <div style="background: white; width: 80%; max-width: 900px; border-radius: 8px; overflow: hidden; display: flex; flex-direction: column; max-height: 90vh;">
+                        <div style="padding: 20px; border-bottom: 1px solid #e2e8f0; display: flex; justify-content: space-between; align-items: center;">
+                            <h3 style="margin: 0;" id="draft-modal-title">Revisão Clínica Final</h3>
+                            <button onclick="document.getElementById('draft-modal').style.display='none'" style="background: none; border: none; font-size: 20px; cursor: pointer;">&times;</button>
+                        </div>
+                        <div style="padding: 20px; overflow-y: auto; flex: 1;">
+                            <div style="margin-bottom: 15px; font-size: 13px; color: #64748b; background: #f8fafc; padding: 10px; border-radius: 4px; border: 1px solid #e2e8f0;">
+                                <strong>⚙️ Validação Abidos:</strong> <span id="draft-modal-abidos"></span><br>
+                                <strong>⚖️ Compliance LGPD/CFP:</strong> <span id="draft-modal-compliance"></span><br>
+                                <strong>🩺 Auditoria Factual (MED-F1):</strong> <span id="draft-modal-factual"></span>
+                            </div>
+                            <textarea id="draft-modal-content" style="width: 100%; height: 300px; font-family: monospace; padding: 10px; border: 1px solid #e2e8f0; border-radius: 4px; font-size: 14px; line-height: 1.5;"></textarea>
+                            
+                            <div id="ai-abidos-feedback" style="display: none; margin-top: 15px; padding: 10px; border-left: 4px solid #f59e0b; background: #fffbeb; font-size: 13px; color: #b45309;">
+                                <span id="ai-abidos-feedback-text">Analisando...</span>
+                            </div>
+                        </div>
+                        <div style="padding: 20px; border-top: 1px solid #e2e8f0; display: flex; justify-content: flex-end; gap: 10px; background: #f8fafc;">
+                            <button class="btn btn-secondary" onclick="window.abidosReview.auditDraft()">🤖 Agente Abidos (Auditar)</button>
+                            <button class="btn" style="background: #ef4444; color: white;" onclick="window.abidosReview.rejectDraft()">❌ Rejeitar c/ Feedback</button>
+                            <button class="btn" style="background: #10b981; color: white;" onclick="window.abidosReview.approveDraft()">✅ Aprovar e Publicar</button>
+                        </div>
                     </div>
                 </div>
             </section>
@@ -494,6 +548,7 @@
     <script src="js/blocks.js"></script>
     <script src="js/chat.js"></script>
     <script src="js/media.js"></script>
+    <script src="js/abidos-review.js"></script>
 
 </body>
 </html>

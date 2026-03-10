@@ -152,6 +152,86 @@ const DOCTORALIA_REVIEWS = `
 - L. F. S.: "Resultados nítidos e precisos. Indico fortemente."
 `;
 
+// ==============================================================================
+// 3. TABELA DE REVISÃO E AGENTE ABIDOS (HUMAN-IN-THE-LOOP)
+// ==============================================================================
+
+const mockDrafts = [
+    {
+        "draft_id": "RASC-2026-084",
+        "tema_foco": "TEA em adultos - Diagnóstico Tardio",
+        "conteudo_gerado": "<h1>Diagnóstico de TEA na Vida Adulta em Goiânia</h1>\n<p>O diagnóstico tardio de Transtorno do Espectro Autista (TEA) em adultos é um momento divisor de águas...</p>\n<h2>Identificação da Dor: A Exaustão Constante</h2>\n<p>Muitos adultos passam anos sentindo uma exaustão inexplicável (Burnout Autista)...</p>\n<h3>Como a Avaliação Neuropsicológica Ajuda?</h3>\n<p>Toque aqui para falar comigo no WhatsApp e agendar sua avaliação.</p>",
+        "validacoes_automatizadas": {
+            "pesquisa_clinica": true,
+            "metodo_abidos": true,
+            "compliance_etico": true,
+            "med_f1_score": 0.98
+        },
+        "status_atual": "aguardando_psicologo",
+        "fontes_rag_utilizadas": [
+            "Diretriz CFP Resolução 21/2025",
+            "Estudo de caso anonimizado #405"
+        ],
+        "data_submissao": new Date().toISOString()
+    },
+    {
+        "draft_id": "RASC-2026-085",
+        "tema_foco": "Terapia de Casal e Esgotamento",
+        "conteudo_gerado": "<h1>Terapia de Casal em Goiânia: Superando o Esgotamento</h1>\n<p>A rotina e o desgaste emocional muitas vezes afastam casais...</p>",
+        "validacoes_automatizadas": {
+            "pesquisa_clinica": true,
+            "metodo_abidos": false,
+            "compliance_etico": true,
+            "med_f1_score": 0.95
+        },
+        "status_atual": "aguardando_psicologo",
+        "fontes_rag_utilizadas": [
+            "Protocolos de Terapia Cognitiva para Casais"
+        ],
+        "data_submissao": new Date(Date.now() - 86400000).toISOString()
+    }
+];
+
+app.get('/api/drafts', (req, res) => {
+    res.json(mockDrafts);
+});
+
+app.post('/api/agents/audit', async (req, res) => {
+    try {
+        const { content } = req.body;
+        console.log(`🔍 [AGENTE ABIDOS] Auditing draft...`);
+        
+        const prompt = `
+        Você é o "Agente Abidos", um Arquiteto de Sistemas e Auditor Sênior Implacável especializado no Método Abidos para clínicas de psicologia em Goiânia.
+        Sua função exclusiva é dissecar o rascunho abaixo e garantir que ele segue 100% as diretrizes de SEO, hierarquia semântica e conformidade ética (CFP).
+        
+        REGRAS DE AUDITORIA:
+        1. Regra do H1 Único: Deve haver apenas um título principal (H1) que contém a Palavra-chave exata + Promessa + Localização (Goiânia).
+        2. Mapeamento de H2 e H3: Cheque se H2 separa os "Silos" e H3 detalha serviços.
+        3. Validação de Copywriting e Conformidade Ética (CFP): Sem depoimentos que quebrem sigilo ou promessas mercadológicas de "cura definitiva. Use Autoridade Acadêmica.
+        4. Foco UX/Mobile: CTAs devem incentivar o clique (ex: "Toque aqui para falar comigo").
+        
+        Rascunho a auditar:
+        """${content}"""
+        
+        MÉTODO DE RESPOSTA (Gere um pequeno relatório visual):
+        - Status: (Aprovado / Rejeitado)
+        - Nota Abidos: (0 a 100)
+        - Análises e Falhas Encontradas: (lista curta em bullet points)
+        - Instrução de Correção para a IA Geradora: (Se houver falha)
+        `;
+
+        const model = genAI.getGenerativeModel({ model: VISION_MODEL });
+        const result = await model.generateContent(prompt);
+        const resp = await result.response;
+        
+        res.json({ report: resp.text() });
+    } catch (e) {
+        console.error("❌ [AGENTE ABIDOS ERROR]", e.message);
+        res.status(500).json({ error: e.message });
+    }
+});
+
 app.post('/api/chat', upload.single('screenshot'), async (req, res) => {
     try {
         const { message, htmlContext, currentKeyword } = req.body;
