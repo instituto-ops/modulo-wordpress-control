@@ -93,10 +93,16 @@
             <!-- Section: Revisão Abidos -->
             <section id="abidos-review" class="content-section">
                 <div class="card">
-                    <h2>📑 Tabela de Revisão de Rascunhos (Human-in-the-Loop)</h2>
-                    <p style="color: #64748b; font-size: 14px; margin-bottom: 20px;">
-                        Aprove ou rejeite os rascunhos elaborados pelos Agentes. Os textos aqui já passaram pelo crivo do <strong>Agente Abidos</strong> e <strong>Compliance Checking</strong>.
-                    </p>
+                    <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px;">
+                        <div>
+                            <h2>📑 Tabela de Revisão de Rascunhos (Human-in-the-Loop)</h2>
+                            <p style="color: #64748b; font-size: 14px; margin: 0;">
+                                Aprove ou rejeite os rascunhos elaborados pelos Agentes. Textos filtrados pelo <strong>Método Abidos</strong>.
+                            </p>
+                        </div>
+                        <button class="btn btn-primary" onclick="window.abidosReview.requestNewDraft()">🚀 Orquestrar Novo Rascunho</button>
+                    </div>
+
                     <div class="table-container">
                         <table class="table">
                             <thead>

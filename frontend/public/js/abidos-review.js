@@ -109,6 +109,34 @@ window.abidosReview = {
         if(!feedback) return;
         alert("Rascunho devolvido para a pipeline autônoma com as notas: " + feedback);
         document.getElementById('draft-modal').style.display = 'none';
+    },
+
+    async requestNewDraft() {
+        const topic = prompt("Informe a Palavra-Chave / Tema Foco para os Agentes de Pesquisa (Ex: 'Tratamento de Ansiedade'):");
+        if(!topic) return;
+
+        alert("🚀 Pipeline Multi-Agent iniciada! (Agente Gerador -> Crítico -> Abidos -> Compliance). Acompanhe no console do servidor.");
+        
+        try {
+            const list = document.getElementById('drafts-list');
+            if(list) list.innerHTML = '<tr><td colspan="5" style="text-align:center;">🤖 Orquestrando LangGraph Pipeline (Aguarde 10-20 segs)...</td></tr>';
+
+            const response = await fetch('/api/agents/generate-pipeline', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ topic: topic })
+            });
+            const result = await response.json();
+            
+            if(result.error) throw new Error(result.error);
+            
+            alert(`✅ Sucesso! Rascunho ${result.draft.draft_id} gerado e validado.`);
+            this.loadDrafts();
+        } catch (e) {
+            console.error("Erro no pipeline", e);
+            alert("❌ Erro ao orquestrar a IA: " + e.message);
+            this.loadDrafts(); // Recarrega para limpar o aviso
+        }
     }
 };
 
