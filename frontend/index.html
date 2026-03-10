@@ -1,0 +1,326 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>AntiGravity CMS | Mission Control</title>
+    <link rel="stylesheet" href="css/dashboard.css">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+</head>
+<body>
+    <div class="app-container">
+        <!-- Sidebar -->
+        <aside class="sidebar">
+            <div class="sidebar-header">
+                <h2>NeuroEngine</h2>
+                <p>Mission Control</p>
+            </div>
+            <nav class="sidebar-nav">
+                <button class="nav-btn active" data-target="dashboard">Visão Geral (GA4)</button>
+                <button class="nav-btn" data-target="action-plan">Plano de Ação</button>
+                <button class="nav-btn" data-target="content-overview">Gerenciar Conteúdo</button>
+                <button class="nav-btn" data-target="create-content">Editor de Código Aberto</button>
+                <button class="nav-btn" data-target="ai-studio">AI Studio (Assistente Copilot)</button>
+                <hr style="border-color: #374151; margin: 5px 0;">
+                <button class="nav-btn" data-target="theme-editor">Config. Astra & WP</button>
+                <button class="nav-btn" data-target="elementor-builder">Elementor Builder</button>
+            </nav>
+        </aside>
+
+        <!-- Main Content -->
+        <main class="main-content">
+            <!-- Header -->
+            <header class="top-header">
+                <div class="header-title">
+                    <h1 id="page-title">Visão Geral</h1>
+                </div>
+                <div class="header-actions">
+                    <span class="status-indicator">
+                        <span class="dot green"></span> Conectado ao WP
+                    </span>
+                    <span class="status-indicator">
+                        <span class="dot blue"></span> Gemini Ativo
+                    </span>
+                </div>
+            </header>
+
+             <!-- Section: Dashboard Overview (GA4) -->
+             <section id="dashboard" class="content-section active">
+                <div class="cards-grid">
+                    <div class="card stat-card">
+                        <h3>Tráfego Orgânico (28d)</h3>
+                        <div class="stat-value">73</div>
+                        <p class="stat-trend down">Queda nas interações</p>
+                    </div>
+                    <div class="card stat-card">
+                        <h3>Cliques WhatsApp</h3>
+                        <div class="stat-value">0</div>
+                        <p class="stat-trend alert">Requer atenção imediata</p>
+                    </div>
+                    <div class="card stat-card">
+                        <h3>Tempo de Carregamento (Mobile)</h3>
+                        <div class="stat-value">3.6s</div>
+                        <p class="stat-trend alert">FCP Alto</p>
+                    </div>
+                </div>
+
+                <div class="card mt-2">
+                    <h3>Insights Recentes do GA4 (Córtex Analítico)</h3>
+                    <p><strong>Aleta Crítico:</strong> As métricas de engajamento (faq_abertas, whatsapp_clicks, scroll_profundo) estão zeradas em todas as páginas, indicando jornada de usuário truncada.</p>
+                    <p><strong>Oportunidade (TEA Adulto):</strong> Páginas sobre TEA tiveram apenas acessos residuais (1 usuário cada). O potencial deste nicho está totalmente subexplorado orgânica e conversionalmente.</p>
+                </div>
+            </section>
+
+            <!-- Section: Action Plan -->
+            <section id="action-plan" class="content-section">
+                <div class="card">
+                    <h2>Plano de Execução: Método Abidos + WordPress Headless</h2>
+                    
+                    <div class="timeline">
+                        <div class="timeline-item">
+                            <h3>Fase 1: Estancar a Hemorragia (Imediato)</h3>
+                            <ul>
+                                <li><strong>Gemini:</strong> Gerar 13 Meta Descriptions faltantes focadas em persuasão.</li>
+                                <li>Corrigir ausência de H1 nas 2 páginas identificadas.</li>
+                                <li>Recriar/Corrigir a URL principal de "TEA em Adultos" (Atualmente página não encontrada).</li>
+                                <li>Validar a tag HTML de clique no botão do WhatsApp (`id="btn-whatsapp"`).</li>
+                            </ul>
+                            <div class="progress-bar"><div class="progress" style="width: 0%;"></div></div>
+                        </div>
+
+                        <div class="timeline-item">
+                            <h3>Fase 2: Oportunidade TEA em Adultos Goiânia</h3>
+                            <ul>
+                                <li><strong>Silo SEO:</strong> Criar "Psicólogo Especialista em TEA Adulto em Goiânia | Diagnóstico e Terapia".</li>
+                                <li><strong>Copy Abidos:</strong> Abordar Exaustão/Masking nas dores e Autoridade Médica no E-A-T.</li>
+                                <li>Atualizar o artigo de Masking mirando na Keyword "sinais de autismo leve" (8.100 buscas).</li>
+                            </ul>
+                            <div class="progress-bar"><div class="progress" style="width: 0%;"></div></div>
+                        </div>
+
+                         <div class="timeline-item">
+                            <h3>Fase 3: Headless e Performance</h3>
+                            <ul>
+                                <li>Limpar dependências pesadas do Elementor/WP.</li>
+                                <li>Substituir layout por arquivos estáticos/Vanilla JS consumindo WP API.</li>
+                                <li>Meta: Baixar FCP de 3.6s para < 1.0s.</li>
+                            </ul>
+                            <div class="progress-bar"><div class="progress" style="width: 0%;"></div></div>
+                        </div>
+                    </div>
+                </div>
+            </section>
+
+            <!-- Section: Manage Content -->
+            <section id="content-overview" class="content-section">
+                <div class="card">
+                    <div class="card-header-flex">
+                        <h2>Páginas & Posts</h2>
+                        <button class="btn btn-primary" onclick="app.loadContentList()">Carregar do WordPress</button>
+                    </div>
+                    <div class="table-container mt-2">
+                        <table class="table" id="content-table">
+                            <thead>
+                                <tr>
+                                    <th>ID</th>
+                                    <th>Título</th>
+                                    <th>Tipo</th>
+                                    <th>Status</th>
+                                    <th>Ações</th>
+                                </tr>
+                            </thead>
+                            <tbody id="content-tbody">
+                                <tr>
+                                    <td colspan="5" class="text-center">Aperte em "Carregar" para buscar via API.</td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </section>
+
+            <!-- Section: Create & Edit Content -->
+            <section id="create-content" class="content-section">
+                <div class="card">
+                    <h2 id="editor-title">Criar Novo Conteúdo</h2>
+                    <form id="editor-form" class="mt-2">
+                        <input type="hidden" id="edit-id" value="">
+                        
+                        <div class="form-group">
+                            <label>Tipo</label>
+                            <select id="content-type">
+                                <option value="pages">Página</option>
+                                <option value="posts">Post</option>
+                            </select>
+                        </div>
+
+                        <div class="form-group">
+                            <label>Título (H1 com localidade) <button type="button" class="btn btn-ask-ai" onclick="gemini.suggestTitle()">✨ Sugerir Título (IA)</button></label>
+                            <input type="text" id="content-title" placeholder="Ex: Terapia para Ansiedade em Goiânia" required>
+                        </div>
+                        
+                        <div class="form-group">
+                            <label>Conteúdo (Estrutura: Dor -> Solução -> E-A-T -> Chamada) 
+                                <button type="button" class="btn btn-ask-ai" onclick="gemini.draftContent()">✨ Escrever Rascunho Abidos (IA)</button>
+                                <button type="button" class="btn btn-ask-ai" onclick="gemini.reviewContent()">✨ Auditar SEO (IA)</button>
+                            </label>
+                            <textarea id="content-body" rows="15" placeholder="Digite o conteúdo formatado em HTML ou texto plano..."></textarea>
+                        </div>
+
+                        <div class="form-group">
+                            <label>Meta Description <button type="button" class="btn btn-ask-ai" onclick="gemini.generateMeta()">✨ Gerar Meta Description (IA)</button></label>
+                            <input type="text" id="content-meta" placeholder="Resumo persuasivo até 160 caracteres...">
+                        </div>
+
+                        <div class="ai-feedback-box" id="ai-feedback" style="display: none;">
+                            <strong>Feedback da IA:</strong> <span id="ai-feedback-text"></span>
+                        </div>
+
+                        <div class="form-actions mt-2">
+                            <button type="submit" class="btn btn-primary" id="btn-save-content">Salvar no WordPress</button>
+                            <button type="button" class="btn btn-secondary" onclick="app.resetEditor()">Limpar</button>
+                        </div>
+                    </form>
+                </div>
+            </section>
+
+            <!-- Section: Theme Editor (Astra & WP Core) -->
+            <section id="theme-editor" class="content-section">
+                <div class="card">
+                    <h2 id="theme-editor-title">Configurações Gerais & Astra</h2>
+                    <form id="theme-form" class="mt-2">
+                        <div class="form-group">
+                            <label>Nome do Site (Title)</label>
+                            <input type="text" id="setting-site-title" placeholder="Ex: Victor Lawrence | Hipnose Clínica">
+                        </div>
+                        <div class="form-group">
+                            <label>Descrição do Site (Tagline)</label>
+                            <input type="text" id="setting-site-desc" placeholder="Ex: Especialista em TEA Adultos em Goiânia">
+                        </div>
+                        <div class="form-group">
+                            <label>Assistente de Configuração do Tema 
+                                <button type="button" class="btn btn-ask-ai" onclick="gemini.suggestThemeSettings()">✨ Analisar Opções de Tema (IA)</button>
+                            </label>
+                            <textarea id="setting-astra" rows="6" placeholder="A JSON contendo as opções do Astra ou dicas de IA aparecerão aqui..." disabled></textarea>
+                        </div>
+                        <div class="form-actions mt-2">
+                            <button type="button" class="btn btn-primary" onclick="app.saveSettings()">Salvar Configurações</button>
+                            <button type="button" class="btn btn-secondary" onclick="app.loadSettings()">Carregar do WordPress</button>
+                        </div>
+                    </form>
+                </div>
+            </section>
+
+            <!-- Section: Elementor Theme Builder -->
+            <section id="elementor-builder" class="content-section">
+                <div class="card">
+                    <div class="card-header-flex">
+                        <h2>Templates Elementor (Cabeçalho/Rodapé)</h2>
+                        <button class="btn btn-primary" onclick="app.loadElementorTemplates()">Carregar do Elementor</button>
+                    </div>
+                    <div class="table-container mt-2">
+                        <table class="table" id="elementor-table">
+                            <thead>
+                                <tr>
+                                    <th>ID</th>
+                                    <th>Nome do Template</th>
+                                    <th>Status</th>
+                                    <th>Ações</th>
+                                </tr>
+                            </thead>
+                            <tbody id="elementor-tbody">
+                                <tr>
+                                    <td colspan="4" class="text-center">Aperte em "Carregar" para buscar da API do Elementor.</td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </section>
+
+            <!-- Section: Editor Dinâmico & Assistente IA (Split View) -->
+            <section id="ai-studio" class="content-section" style="height: 85vh; margin-top: -10px;">
+                <!-- Top Toolbar para AI Studio -->
+                <div style="background: white; padding: 10px 15px; margin-bottom: 10px; border-radius: 8px; box-shadow: var(--shadow-sm); display: flex; gap: 10px; align-items: center; border: 1px solid var(--color-border); flex-wrap: wrap;">
+                    <strong style="white-space: nowrap;">🛠️ Contexto do Rascunho:</strong>
+                    <select id="ai-studio-type" style="width: 150px; padding: 5px;">
+                        <option value="pages">Páginas</option>
+                        <option value="posts">Posts</option>
+                        <option value="elementor_library">Elementor Templates</option>
+                    </select>
+                    <button class="btn btn-secondary" style="padding: 5px 10px;" onclick="window.chatApp.loadList()">Buscar</button>
+                    <button class="btn btn-primary" style="padding: 5px 10px; background: var(--color-secondary); border-color: var(--color-secondary);" onclick="window.chatApp.createNew()">➕ Novo Rascunho</button>
+                    
+                    <select id="ai-studio-item" style="flex: 1; padding: 5px; display: none;">
+                    </select>
+                    <input type="text" id="ai-studio-new-title" style="flex: 1; padding: 5px; display: none;" placeholder="Digite o Título Exato da Nova Página/Post...">
+                    
+                    <button id="ai-studio-load-btn" class="btn btn-primary" style="padding: 5px 10px; display: none;" onclick="window.chatApp.loadItem()">📥 Carregar Selecionado</button>
+                    <button class="btn" style="background: var(--color-success); color: white; margin-left: auto; padding: 5px 15px;" onclick="window.chatApp.saveToWP()">🚀 Publicar / Salvar WP</button>
+                </div>
+
+                <div class="split-view" style="display: flex; height: calc(100% - 60px); border-radius: 8px; overflow: hidden; background: white; border: 1px solid var(--color-border);">
+                    
+                    <!-- ESQUERDA: Preview Canvas (Site Dinâmico) -->
+                    <div style="flex: 6; border-right: 1px solid var(--color-border); display: flex; flex-direction: column;">
+                        <div style="background: var(--color-bg); padding: 10px; font-size: 14px; font-weight: bold; border-bottom: 1px solid var(--color-border); display: flex; justify-content: space-between;">
+                            <span id="ai-studio-title">🌐 Live Preview: Modo Celular/Desktop</span>
+                            <div>
+                                <button class="btn btn-secondary" style="padding: 2px 10px; font-size: 12px;" onclick="document.getElementById('live-preview').style.maxWidth='400px'; document.getElementById('live-preview').style.margin='0 auto';">Mobile</button>
+                                <button class="btn btn-secondary" style="padding: 2px 10px; font-size: 12px;" onclick="document.getElementById('live-preview').style.maxWidth='100%';">Desktop</button>
+                            </div>
+                        </div>
+                        <div id="live-preview" style="flex: 1; padding: 20px; overflow-y: auto; background-color: #f8fafc; transition: max-width 0.3s;">
+                            <!-- O código HTML que a IA sugerir vai ser renderizado aqui -->
+                            <h1 style="color: #1a202c; font-size: 24px; text-align: center; margin-top: 50px; opacity: 0.5;">Crie algo novo ou carregue do WP...</h1>
+                        </div>
+                    </div>
+
+                    <!-- DIREITA: Chatbot AntiGravity Copilot -->
+                    <div style="flex: 4; display: flex; flex-direction: column; background: var(--color-card);">
+                        
+                        <!-- Header do Chat -->
+                        <div style="background: var(--color-primary); color: white; padding: 15px; font-weight: bold; display: flex; align-items: center; justify-content: space-between;">
+                            <span>🤖 NeuroEngine Copilot</span>
+                            <span style="font-size: 11px; background: rgba(0,0,0,0.3); padding: 3px 8px; border-radius: 10px;">Gemini 2.5 Flash</span>
+                        </div>
+                        
+                        <!-- Histórico do Chat -->
+                        <div id="chat-history" style="flex: 1; overflow-y: auto; padding: 15px; display: flex; flex-direction: column; gap: 15px; background: #fdfdfd; font-size: 0.9em;">
+                            <div style="background: #e0f2fe; padding: 10px 15px; border-radius: 10px 10px 10px 0; align-self: flex-start; max-width: 85%; color: #0369a1; box-shadow: 0 1px 2px rgba(0,0,0,0.05);">
+                                <strong>NeuroEngine:</strong> Olá, Dr. Lawrence. Sou seu assistente de copy e código.<br>Como o senhor deseja estruturar a sua landing page hoje? Use a câmera para eu consertar erros de layout se precisar.
+                            </div>
+                        </div>
+
+                        <!-- Controles e Input do Chat -->
+                        <div style="padding: 15px; border-top: 1px solid var(--color-border); background: #f9fafb;">
+                            <div style="display: flex; gap: 5px; margin-bottom: 10px;">
+                                <!-- O BOTÃO DE VISÃO - Tira a foto do 'live-preview' -->
+                                <button id="btn-snap-error" class="btn" style="background: #fbbf24; color: #78350f; font-size: 12px; font-weight: bold; flex: 1; display:flex; gap: 5px; align-items: center; justify-content: center;">
+                                    📸 Enviar Visualização p/ IA (Corrigir Layout)
+                                </button>
+                                <button class="btn btn-secondary" onclick="document.getElementById('live-preview').innerHTML=''" style="font-size: 12px;">♻️ Limpar</button>
+                            </div>
+                            
+                            <textarea id="chat-input" rows="3" placeholder="Ex: 'Crie uma seção H2 focada na dor do Masking para Autistas Adultos...'" style="border-radius: 8px; margin-bottom: 10px; resize: none;"></textarea>
+                            
+                            <button id="btn-send-chat" class="btn btn-primary" style="width: 100%; display: flex; justify-content: center;">
+                                Enviar Comando
+                            </button>
+                        </div>
+                    </div>
+
+                </div>
+            </section>
+        </main>
+    </div>
+
+    <!-- Bibliotecas Necessárias para a Mágica Acontecer -->
+    <!-- html2canvas via CDN para evitar erros locais -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
+    <script src="js/gemini.js"></script>
+    <script src="js/api.js"></script>
+    <script src="js/app.js"></script>
+    <script src="js/chat.js"></script>
+</body>
+</html>

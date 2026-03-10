@@ -1,0 +1,15 @@
+credentials/
+*.json
+*.csv
+*.bat
+.env
+node_modules/
+.DS_Store
+Thumbs.db
+*.log
+backend/node_modules/
+frontend/node_modules/
+dist/
+build/
+.vscode/
+.antigravity/
