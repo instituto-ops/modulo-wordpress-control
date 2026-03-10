@@ -500,4 +500,24 @@ window.AbidosBlocks = {
         return map[id] || null;
     }, // end get()
 
+    /**
+     * Retorna a lista de blocos disponíveis para o menu de inserção.
+     */
+    getList() {
+        return [
+            { id: 'hero', label: '🥇 Hero Completo', group: '① HERO' },
+            { id: 'h1', label: 'H1 Título', group: '① HERO' },
+            { id: 'subtitulo', label: '📝 Subtítulo', group: '① HERO' },
+            { id: 'cta', label: '📲 CTA + WhatsApp', group: '① HERO' },
+            { id: 'dor', label: '💔 Identificação da Dor', group: '② JORNADA' },
+            { id: 'beneficios', label: '✅ Benefícios', group: '② JORNADA' },
+            { id: 'objections', label: '🛡 Objeções', group: '② JORNADA' },
+            { id: 'autoridade', label: '🏅 Especialista', group: '③ E-E-A-T' },
+            { id: 'ambiente', label: '🏡 Ambiente', group: '③ E-E-A-T' },
+            { id: 'social', label: '⭐ Prova Social', group: '③ E-E-A-T' },
+            { id: 'faq', label: '❓ FAQ', group: '④ RETENÇÃO' },
+            { id: 'linkagem', label: '🔗 Linkagem', group: '④ RETENÇÃO' },
+        ];
+    },
+
 }; // end AbidosBlocks

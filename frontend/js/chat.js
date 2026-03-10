@@ -175,29 +175,132 @@ window.chatApp = {
         }
     },
 
-    // --- Injeta botão "📋 Copiar Bloco" em cada <section data-bloco> ---
+    // --- Injeta botões "📋 Copiar" e "🗑️ Excluir" em cada <section data-bloco> ---
     injectCopyButtons() {
         const preview = document.getElementById('live-preview');
         preview.querySelectorAll('section[data-bloco]').forEach(sec => {
-            if (sec.querySelector('.bloco-copy-btn')) return;
+            if (sec.querySelector('.bloco-controls')) return;
             sec.style.position = 'relative';
-            const btn = document.createElement('button');
-            btn.className   = 'bloco-copy-btn';
-            btn.title       = 'Copiar bloco para Widget HTML do Elementor';
-            btn.textContent = '📋 Copiar Bloco';
-            Object.assign(btn.style, {
+
+            const controls = document.createElement('div');
+            controls.className = 'bloco-controls';
+            Object.assign(controls.style, {
                 position: 'absolute', top: '10px', right: '10px',
+                display: 'flex', gap: '5px', opacity: '0', transition: 'opacity .2s', zIndex: '999'
+            });
+
+            // Botão Copiar
+            const btnCopy = document.createElement('button');
+            btnCopy.textContent = '📋 Copiar';
+            btnCopy.title = 'Copiar para Elementor';
+            Object.assign(btnCopy.style, {
                 background: '#1e293b', color: 'white', border: 'none',
                 padding: '6px 12px', borderRadius: '6px', fontSize: '11px',
-                cursor: 'pointer', fontWeight: '700', zIndex: '999',
-                opacity: '0', transition: 'opacity .2s',
+                cursor: 'pointer', fontWeight: '700'
             });
-            btn.addEventListener('click', e => { e.stopPropagation(); this.copyBlock(sec); });
-            sec.appendChild(btn);
-            sec.addEventListener('mouseenter', () => btn.style.opacity = '1');
-            sec.addEventListener('mouseleave', () => btn.style.opacity = '0');
+            btnCopy.onclick = (e) => { e.stopPropagation(); this.copyBlock(sec); };
+
+            // Botão Excluir
+            const btnDel = document.createElement('button');
+            btnDel.textContent = '🗑️';
+            btnDel.title = 'Excluir Bloco';
+            Object.assign(btnDel.style, {
+                background: '#ef4444', color: 'white', border: 'none',
+                padding: '6px 10px', borderRadius: '6px', fontSize: '11px',
+                cursor: 'pointer'
+            });
+            btnDel.onclick = (e) => { e.stopPropagation(); this.deleteBlock(sec); };
+
+            // Botão Inserir (+)
+            const btnAdd = document.createElement('button');
+            btnAdd.textContent = '➕';
+            btnAdd.title = 'Inserir Bloco Abaixo';
+            Object.assign(btnAdd.style, {
+                background: '#3b82f6', color: 'white', border: 'none',
+                padding: '6px 10px', borderRadius: '6px', fontSize: '11px',
+                cursor: 'pointer'
+            });
+            btnAdd.onclick = (e) => { 
+                e.stopPropagation(); 
+                this.showBlockInserterMenu(e.clientX, e.clientY, sec); 
+            };
+
+            controls.appendChild(btnCopy);
+            controls.appendChild(btnAdd);
+            controls.appendChild(btnDel);
+            sec.appendChild(controls);
+
+            sec.onmouseenter = () => controls.style.opacity = '1';
+            sec.onmouseleave = () => controls.style.opacity = '0';
+        });
+    },
+
+    deleteBlock(sec) {
+        if (!confirm("Deseja realmente excluir este bloco inteiro?")) return;
+        this.saveHistory();
+        sec.remove();
+        this.updateAbidusScore();
+        this.addMessage("🗑️ Bloco removido.");
+    },
+
+    showBlockInserterMenu(x, y, relativeTo = null) {
+        let menu = document.getElementById('block-inserter-menu');
+        if (!menu) {
+            menu = document.createElement('div');
+            menu.id = 'block-inserter-menu';
+            menu.style.cssText = 'position: fixed; z-index: 10001; background: #1e293b; color: white; border-radius: 8px; box-shadow: var(--shadow-xl); padding: 8px; display: flex; flex-direction: column; gap: 4px; min-width: 180px; max-height: 400px; overflow-y: auto;';
+            document.body.appendChild(menu);
+        }
+
+        const blocks = window.AbidosBlocks.getList();
+        let html = `<div style="font-size: 10px; font-weight: bold; color: #94a3b8; padding: 4px 8px; border-bottom: 1px solid #334155; margin-bottom: 4px;">🎯 INSERIR BLOCO ABIDOS</div>`;
+        
+        let lastGroup = '';
+        blocks.forEach(b => {
+            if (b.group !== lastGroup) {
+                html += `<div style="font-size: 9px; color: #6366f1; margin-top: 6px; padding: 0 8px;">${b.group}</div>`;
+                lastGroup = b.group;
+            }
+            html += `<button onclick="window.chatApp.insertBlockAt('${b.id}', ${relativeTo ? 'true' : 'false'})" style="background: transparent; color: #e2e8f0; border: none; text-align: left; padding: 6px 8px; border-radius: 4px; cursor: pointer; font-size: 12px; transition: background .2s;" onmouseover="this.style.background='#334155'" onmouseout="this.style.background='transparent'">${b.label}</button>`;
         });
 
+        menu.innerHTML = html;
+        menu.style.left = `${Math.min(x, window.innerWidth - 200)}px`;
+        menu.style.top = `${Math.min(y, window.innerHeight - 300)}px`;
+        menu.style.display = 'flex';
+
+        // Fechar ao clicar fora
+        const closer = (e) => {
+            if (!menu.contains(e.target)) {
+                menu.style.display = 'none';
+                document.removeEventListener('mousedown', closer);
+            }
+        };
+        setTimeout(() => document.addEventListener('mousedown', closer), 10);
+        
+        // Armazenar referência para inserção
+        this.insertTarget = relativeTo;
+    },
+
+    insertBlockAt(blockId, isRelative) {
+        const kw = this.getKeyword();
+        const html = window.AbidosBlocks.get(blockId, kw);
+        const preview = document.getElementById('live-preview');
+        
+        if (!html) return;
+        this.saveHistory();
+
+        if (isRelative && this.insertTarget) {
+            this.insertTarget.insertAdjacentHTML('afterend', html);
+        } else {
+            preview.insertAdjacentHTML('beforeend', html);
+        }
+
+        document.getElementById('block-inserter-menu').style.display = 'none';
+        this.injectCopyButtons();
+        this.updateAbidusScore();
+        this.addMessage(`✅ Bloco **${blockId}** inserido!`);
+    },
 
     setupEventListeners() {
         const chatInput = document.getElementById('chat-input');
@@ -267,7 +370,13 @@ window.chatApp = {
             <button onclick="window.chatApp.executeMicroCommand('Reescreva de forma mais empática, acolhedora e focada na dor emocional do paciente')" class="btn" style="background: #eff6ff; color: #1d4ed8; font-size: 11px; text-align: left; padding: 6px 10px; border: none; border-radius: 4px; cursor: pointer;">🪄 + Empático</button>
             <button onclick="window.chatApp.executeMicroCommand('Reescreva com mais autoridade clínica profissional, adicionando tom técnico de psicologia')" class="btn" style="background: #fdf2f8; color: #be185d; font-size: 11px; text-align: left; padding: 6px 10px; border: none; border-radius: 4px; cursor: pointer;">🪄 + Clínico</button>
             <button onclick="window.chatApp.executeMicroCommand('Reescreva de forma mais curta, concisa e direta ao ponto')" class="btn" style="background: #f0fdf4; color: #15803d; font-size: 11px; text-align: left; padding: 6px 10px; border: none; border-radius: 4px; cursor: pointer;">🪄 Mais Curto</button>
-            <button onclick="window.chatApp.hideMicroCommandsMenu()" class="btn" style="background: transparent; color: #94a3b8; font-size: 10px; text-align: center; margin-top: 3px; padding: 4px; border: none; cursor: pointer;">✕ Cancelar</button>
+            
+            <div style="border-top: 1px solid #f1f5f9; margin-top: 3px; padding-top: 3px;">
+                <button onclick="window.chatApp.showBlockInserterMenu(event.clientX, event.clientY, window.chatApp.selectedElement.closest('section'))" class="btn" style="background: #f8fafc; color: #334155; font-size: 11px; text-align: left; padding: 6px 10px; border: none; border-radius: 4px; cursor: pointer; width: 100%;">➕ Inserir Bloco Aqui</button>
+                <button onclick="window.chatApp.deleteBlock(window.chatApp.selectedElement.closest('section'))" class="btn" style="background: #fee2e2; color: #ef4444; font-size: 11px; text-align: left; padding: 6px 10px; border: none; border-radius: 4px; cursor: pointer; width: 100%; margin-top: 2px;">🗑️ Excluir Seção Inteira</button>
+            </div>
+
+            <button onclick="window.chatApp.hideMicroCommandsMenu()" class="btn" style="background: transparent; color: #94a3b8; font-size: 10px; text-align: center; margin-top: 3px; padding: 4px; border: none; cursor: pointer; width: 100%;">✕ Cancelar</button>
         `;
 
         // Evitar que o menu saia da tela
