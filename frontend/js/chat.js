@@ -100,7 +100,16 @@ window.chatApp = {
         }
     },
 
-    // --- ABIDOS BLOCK INSERTER ---
+    // --- Keyword helper (from header dropdown) ---
+    getKeyword() {
+        const sel = document.getElementById('ai-studio-keyword');
+        return (sel && sel.value) ? sel.value : 'psicólogo especialista em Goiânia';
+    },
+
+    // --- SISTEMA DE BLOCOS MODULAR (Método Abidos) ---
+    // Delega para window.AbidosBlocks definido em js/blocks.js.
+    // Cada bloco = seção HTML autossuficiente com <style> interno (Mobile-First).
+    // INSTRUÇÃO ELEMENTOR: Cole cada bloco no Widget HTML — nunca no Editor de Texto.
     insertAbidosBlock(blockType) {
         const preview = document.getElementById('live-preview');
         if (preview.style.display === 'none') {
@@ -110,174 +119,85 @@ window.chatApp = {
         }
         this.saveHistory();
 
-        const whatsapp = `https://wa.me/5562982171845`;
-        const crp = this.authorityContext.crp;
-        const name = this.authorityContext.name;
+        const kw  = this.getKeyword();
+        const lib = window.AbidosBlocks;
 
-        const blocks = {
-            // ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
-            // ① HERO — PRIMEIRA DOBRA
-            // ⚠️ REGRA: H1 é ÚNICO por página. SE colando no WordPress/Elementor,
-            // o título do post (gerado pelo Astra) JÁ É o H1 do tema.
-            // Nesse caso, SUBSTITUA o <h1> abaixo por <h2>.
-            // ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
-            'h1': `<header class="abidos-hero" style="padding:60px 20px; background:linear-gradient(135deg,#f0f9ff,#e0f2fe); text-align:center; border-bottom:3px solid #0ea5e9;">
-  <!-- H1: ÚNICO por página. Keyword Primária + Promessa + Localização -->
-  <h1 style="font-size:clamp(24px,4vw,42px); color:#0c4a6e; margin:0 0 15px 0; line-height:1.2;">Psicólogo Especialista em TEA Adulto em Goiânia: Diagnóstico e Suporte para Quem Sempre Se Sentiu Diferente</h1>
-</header>`,
-
-            'subtitulo': `<div style="padding:30px 20px; text-align:center; background:#f8fafc; max-width:700px; margin:0 auto;">
-  <!-- Parágrafo de apoio ao H1: modalidades + diferenciais -->
-  <p style="font-size:18px; color:#475569; line-height:1.7;">Atendimento presencial em Goiânia e online para todo o Brasil. Ambiente sigiloso e acolhedor, conduzido por psicólogo CRP ${crp}.</p>
-</div>`,
-
-            'cta': `<div style="text-align:center; padding:30px 20px; background:#f0fdf4;">
-  <!-- CTA Primário: botão focado no benefício -->
-  <a href="${whatsapp}" target="_blank" style="display:inline-block; background:#16a34a; color:white; padding:16px 32px; border-radius:50px; font-size:18px; font-weight:bold; text-decoration:none; box-shadow:0 4px 15px rgba(22,163,74,0.4);">📱 Toque aqui para falar comigo</a>
-  <p style="color:#64748b; font-size:12px; margin-top:10px;">Resposta em até 24h • Sem compromisso</p>
-</div>
-<!-- Botão flutuante WhatsApp (onipresente, Mobile-First) -->
-<a href="${whatsapp}" target="_blank" aria-label="Falar pelo WhatsApp" style="position:fixed; bottom:20px; right:20px; background:#16a34a; color:white; width:56px; height:56px; border-radius:50%; display:flex; align-items:center; justify-content:center; font-size:28px; text-decoration:none; z-index:9999; box-shadow:0 4px 15px rgba(0,0,0,0.2);">💬</a>`,
-
-            // ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
-            // ② CORPO / JORNADA
-            // H2 = Seção estratégica / silo semântico
-            // H3 = Subtítulo dentro do H2 (detalhe de serviço ou objeção)
-            // ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
-            'dor': `<section style="padding:50px 20px; background:#fff1f2; border-top:3px solid #f43f5e;">
-  <div style="max-width:700px; margin:0 auto; text-align:center;">
-    <!-- H2: Pergunta retórica para conexão emocional / identificação da dor -->
-    <h2 style="color:#9f1239; font-size:clamp(20px,3vw,28px);">Sente que a exaustão emocional está travando sua vida?</h2>
-    <p style="color:#64748b; font-size:16px; line-height:1.8; margin-top:15px;">Você se esforça muito mais do que os outros só para parecer "normal". Sente um cansaço profundo que ninguém ao redor consegue entender.</p>
-    <div style="display:flex; justify-content:center; gap:20px; margin-top:30px; flex-wrap:wrap;">
-      <!-- H3: Ícones + micro-identificadores de dor -->
-      <div style="background:white; padding:15px 20px; border-radius:8px; border-left:4px solid #f43f5e; max-width:200px; text-align:left;"><span style="font-size:24px;">😰</span><h3 style="font-size:13px; color:#64748b; margin:5px 0 0 0; font-weight:normal;">Ansiedade social e sobrecarga sensorial</h3></div>
-      <div style="background:white; padding:15px 20px; border-radius:8px; border-left:4px solid #f43f5e; max-width:200px; text-align:left;"><span style="font-size:24px;">🎭</span><h3 style="font-size:13px; color:#64748b; margin:5px 0 0 0; font-weight:normal;">Mascaramento (Masking) exaustivo</h3></div>
-      <div style="background:white; padding:15px 20px; border-radius:8px; border-left:4px solid #f43f5e; max-width:200px; text-align:left;"><span style="font-size:24px;">🔍</span><h3 style="font-size:13px; color:#64748b; margin:5px 0 0 0; font-weight:normal;">Dúvida: "Será que sou autista?"</h3></div>
-    </div>
-  </div>
-</section>`,
-
-            'beneficios': `<section style="padding:50px 20px; background:#f8fafc;">
-  <div style="max-width:800px; margin:0 auto;">
-    <!-- H2: Introdução dos serviços / silos semânticos -->
-    <h2 style="text-align:center; color:#1e293b; font-size:clamp(20px,3vw,28px);">Como a Psicologia Especializada em Goiânia Pode te Ajudar</h2>
-    <div style="display:grid; grid-template-columns:repeat(auto-fit,minmax(220px,1fr)); gap:20px; margin-top:30px;">
-      <!-- H3: Detalhamento de cada serviço (micro-intenção) -->
-      <div style="background:white; padding:25px; border-radius:12px; box-shadow:0 2px 8px rgba(0,0,0,0.06);"><div style="font-size:30px; margin-bottom:10px;">🧠</div><h3 style="font-size:16px; color:#1e293b; margin:0 0 8px 0;">Avaliação Diagnóstica de TEA em Adultos em Goiânia</h3><p style="font-size:13px; color:#64748b; margin:0;">Processo criterioso, humanizado e baseado em instrumentos validados internacionalmente.</p></div>
-      <div style="background:white; padding:25px; border-radius:12px; box-shadow:0 2px 8px rgba(0,0,0,0.06);"><div style="font-size:30px; margin-bottom:10px;">🌀</div><h3 style="font-size:16px; color:#1e293b; margin:0 0 8px 0;">Hipnose Clínica Ericksoniana para Ansiedade</h3><p style="font-size:13px; color:#64748b; margin:0;">Técnica reconhecida pelo CFP (Res. 013/2000) para ansiedade, compulsões e fobias.</p></div>
-      <div style="background:white; padding:25px; border-radius:12px; box-shadow:0 2px 8px rgba(0,0,0,0.06);"><div style="font-size:30px; margin-bottom:10px;">💬</div><h3 style="font-size:16px; color:#1e293b; margin:0 0 8px 0;">Psicoterapia Online — Todo o Brasil</h3><p style="font-size:13px; color:#64748b; margin:0;">Atendimento seguro, sigiloso e com a mesma qualidade do presencial.</p></div>
-    </div>
-  </div>
-</section>`,
-
-            'objections': `<section style="padding:40px 20px; background:#fffbe8; border-top:1px solid #fef08a;">
-  <div style="max-width:700px; margin:0 auto;">
-    <!-- H2: Quebra de objeções (sub-silo dentro de Benefícios) -->
-    <h2 style="color:#854d0e; font-size:clamp(18px,2.5vw,22px);">Ainda tem dúvidas? Veja o que nossos pacientes precisavam saber antes de agendar</h2>
-    <ul style="list-style:none; padding:0; margin:15px 0 0 0; display:flex; flex-direction:column; gap:12px;">
-      <!-- H3: Prova de cada objeção específica -->
-      <li style="background:white; padding:12px 15px; border-radius:8px; border-left:3px solid #eab308;"><h3 style="font-size:14px; color:#64748b; margin:0; font-weight:normal;">✅ <strong>Sigilo garantido</strong> — Protegido pelo Código de Ética do CFP (art. 9º).</h3></li>
-      <li style="background:white; padding:12px 15px; border-radius:8px; border-left:3px solid #eab308;"><h3 style="font-size:14px; color:#64748b; margin:0; font-weight:normal;">✅ <strong>Sem julgamentos</strong> — Um ambiente seguro para você ser quem é.</h3></li>
-      <li style="background:white; padding:12px 15px; border-radius:8px; border-left:3px solid #eab308;"><h3 style="font-size:14px; color:#64748b; margin:0; font-weight:normal;">✅ <strong>Primeira sessão de alinhamento</strong> — Para avaliar juntos o melhor caminho.</h3></li>
-    </ul>
-  </div>
-</section>`,
-
-            // ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
-            // ③ AUTORIDADE / E-E-A-T
-            // H2 = seção de autoridade / transparência
-            // H3 = credenciais, detalhes do especialista
-            // ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
-            'autoridade': `<section style="padding:50px 20px; background:#eef2ff; border-top:3px solid #6366f1;">
-  <div style="max-width:700px; margin:0 auto; display:flex; gap:30px; align-items:center; flex-wrap:wrap;">
-    <div style="width:120px; height:120px; border-radius:50%; background:#cbd5e1; flex-shrink:0; display:flex; align-items:center; justify-content:center; font-size:40px;">👨‍⚕️</div>
-    <div style="flex:1;">
-      <!-- H2: Humanização + Autoridade (E-E-A-T) -->
-      <h2 style="color:#312e81; font-size:clamp(18px,2.5vw,24px); margin:0 0 5px 0;">Conheça ${name}, seu Psicólogo Especialista em Goiânia</h2>
-      <!-- H3: Credenciais e registro (sinal de E-E-A-T para o Google) -->
-      <h3 style="color:#4338ca; font-size:14px; margin:0 0 12px 0; font-weight:600;">Psicólogo CRP ${crp} • Mestrando em Ciências da Saúde (UFU) • Instituto Lawrence de Hipnose Clínica</h3>
-      <p style="color:#475569; font-size:14px; line-height:1.7; margin:0;">Especialista em Avaliação e Diagnóstico de TEA em Adultos e Hipnose Clínica Ericksoniana. Mais de 5 anos dedicados ao cuidado de adultos que sempre sentiram que eram "diferentes".</p>
-    </div>
-  </div>
-</section>`,
-
-            'ambiente': `<section style="padding:50px 20px; background:#f8fafc;">
-  <div style="max-width:800px; margin:0 auto; text-align:center;">
-    <!-- H2: Transparência do consultório — elimina medo do desconhecido -->
-    <h2 style="color:#1e293b; font-size:clamp(18px,2.5vw,24px);">Um Ambiente Seguro e Preparado para Você em Goiânia</h2>
-    <p style="color:#64748b; font-size:14px; margin:10px 0 25px 0;">Consultório pensado para conforto sensorial e privacidade total.</p>
-    <div style="display:grid; grid-template-columns:repeat(auto-fit,minmax(200px,1fr)); gap:15px;">
-      <!-- Substitua pelos arquivos reais: consultorio-goiania-01.jpg, etc. -->
-      <div style="background:#e2e8f0; height:180px; border-radius:12px; display:flex; align-items:center; justify-content:center; font-size:40px;">🏠</div>
-      <div style="background:#e2e8f0; height:180px; border-radius:12px; display:flex; align-items:center; justify-content:center; font-size:40px;">🛋️</div>
-      <div style="background:#e2e8f0; height:180px; border-radius:12px; display:flex; align-items:center; justify-content:center; font-size:40px;">🌿</div>
-    </div>
-    <p style="font-size:11px; color:#94a3b8; margin-top:10px;">📸 Troque os ícones por fotos do consultório. Nome do arquivo: consultorio-psicologo-goiania-01.jpg</p>
-  </div>
-</section>`,
-
-            'social': `<section style="padding:50px 20px; background:#fffbe8; border-top:3px solid #eab308;">
-  <div style="max-width:700px; margin:0 auto; text-align:center;">
-    <!-- H2: Prova Social / Certificações (em nichos regulamentados: currículo e ciência) -->
-    <h2 style="color:#854d0e; font-size:clamp(18px,2.5vw,24px);">Formação e Reconhecimento Técnico do Dr. ${name}</h2>
-    <p style="color:#92400e; font-size:13px; margin-bottom:25px;">Em saúde mental, a prova de qualidade é o currículo, as certificações e a ciência.</p>
-    <div style="display:flex; justify-content:center; gap:20px; flex-wrap:wrap;">
-      <!-- H3: Cada certificação / credencial -->
-      <div style="background:white; padding:15px 20px; border-radius:8px; border:1px solid #fef08a; min-width:140px;"><div style="font-size:28px;">🎓</div><h3 style="font-size:12px; color:#64748b; margin:5px 0 0 0; font-weight:600;">Mestrando UFU — Ciências da Saúde</h3></div>
-      <div style="background:white; padding:15px 20px; border-radius:8px; border:1px solid #fef08a; min-width:140px;"><div style="font-size:28px;">📋</div><h3 style="font-size:12px; color:#64748b; margin:5px 0 0 0; font-weight:600;">CRP ${crp} — Psicólogo Registrado</h3></div>
-      <div style="background:white; padding:15px 20px; border-radius:8px; border:1px solid #fef08a; min-width:140px;"><div style="font-size:28px;">⭐</div><h3 style="font-size:12px; color:#64748b; margin:5px 0 0 0; font-weight:600;">Avaliações Google Meu Negócio</h3></div>
-    </div>
-  </div>
-</section>`,
-
-            // ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
-            // ④ RETENÇÃO / RODAPÉ
-            // FAQ: SEMPRE H2 (obrigatório pelo Método Abidos)
-            // Linkagem: SEMPRE www.hipnolawrence.com como página raiz
-            // ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
-            'faq': `<section style="padding:50px 20px; background:#f8fafc;">
-  <div style="max-width:700px; margin:0 auto;">
-    <!-- H2: FAQ (OBRIGATÓRIO ser H2 — nunca H3 ou H4) -->
-    <h2 style="text-align:center; color:#1e293b; font-size:clamp(18px,2.5vw,24px);">Perguntas Frequentes sobre Psicologia e TEA Adulto em Goiânia</h2>
-    <!-- Accordion nativo HTML5 (<details>/<summary>) — compatível com Elementor sem JavaScript customizado -->
-    <div style="margin-top:25px; display:flex; flex-direction:column; gap:10px;">
-      <details style="background:white; padding:15px 20px; border-radius:8px; border:1px solid #e2e8f0; cursor:pointer;"><summary style="font-weight:bold; color:#334155; font-size:14px;">O atendimento psicológico em Goiânia é sigiloso?</summary><p style="color:#64748b; font-size:13px; margin:10px 0 0 0; line-height:1.7;">Sim. O sigilo profissional é garantido pelo Código de Ética do CFP (art. 9º). Nenhuma informação sua será compartilhada sem autorização expressa.</p></details>
-      <details style="background:white; padding:15px 20px; border-radius:8px; border:1px solid #e2e8f0; cursor:pointer;"><summary style="font-weight:bold; color:#334155; font-size:14px;">Quanto tempo dura a avaliação de TEA Adulto?</summary><p style="color:#64748b; font-size:13px; margin:10px 0 0 0; line-height:1.7;">O processo varia de 3 a 6 sessões, dependendo do caso. Utilizamos instrumentos validados internacionalmente pelo protocolo ADOS-2 e ADI-R.</p></details>
-      <details style="background:white; padding:15px 20px; border-radius:8px; border:1px solid #e2e8f0; cursor:pointer;"><summary style="font-weight:bold; color:#334155; font-size:14px;">A hipnose clínica funciona para ansiedade?</summary><p style="color:#64748b; font-size:13px; margin:10px 0 0 0; line-height:1.7;">Sim. A Hipnose Clínica Ericksoniana é reconhecida pelo CFP (Resolução 013/2000) e tem eficácia comprovada em ansiedade, fobias e compulsões.</p></details>
-      <details style="background:white; padding:15px 20px; border-radius:8px; border:1px solid #e2e8f0; cursor:pointer;"><summary style="font-weight:bold; color:#334155; font-size:14px;">O psicólogo atende plano de saúde?</summary><p style="color:#64748b; font-size:13px; margin:10px 0 0 0; line-height:1.7;">No momento atendo apenas de forma particular. Consulte valores e condições pelo WhatsApp.</p></details>
-    </div>
-  </div>
-</section>`,
-
-            'linkagem': `<section style="padding:40px 20px; background:#1e293b;">
-  <div style="max-width:700px; margin:0 auto; text-align:center;">
-    <!-- Linkagem interna estratégica (Silo) — distribui autoridade pelo site -->
-    <p style="color:#94a3b8; font-size:13px; margin:0 0 20px 0; text-transform:uppercase; letter-spacing:1px;">Veja também</p>
-    <div style="display:flex; justify-content:center; gap:15px; flex-wrap:wrap;">
-      <a href="https://www.hipnolawrence.com/psicologia-goiania" style="background:#334155; color:#e2e8f0; padding:10px 20px; border-radius:8px; text-decoration:none; font-size:13px;">🧠 Psicologia em Goiânia</a>
-      <a href="https://www.hipnolawrence.com/hipnose-clinica-goiania" style="background:#334155; color:#e2e8f0; padding:10px 20px; border-radius:8px; text-decoration:none; font-size:13px;">🌀 Hipnose Clínica</a>
-      <!-- Link para a Página Inicial — SEMPRE www.hipnolawrence.com -->
-      <a href="https://www.hipnolawrence.com" style="background:#0ea5e9; color:white; padding:10px 20px; border-radius:8px; text-decoration:none; font-size:13px; font-weight:bold;">🏠 Início — hipnolawrence.com</a>
-    </div>
-  </div>
-</section>`,
-
-            'hero': null, // handled below — composição de h1 + subtitulo + cta
-        };
-
-        // 'hero' = h1 + subtitulo + cta composto
+        let inserted = false;
         if (blockType === 'hero') {
-            preview.insertAdjacentHTML('afterbegin', blocks['h1'] + blocks['subtitulo'] + blocks['cta']);
-        } else if (blocks[blockType]) {
-            preview.insertAdjacentHTML('beforeend', blocks[blockType]);
+            const h = lib.get('h1', kw);
+            const s = lib.get('subtitulo', kw);
+            const c = lib.get('cta', kw);
+            if (h && s && c) {
+                preview.insertAdjacentHTML('afterbegin', h + s + c);
+                inserted = true;
+            }
         } else {
+            const html = lib.get(blockType, kw);
+            if (html) {
+                preview.insertAdjacentHTML('beforeend', html);
+                inserted = true;
+            }
+        }
+
+        if (!inserted) {
             this.addMessage(`⚠️ Bloco "${blockType}" não reconhecido.`, false);
             return;
         }
 
-        this.addMessage(`✅ Bloco **${blockType}** inserido. Clique no Preview para editar com Micro-Comandos.`, false);
+        this.injectCopyButtons();
+
+        this.addMessage(
+            `✅ Bloco **${blockType}** inserido!\n\n` +
+            `👉 **Como publicar no WordPress/Elementor:**\n` +
+            `1. Passe o mouse sobre o bloco → clique **📋 Copiar Bloco**\n` +
+            `2. No Elementor: arraste um widget **HTML** (nunca "Editor de Texto")\n` +
+            `3. Cole e clique em **Publicar**`,
+            false
+        );
     },
+
+    // --- Copia o HTML de um bloco isolado ---
+    copyBlock(sectionEl) {
+        const clone = sectionEl.cloneNode(true);
+        clone.querySelectorAll('.bloco-copy-btn').forEach(b => b.remove());
+        const html = clone.outerHTML;
+        const msg  = '📋 Bloco copiado!\n\nCole no **Widget HTML** do Elementor (nunca no Editor de Texto).';
+        if (navigator.clipboard) {
+            navigator.clipboard.writeText(html).then(() => this.addMessage(msg, false));
+        } else {
+            const ta = document.createElement('textarea');
+            ta.value = html;
+            document.body.appendChild(ta);
+            ta.select();
+            document.execCommand('copy');
+            document.body.removeChild(ta);
+            this.addMessage(msg, false);
+        }
+    },
+
+    // --- Injeta botão "📋 Copiar Bloco" em cada <section data-bloco> ---
+    injectCopyButtons() {
+        const preview = document.getElementById('live-preview');
+        preview.querySelectorAll('section[data-bloco]').forEach(sec => {
+            if (sec.querySelector('.bloco-copy-btn')) return;
+            sec.style.position = 'relative';
+            const btn = document.createElement('button');
+            btn.className   = 'bloco-copy-btn';
+            btn.title       = 'Copiar bloco para Widget HTML do Elementor';
+            btn.textContent = '📋 Copiar Bloco';
+            Object.assign(btn.style, {
+                position: 'absolute', top: '10px', right: '10px',
+                background: '#1e293b', color: 'white', border: 'none',
+                padding: '6px 12px', borderRadius: '6px', fontSize: '11px',
+                cursor: 'pointer', fontWeight: '700', zIndex: '999',
+                opacity: '0', transition: 'opacity .2s',
+            });
+            btn.addEventListener('click', e => { e.stopPropagation(); this.copyBlock(sec); });
+            sec.appendChild(btn);
+            sec.addEventListener('mouseenter', () => btn.style.opacity = '1');
+            sec.addEventListener('mouseleave', () => btn.style.opacity = '0');
+        });
+
 
     setupEventListeners() {
         const chatInput = document.getElementById('chat-input');
@@ -658,6 +578,12 @@ window.chatApp = {
             promptContext += `\n\n[AJUSTE FINO]: O usuário selecionou este elemento: \n${elHtml}\nAltere apenas este elemento ou o bloco sugerido.`;
         }
 
+        // 2.1 [NOVO] Sistema de Blocos Abidos Modular
+        promptContext += `\n\n[SISTEMA DE BLOCOS MODULARES]: O sistema possui blocos pré-definidos (que o usuário pode inserir via comandos ou manualmente).
+        IDs Disponíveis: hero, dor, beneficios, objections, autoridade, ambiente, social, faq, linkagem.
+        VANTAGEM: Esses blocos são Mobile-First e compatíveis com o Widget HTML do Elementor.
+        AÇÃO: Se o usuário pedir algo novo ou estrutural, sugiro que ele utilize esses blocos específicos (ex: "Sugiro inserir o bloco 'dor' para conectar com o paciente").`;
+
         formData.append('message', promptContext);
         
         // 3. Contexto da Página Inteira
@@ -958,18 +884,14 @@ REGRAS:
         const keyword = document.getElementById('ai-studio-keyword').value || "TEA em Adultos";
         const title = document.getElementById('ai-studio-new-title').value || "Psicoterapia Especializada";
         const prompts = {
-            full: `Crie um conteúdo COMPLETO seguindo a ARQUITETURA OBRIGATÓRIA LAWRENCE para o Título: "${title}". Use a keyword "${keyword}". 
-ORDEM DE CONSTRUÇÃO:
-1. Seção Hero: H1 (Forte + Goiânia), subtítulo acolhedor e botão WhatsApp.
-2. Jornada do Paciente: H2 Identificação da Dor (Empatia profunda), H2 Benefícios Clínicos, H3 Quebra de Objeções/FAQ sutil.
-3. Autoridade: H2 Sobre o Especialista (Dr. Victor Lawrence, Bio, CRP, espaço para foto), H2 Infraestrutura/Ambiente.
-4. Retenção: H2 FAQ Accordion, Linkagem Interna linkando para www.hipnolawrence.com.
-Regras: NUNCA cite a palavra Abidos. Use tom empático-clínico. Localização: Goiânia.`,
-            hero: `Crie uma dobra Hero (Header) focada em conversão para "${keyword}". Regra: Título de impacto focado na dor do paciente, subtexto de autoridade e um botão de CTA para WhatsApp em Goiânia. NUNCA use a palavra Abidos no texto. OBRIGATÓRIO: Inclua um link orgânico para a home em www.hipnolawrence.com.`,
-            social: `Gere uma seção de depoimentos de pacientes adultos com TEA. Use um design limpo e inclua um link sutil para 'Conhecer nossa história' levando a www.hipnolawrence.com. NUNCA cite a palavra Abidos.`,
-            faq: `Crie um FAQ quebra-objeções focado em TEA Adulto e Hipnose. As respostas devem ser acolhedoras e citar a página inicial www.hipnolawrence.com para mais detalhes sobre a clínica.`,
-            eeat: `Crie uma seção 'Sobre o Especialista' focada no Dr. Victor Lawrence, CRM/CRP e especialidade em Autismo Feminino. Inclua um botão 'Voltar para a Home' para www.hipnolawrence.com.`,
-            cta: `Crie um botão flutuante de WhatsApp animado e um link de rodapé contextualizado para www.hipnolawrence.com.`
+            full: `Sugira a estrutura ideal para uma Landing Page de Conversão para "${title}" com o foco "${keyword}". 
+                Liste os BLOCOS ABIDOS na ordem estratégica: hero, dor, beneficios, objections, autoridade, ambiente, social, faq, linkagem.
+                Explique por que cada bloco é crucial no Método Abidos para psicologia.`,
+            hero: `Como posso otimizar a seção 'hero' (H1 + Promessa) para converter pacientes de ${keyword} em Goiânia?`,
+            social: `Sugira 3 variações de texto para a seção 'social' (Prova Social Acadêmica) focadas no Mestrado e no atendimento de TEA Adulto.`,
+            faq: `Identifique as 3 maiores dores ocultas de quem busca ${keyword} e sugira incluí-las na seção 'faq'.`,
+            eeat: `Como a seção 'autoridade' pode destacar melhor o Registro CRP e a formação acadêmica do Dr. Lawrence?`,
+            cta: `Qual a melhor frase de agendamento (CTA) para converter pacientes em Goiânia via WhatsApp para ${keyword}?`
         };
         const input = document.getElementById('chat-input');
         input.value = prompts[type];
@@ -978,17 +900,8 @@ Regras: NUNCA cite a palavra Abidos. Use tom empático-clínico. Localização: 
 
     // [NOVO] Handler para os novos botões do Painel Abidos
     runAbidusShortcut(type) {
-        const input = document.getElementById('chat-input');
-        const shortcuts = {
-            hero: "Gere uma seção Hero (Cabeçalho) HTML/Tailwind focada em conversão (Método Abidos: Promessa Clara no H1, Sub-headline atacando a dor principal, e um Botão de CTA grande para WhatsApp). Não inclua header/footer, apenas a seção.",
-            social: "Gere uma seção de Prova Social seguindo boas práticas de UI para terapeutas, com cards de depoimentos impactantes e design limpo.",
-            faq: "Gere um componente de FAQ em Accordion (HTML/JS) focado em quebrar as principais objeções de pacientes de TEA Adulto ou Hipnose Clínica."
-        };
-        
-        if (shortcuts[type]) {
-            input.value = shortcuts[type];
-            this.sendMessage();
-        }
+        // Agora usa o sistema modular de blocos oficial
+        this.insertAbidosBlock(type);
     },
 
     async analyzeConversion() {
