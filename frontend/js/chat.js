@@ -182,6 +182,7 @@ window.chatApp = {
             
             // Oculta o campo de título novo se estiver aparecendo
             document.getElementById('ai-studio-new-title').style.display = 'none';
+            document.getElementById('ai-studio-suggest-btn').style.display = 'none';
             document.getElementById('ai-studio-item').style.display = 'block';
 
             addMessage(`Acabei de carregar o componente **${data.title.rendered}** na sua tela visual. O que você gostaria de mudar nele?`);
@@ -202,6 +203,9 @@ window.chatApp = {
         titleInput.style.display = 'block';
         titleInput.value = "";
         titleInput.focus();
+        
+        const suggestBtn = document.getElementById('ai-studio-suggest-btn');
+        suggestBtn.style.display = 'block';
         
         document.getElementById('live-preview').innerHTML = '<h1 style="color: #1a202c; font-size: 24px; text-align: center; margin-top: 50px; opacity: 0.5;">Comece a escrever seu novo rascunho aqui ou peça para a IA criar algo...</h1>';
         document.getElementById('ai-studio-title').innerText = "Novo Rascunho (" + (this.currentType === 'pages' ? 'Página' : 'Post') + ")";
@@ -242,6 +246,7 @@ window.chatApp = {
             this.currentItemId = result.id;
             this.currentType = type;
             titleInput.style.display = 'none';
+            document.getElementById('ai-studio-suggest-btn').style.display = 'none';
             document.getElementById('ai-studio-title').innerText = `Editando Rascunho: ${result.title.rendered || newTitle}`;
             alert(`Sucesso! ${isNew ? 'Criado e ' : ''}salvo no WordPress como Rascunho (ID: ${result.id}).`);
             
@@ -256,6 +261,24 @@ window.chatApp = {
         
         btn.innerText = originalText;
         btn.disabled = false;
+    },
+
+    async suggestTitle() {
+        const type = document.getElementById('ai-studio-type').value;
+        const titleInput = document.getElementById('ai-studio-new-title');
+        
+        const prompt = `Atue como um Especialista em SEO Local e Copywriter focado em conversão. 
+Sua tarefa é sugerir um título altamente persuasivo para um novo conteúdo de ${type === 'pages' ? 'Página' : 'Post'}.
+O foco é Psicoterapia, TEA em Adultos (Autismo Leve), Masking e Burnout Autista.
+Use o Método Abidos: Foque na dor, autoridade e localização (Goiânia).
+
+Retorne APENAS uma sugestão de título curta e impactante.`;
+
+        const suggestion = await gemini.callAPI(prompt);
+        if(suggestion) {
+            titleInput.value = suggestion;
+            addMessage(`💡 Sugestão de Título: **"${suggestion}"**. O que achou?`);
+        }
     }
 };
 
