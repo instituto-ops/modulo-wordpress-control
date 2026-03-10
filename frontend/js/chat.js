@@ -7,6 +7,18 @@ window.chatApp = {
     currentItemId: null,
     currentType: null,
     selectedElement: null,
+    // [NOVO] Dados de Autoridade do Dr. Victor Lawrence (E-E-A-T)
+    authorityContext: {
+        name: "Victor Lawrence Bernardes Santana",
+        crp: "09/012681",
+        title: "Mestrando em Ciências da Saúde (UFU)",
+        institution: "Instituto Lawrence de Hipnose Clínica",
+        socials: {
+            instagram: "https://www.instagram.com/hipnolawrence",
+            doctoralia: "https://www.doctoralia.com.br/victor-lawrence-bernardes-santana/psicologo-terapeuta-complementar/goiania",
+            whatsapp: "62 98217-1845"
+        }
+    },
 
     init() {
         this.setupEventListeners();
@@ -72,10 +84,17 @@ window.chatApp = {
             msgDiv.style.background = '#e0f2fe';
             msgDiv.style.color = '#0369a1';
             
-            // Formatando blocos de código HTML
+            // Formatando blocos de código HTML (Refatorado para Injeção Não-Destrutiva)
             let formattedText = text.replace(/```html([\s\S]*?)```/g, (match, p1) => {
                 return `<br><br><div style="background:#1e293b; color:#fbbf24; padding:10px; border-radius:5px; font-family:monospace; font-size:12px; overflow-x:auto;">${p1.replace(/</g, '&lt;').replace(/>/g, '&gt;')}</div>
-                <button onclick="window.injectCode(this)" data-code="${encodeURIComponent(p1)}" style="margin-top:5px; padding:5px; background:#6366f1; color:white; border:none; border-radius:4px; cursor:pointer;">⚡ Injetar no Preview</button><br><br>`;
+                <div style="margin-top:8px; display:flex; gap:5px; align-items:center;">
+                    <select class="injection-mode" style="padding:4px; font-size:11px; border-radius:4px; border:1px solid #cbd5e1;">
+                        <option value="append">➕ Adicionar ao Final</option>
+                        <option value="prepend">🔙 Adicionar ao Início</option>
+                        <option value="replace">🔄 Substituir Tudo</option>
+                    </select>
+                    <button onclick="window.injectCode(this)" data-code="${encodeURIComponent(p1)}" style="padding:5px 12px; background:#6366f1; color:white; border:none; border-radius:4px; cursor:pointer; font-size:11px; font-weight:bold;">⚡ Aplicar no Canvas</button>
+                </div><br><br>`;
             });
 
             // Formatando markdown básico
@@ -99,6 +118,13 @@ window.chatApp = {
 
         chatInput.value = '';
         
+        // [NOVO] Injeção de Contexto de SEO Dinâmico
+        const seoContext = document.getElementById('seo-context').value;
+        let enhancedMessage = message;
+        if (seoContext) {
+            enhancedMessage += `\n\n[INSTRUÇÃO DE SEO OCULTA]: Certifique-se de usar a palavra-chave "${seoContext}" nas tags H1, H2 ou no primeiro parágrafo gerado. Foco em conversão clínica.`;
+        }
+
         if (hasScreenshot) {
             this.addMessage(message + "<br><em>📸 (Anexou Visualização da Tela)</em>", true);
             btnSnap.innerHTML = '⚙️ Processando...';
@@ -112,12 +138,19 @@ window.chatApp = {
         const formData = new FormData();
         
         // CONSTRUÇÃO DO PROMPT COM CONTEXTO
-        let promptContext = message;
+        let promptContext = enhancedMessage;
         
         // 1. Contexto de Keyword SEO
         if (keyword) {
             promptContext += `\n\n[FOCO SEO]: A keyword prioritária é "${keyword}". Use-a estrategicamente conforme o Método Abidos.`;
         }
+
+        // 1.1 Contexto de Autoridade (E-E-A-T / Psicólogo Victor Lawrence)
+        promptContext += `\n\n[DADOS DO ESPECIALISTA]: Nome: ${this.authorityContext.name}, CRP: ${this.authorityContext.crp}, Titulação: ${this.authorityContext.title}, Clínica: ${this.authorityContext.institution}. 
+        Tratamento Profissional: Utilize sempre "Psicólogo Victor Lawrence" em vez de "Dr.".
+        Linkagem Interna: Sempre cite a home www.hipnolawrence.com.
+        WhatsApp: ${this.authorityContext.socials.whatsapp}.
+        IMPORTANTE: Sempre inclua o CRP próximo ao nome do especialista em seções de autoridade.`;
 
         // 2. Contexto de Ajuste Fino (Elemento Selecionado)
         if (this.selectedElement) {
@@ -375,6 +408,21 @@ Regras: NUNCA cite a palavra Abidos. Use tom empático-clínico. Localização: 
         this.sendMessage();
     },
 
+    // [NOVO] Handler para os novos botões do Painel Abidos
+    runAbidusShortcut(type) {
+        const input = document.getElementById('chat-input');
+        const shortcuts = {
+            hero: "Gere uma seção Hero (Cabeçalho) HTML/Tailwind focada em conversão (Método Abidos: Promessa Clara no H1, Sub-headline atacando a dor principal, e um Botão de CTA grande para WhatsApp). Não inclua header/footer, apenas a seção.",
+            social: "Gere uma seção de Prova Social seguindo boas práticas de UI para terapeutas, com cards de depoimentos impactantes e design limpo.",
+            faq: "Gere um componente de FAQ em Accordion (HTML/JS) focado em quebrar as principais objeções de pacientes de TEA Adulto ou Hipnose Clínica."
+        };
+        
+        if (shortcuts[type]) {
+            input.value = shortcuts[type];
+            this.sendMessage();
+        }
+    },
+
     async analyzeConversion() {
         this.addMessage("⚙️ Iniciando Auditoria Abidos CRO...", false);
         const html = document.getElementById('live-preview').innerHTML;
@@ -432,13 +480,142 @@ RETORNE APENAS UM JSON no formato exato:
                 this.addMessage("❌ Erro ao formatar sugestão de SEO. Tente novamente ou use o título sugerido.");
             }
         }
+    },
+
+    // [NOVO] Análise de Necessidades de Mídia via IA (Abidos Method)
+    async analyzeMediaNeeds() {
+        const html = document.getElementById('live-preview').innerHTML;
+        const panel = document.getElementById('media-needs-panel');
+        const list = document.getElementById('media-needs-list');
+        
+        if (html.includes('Crie algo novo')) {
+            return this.addMessage("⚠️ Crie ou carregue algum conteúdo antes de planejar a mídia.");
+        }
+
+        this.addMessage("⚙️ NeuroEngine está mapeando oportunidades visuais no seu texto...");
+        panel.style.display = 'block';
+        list.innerHTML = '<p style="font-size:11px; color:#64748b;">Analisando estrutura de conversão...</p>';
+
+        const prompt = `Atue como um Diretor de Arte e Especialista em Conversão (Método Abidos).
+Analise o conteúdo HTML abaixo e identifique 3 pontos onde uma imagem aumentaria a conversão ou autoridade.
+Para cada ponto, defina uma "Necessidade".
+
+RETORNE APENAS UM JSON no formato de array:
+[
+  {"need": "Imagem do Consultório Goiânia", "reason": "Aumentar E-E-A-T e confiança no ambiente físico."},
+  {"need": "Foto do Dr. Lawrence sorrindo", "reason": "Gerar conexão humana na seção de autoridade."},
+  {"need": "Ilustração de TEA Adulto", "reason": "Representação visual da dor do Mascaramento."}
+]
+
+HTML: \n${html}`;
+
+        const response = await gemini.callAPI(prompt);
+        if (response) {
+            try {
+                const jsonStr = response.replace(/```json|```/g, '').trim();
+                const needs = JSON.parse(jsonStr);
+                list.innerHTML = '';
+                
+                needs.forEach(n => {
+                    const row = document.createElement('div');
+                    row.style.display = 'flex';
+                    row.style.justifyContent = 'space-between';
+                    row.style.alignItems = 'center';
+                    row.style.background = '#f9fafb';
+                    row.style.padding = '8px';
+                    row.style.borderRadius = '5px';
+                    row.style.border = '1px solid #e2e8f0';
+                    
+                    row.innerHTML = `
+                        <div style="flex:1;">
+                            <p style="font-size:12px; font-weight:bold; margin:0;">${n.need}</p>
+                            <p style="font-size:10px; color:#64748b; margin:0;">${n.reason}</p>
+                        </div>
+                        <div style="display:flex; gap:5px;">
+                            <button class="btn btn-secondary" style="font-size:10px; padding:3px 8px;" onclick="document.querySelector('[data-target=&quot;media-library&quot;]').click()">📂 Selecionar</button>
+                            <button class="btn btn-primary" style="font-size:10px; padding:3px 8px; background:#6366f1;" onclick="window.chatApp.suggestBestMedia('${n.need.replace(/'/g, "\\'")}')">🪄 Sugestão IA</button>
+                        </div>
+                    `;
+                    list.appendChild(row);
+                });
+            } catch (e) {
+                list.innerHTML = '<p style="color:red; font-size:11px;">Erro ao mapear mídia. Tente novamente.</p>';
+            }
+        }
+    },
+
+    // [NOVO] Sugestão Inteligente de Mídia do Banco de Dados
+    async suggestBestMedia(needText) {
+        this.addMessage(`🪄 Buscando a melhor imagem para: **"${needText}"** no seu acervo WP...`);
+        
+        // 1. Busca lista de mídia atual do WP
+        const mediaList = await wpAPI.fetchMedia();
+        if (!mediaList || mediaList.length === 0) {
+            return this.addMessage("❌ Sua biblioteca WP está vazia. Faça upload de imagens primeiro.");
+        }
+
+        // 2. Prepara mini-catálogo para a IA
+        const catalog = mediaList.map(m => ({
+            id: m.id,
+            title: m.title.rendered,
+            alt: m.alt_text,
+            url: m.source_url
+        }));
+
+        const prompt = `Atue como Bibliotecário Estratégico do Método Abidos.
+O usuário precisa de uma imagem para o seguinte objetivo: "${needText}".
+
+Temos o seguinte acervo de mídia (ID, Título, Alt Text, URL):
+${JSON.stringify(catalog)}
+
+REGRAS:
+1. Escolha a imagem que melhor se adapta à necessidade.
+2. Priorize imagens com Alt Text que combine com o objetivo.
+3. Se nenhuma for perfeita, escolha a "menos pior" ou mais genérica/clínica.
+4. RETORNE APENAS O JSON da imagem escolhida (exatamente como fornecido no catálogo).
+
+RETORNE APENAS O JSON, sem comentários.`;
+
+        const response = await gemini.callAPI(prompt);
+        if (response) {
+            try {
+                const jsonStr = response.replace(/```json|```/g, '').trim();
+                const selected = JSON.parse(jsonStr);
+                
+                this.addMessage(`✅ **Sugestão Encontrada!**\n\nA IA escolheu: **"${selected.title}"**.\nAlt Text: *${selected.alt || 'Nenhum'}*`);
+                
+                // Feedback visual no chat com a imagem
+                this.addMessage(`<img src="${selected.url}" style="width:100px; height:60px; object-fit:cover; border-radius:4px; border:2px solid #6366f1;"><br>
+                <button class="btn" style="background:#6366f1; color:white; font-size:11px; padding:4px 10px;" onclick="navigator.clipboard.writeText('${selected.url}'); alert('URL Copiada! Basta colar no seu HTML.')">📋 Copiar Link da Imagem</button>`);
+                
+            } catch (e) {
+                console.error("Erro ao processar sugestão de mídia", e);
+                this.addMessage("❌ A IA não conseguiu decidir. Tente abrir a Biblioteca de Mídia e escolher manualmente.");
+            }
+        }
     }
 };
 
-// Global Helpers
+// Global Helpers (Refatorado para suportar Append-Only)
 window.injectCode = function(btn) {
     const code = decodeURIComponent(btn.getAttribute('data-code'));
-    document.getElementById('live-preview').innerHTML = code;
+    const preview = document.getElementById('live-preview');
+    const modeSelect = btn.parentElement.querySelector('.injection-mode');
+    const mode = modeSelect ? modeSelect.value : 'replace';
+
+    // Se o preview tiver o texto placeholder, limpa antes de injetar
+    if (preview.innerText.includes('Crie algo novo') || preview.innerText.includes('Comece a escrever')) {
+        preview.innerHTML = '';
+    }
+
+    if (mode === 'append') {
+        preview.insertAdjacentHTML('beforeend', code);
+    } else if (mode === 'prepend') {
+        preview.insertAdjacentHTML('afterbegin', code);
+    } else {
+        preview.innerHTML = code;
+    }
+
     window.chatApp.updateAbidusScore();
 };
 

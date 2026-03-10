@@ -40,12 +40,49 @@ body {
 }
 
 .sidebar {
-    width: 250px;
+    width: 260px;
     background-color: var(--color-primary);
     color: white;
     padding: var(--spacing-lg);
     display: flex;
     flex-direction: column;
+    transition: width 0.3s ease, padding 0.3s ease;
+    position: relative;
+}
+
+.sidebar.collapsed {
+    width: 80px;
+    padding: var(--spacing-lg) var(--spacing-sm);
+}
+
+.sidebar.collapsed .sidebar-header h2,
+.sidebar.collapsed .sidebar-header p,
+.sidebar.collapsed .nav-btn span {
+    display: none;
+}
+
+.sidebar.collapsed .nav-btn {
+    text-align: center;
+    padding: 12px 0;
+}
+
+.sidebar-toggle {
+    background: #374151;
+    border: none;
+    color: white;
+    padding: 5px;
+    cursor: pointer;
+    border-radius: 4px;
+    position: absolute;
+    right: -15px;
+    top: 20px;
+    z-index: 100;
+    box-shadow: var(--shadow-md);
+    width: 30px;
+    height: 30px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
 }
 
 .sidebar-header {
@@ -97,6 +134,8 @@ body {
     flex: 1;
     padding: var(--spacing-lg);
     overflow-y: auto;
+    overflow-x: hidden;
+    min-width: 0; /* Prevents flex items from overflowing */
 }
 
 .top-header {
@@ -126,12 +165,21 @@ body {
 
 /* Content Switcher */
 .content-section {
-    display: none;
+    display: none !important;
     animation: fadeIn 0.3s ease;
 }
 
 .content-section.active {
-    display: block;
+    display: block !important;
+}
+
+/* Specific Layouts */
+#ai-studio.active {
+    display: flex !important;
+    flex-direction: column;
+    height: 85vh;
+    margin-top: -10px;
+    overflow: hidden;
 }
 
 @keyframes fadeIn {

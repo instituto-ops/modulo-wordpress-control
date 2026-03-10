@@ -10,21 +10,22 @@
 <body>
     <div class="app-container">
         <!-- Sidebar -->
-        <aside class="sidebar">
+        <aside class="sidebar" id="app-sidebar">
+            <button class="sidebar-toggle" id="toggle-sidebar">☰</button>
             <div class="sidebar-header">
                 <h2>NeuroEngine</h2>
                 <p>Mission Control</p>
             </div>
             <nav class="sidebar-nav">
-                <button class="nav-btn active" data-target="dashboard">Visão Geral (GA4)</button>
-                <button class="nav-btn" data-target="action-plan">Plano de Ação</button>
-                <button class="nav-btn" data-target="content-overview">Gerenciar Conteúdo</button>
-                <button class="nav-btn" data-target="create-content">Editor de Código Aberto</button>
-                <button class="nav-btn" data-target="ai-studio">AI Studio (Assistente Copilot)</button>
-                <button class="nav-btn" data-target="media-library">🖼️ Biblioteca de Mídia</button>
+                <button class="nav-btn active" data-target="dashboard">📊 <span>Visão Geral (GA4)</span></button>
+                <button class="nav-btn" data-target="action-plan">📋 <span>Plano de Ação</span></button>
+                <button class="nav-btn" data-target="content-overview">📝 <span>Gerenciar Conteúdo</span></button>
+                <button class="nav-btn" data-target="create-content">💻 <span>Editor Aberto</span></button>
+                <button class="nav-btn" data-target="ai-studio">🤖 <span>AI Studio (Copilot)</span></button>
+                <button class="nav-btn" data-target="media-library">🖼️ <span>Biblioteca Mídia</span></button>
                 <hr style="border-color: #374151; margin: 5px 0;">
-                <button class="nav-btn" data-target="theme-editor">Config. Astra & WP</button>
-                <button class="nav-btn" data-target="elementor-builder">Elementor Builder</button>
+                <button class="nav-btn" data-target="theme-editor">⚙️ <span>Config. Astra & WP</span></button>
+                <button class="nav-btn" data-target="elementor-builder">🏗️ <span>Elementor Builder</span></button>
             </nav>
         </aside>
 
@@ -240,7 +241,7 @@
             </section>
 
             <!-- Section: Editor Dinâmico & Assistente IA (Split View) -->
-            <section id="ai-studio" class="content-section" style="height: 85vh; margin-top: -10px;">
+            <section id="ai-studio" class="content-section">
                 <!-- Top Toolbar para AI Studio -->
                 <!-- Top Toolbar para AI Studio (Reorganizada) -->
                 <div style="background: white; padding: 12px; margin-bottom: 12px; border-radius: 8px; box-shadow: var(--shadow-sm); border: 1px solid var(--color-border); display: flex; flex-direction: column; gap: 10px;">
@@ -261,15 +262,19 @@
                         </select>
                     </div>
 
-                    <!-- Fila 2: Contexto e Ações (Dinâmico) -->
-                    <div style="display: flex; gap: 10px; align-items: center;">
-                        <span style="font-size: 12px; font-weight: 700; color: #64748b; text-transform: uppercase;">📝 Draft:</span>
-                        <input type="text" id="ai-studio-new-title" style="flex: 2; padding: 6px; display: none; font-size: 13px;" placeholder="Título do novo post/página...">
-                        <button id="ai-studio-accept-btn" class="btn" style="padding: 4px 10px; display: none; background: #dcfce7; border: 1px solid #22c55e; color: #166534; font-size: 12px;" onclick="window.chatApp.acceptTitle()">✅ Aceitar</button>
-                        <button id="ai-studio-suggest-btn" class="btn" style="padding: 4px 10px; display: none; background: #fef3c7; border: 1px solid #f59e0b; color: #b45309; font-size: 12px;" onclick="window.chatApp.suggestTitle()">✨ Sugerir</button>
+                    <!-- Fila 2: Contexto SEO Ouro e Keyword -->
+                    <div style="display: flex; gap: 10px; align-items: center; flex-wrap: wrap;">
+                        <span style="font-size: 11px; font-weight: 700; color: #64748b; text-transform: uppercase;">🎯 SEO:</span>
                         
-                        <select id="ai-studio-keyword" style="flex: 1; min-width: 180px; padding: 6px; background: #eff6ff; border: 1px solid #3b82f6; color: #1e40af; border-radius: 4px; font-size: 13px;">
-                            <option value="">🎯 Keyword SEO</option>
+                        <select id="seo-context" style="flex: 1; min-width: 150px; padding: 6px; background: #fff1f2; border: 1px solid #f43f5e; color: #9f1239; border-radius: 4px; font-size: 13px;">
+                            <option value="">🏆 Contexto Ouro</option>
+                            <option value="psicólogo online especializado em autismo feminino em adultas">[Autismo Adultos]</option>
+                            <option value="hipnose ericksoniana para compulsões">[Hipnose Clínica]</option>
+                            <option value="terapia para adulto que descobriu autismo tarde">[Diagnóstico Tardio]</option>
+                        </select>
+
+                        <select id="ai-studio-keyword" style="flex: 1; min-width: 150px; padding: 6px; background: #eff6ff; border: 1px solid #3b82f6; color: #1e40af; border-radius: 4px; font-size: 13px;">
+                            <option value="">🎯 Keyword Alvo</option>
                             <option value="psicólogo online especializado em autismo feminino">TEA Feminino</option>
                             <option value="psicólogo para adultos com suspeita de TEA">Suspeita TEA</option>
                             <option value="hipnose clínica para TEA em adultos">Hipnose + TEA</option>
@@ -279,9 +284,20 @@
                         </select>
 
                         <div style="margin-left: auto; display: flex; gap: 8px;">
-                            <button class="btn" style="background: #94a3b8; color: white; padding: 6px 12px; font-size: 13px;" onclick="window.chatApp.toggleSettings()">⚙️ Configurações</button>
-                            <button id="ai-studio-preview-btn" class="btn" style="background: #6366f1; color: white; display: none; padding: 6px 15px; font-size: 13px;" onclick="window.chatApp.previewDraft()">👁️ Ver no Site</button>
+                            <button class="btn" style="background: #94a3b8; color: white; padding: 6px 12px; font-size: 13px;" onclick="window.chatApp.toggleSettings()">⚙️ SEO Meta</button>
                             <button class="btn" style="background: var(--color-success); color: white; padding: 6px 20px; font-size: 13px; font-weight: 700;" onclick="window.chatApp.saveToWP()">💾 Salvar WP</button>
+                        </div>
+                    </div>
+
+                    <!-- Fila 3: Draft e Preview -->
+                    <div style="display: flex; gap: 10px; align-items: center; flex-wrap: wrap;">
+                        <span style="font-size: 11px; font-weight: 700; color: #64748b; text-transform: uppercase;">📝 Draft:</span>
+                        <input type="text" id="ai-studio-new-title" style="flex: 2; min-width: 200px; padding: 6px; display: none; font-size: 13px;" placeholder="Título do novo post/página...">
+                        
+                        <div style="display: flex; gap: 5px;">
+                            <button id="ai-studio-accept-btn" class="btn" style="padding: 4px 10px; display: none; background: #dcfce7; border: 1px solid #22c55e; color: #166534; font-size: 12px;" onclick="window.chatApp.acceptTitle()">✅ Aceitar</button>
+                            <button id="ai-studio-suggest-btn" class="btn" style="padding: 4px 10px; display: none; background: #fef3c7; border: 1px solid #f59e0b; color: #b45309; font-size: 12px;" onclick="window.chatApp.suggestTitle()">✨ Sugerir</button>
+                            <button id="ai-studio-preview-btn" class="btn" style="background: #6366f1; color: white; display: none; padding: 6px 15px; font-size: 13px;" onclick="window.chatApp.previewDraft()">👁️ Ver no Site</button>
                         </div>
                     </div>
 
@@ -302,13 +318,22 @@
                                 <textarea id="seo-meta-desc" style="width: 100%; padding: 6px; font-size: 12px; border: 1px solid #e2e8f0; border-radius: 4px; height: 32px;" placeholder="Resumo persuasivo com CTA..."></textarea>
                             </div>
                         </div>
-                        <div style="margin-top: 10px; display: flex; justify-content: flex-end;">
+                        <div style="margin-top: 10px; display: flex; justify-content: flex-end; gap: 8px;">
+                            <button class="btn" style="background: #fdf2f8; color: #9d174d; border: 1px solid #fbcfe8; font-size: 11px; padding: 4px 12px;" onclick="window.chatApp.analyzeMediaNeeds()">🖼️ Planejar Mídia Abidos</button>
                             <button class="btn" style="background: #e0f2fe; color: #0369a1; border: 1px solid #7dd3fc; font-size: 11px; padding: 4px 12px;" onclick="window.chatApp.generateSEOMeta()">✨ Gerar Metas via IA</button>
+                        </div>
+
+                        <!-- [NOVO] Painel de Necessidades de Mídia (Gerado via IA) -->
+                        <div id="media-needs-panel" style="display: none; margin-top: 15px; border-top: 1px dashed #e2e8f0; padding-top: 10px;">
+                            <h5 style="font-size: 11px; color: #64748b; margin-bottom: 8px; text-transform: uppercase;">📸 Sugestões de Mídia Estratégica:</h5>
+                            <div id="media-needs-list" style="display: flex; flex-direction: column; gap: 8px;">
+                                <!-- Itens de mídia aparecerão aqui -->
+                            </div>
                         </div>
                     </div>
                 </div>
 
-                <div class="split-view" style="display: flex; height: calc(100% - 60px); border-radius: 8px; overflow: hidden; background: white; border: 1px solid var(--color-border);">
+                <div class="split-view" style="flex: 1; display: flex; border-radius: 8px; overflow: hidden; background: white; border: 1px solid var(--color-border); min-height: 0;">
                     
                     <!-- ESQUERDA: Preview Canvas (Site Dinâmico) -->
                     <div style="flex: 6; border-right: 1px solid var(--color-border); display: flex; flex-direction: column;">
@@ -369,7 +394,14 @@
 
                         <!-- Controles e Input do Chat -->
                         <div style="padding: 15px; border-top: 1px solid var(--color-border); background: #f9fafb;">
-                            <!-- Barra de Prompts Rápidos (Abidos Templates) -->
+                            <!-- [NOVO] Painel de Prompts Rápidos: Método Abidos -->
+                            <div id="abidus-shortcuts" style="display: flex; gap: 8px; margin-bottom: 12px; flex-wrap: wrap;">
+                                <button class="btn" style="background: #fdf2f8; border: 1px solid #ec4899; color: #be185d; font-size: 12px; font-weight: bold; padding: 6px 12px; border-radius: 20px;" onclick="window.chatApp.runAbidusShortcut('hero')">🥇 Dobra Hero Abidos</button>
+                                <button class="btn" style="background: #f0fdf4; border: 1px solid #22c55e; color: #15803d; font-size: 12px; font-weight: bold; padding: 6px 12px; border-radius: 20px;" onclick="window.chatApp.runAbidusShortcut('social')">🛡️ Prova Social</button>
+                                <button class="btn" style="background: #eff6ff; border: 1px solid #3b82f6; color: #1d4ed8; font-size: 12px; font-weight: bold; padding: 6px 12px; border-radius: 20px;" onclick="window.chatApp.runAbidusShortcut('faq')">❓ FAQ Quebra-Objeções</button>
+                            </div>
+
+                            <!-- Barra de Prompts Rápidos Existente (Mantida para Retrocompatibilidade) -->
                             <div style="display: flex; gap: 5px; overflow-x: auto; margin-bottom: 15px; padding-bottom: 5px; scrollbar-width: none;">
                                 <button class="btn" style="background: #eef2ff; border: 1px solid #6366f1; color: #4338ca; font-size: 11px; white-space: nowrap; font-weight: bold; box-shadow: var(--shadow-sm);" onclick="window.chatApp.runQuickPrompt('full')">📝 Criar p/ Título</button>
                                 <button class="btn" style="background: white; border: 1px solid #e2e8f0; font-size: 11px; white-space: nowrap; box-shadow: var(--shadow-sm);" onclick="window.chatApp.runQuickPrompt('hero')">🎯 Dobra Hero</button>

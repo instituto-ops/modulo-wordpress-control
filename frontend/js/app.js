@@ -20,6 +20,16 @@ const app = {
             });
         });
 
+        // Sidebar Toggle
+        const toggleBtn = document.getElementById('toggle-sidebar');
+        const sidebar = document.getElementById('app-sidebar');
+        if (toggleBtn && sidebar) {
+            toggleBtn.addEventListener('click', () => {
+                sidebar.classList.toggle('collapsed');
+                toggleBtn.innerText = sidebar.classList.contains('collapsed') ? '▶' : '☰';
+            });
+        }
+
         // Form Submit to WordPress
         const form = document.getElementById('editor-form');
         if(form) {
