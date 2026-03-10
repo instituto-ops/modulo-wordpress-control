@@ -36,15 +36,23 @@ const WP_AUTH = Buffer.from(`${process.env.WP_USERNAME}:${process.env.WP_APP_PAS
 // Helper para chamadas WP
 const callWP = async (method, endpoint, data = null, params = {}) => {
     const url = `${WP_API_BASE}${endpoint}`;
+    const headers = {
+        'Authorization': `Basic ${WP_AUTH}`,
+        'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) NeuroEngine/1.0'
+    };
+
+    if (method !== 'GET' && data) {
+        headers['Content-Type'] = 'application/json';
+    }
+
+    console.log(`📡 [WP PROXY] ${method} ${url} ${params ? JSON.stringify(params) : ''}`);
+
     return await axios({
         method,
         url,
         data,
         params,
-        headers: {
-            'Authorization': `Basic ${WP_AUTH}`,
-            'Content-Type': 'application/json'
-        }
+        headers
     });
 };
 
