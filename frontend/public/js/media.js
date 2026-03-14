@@ -473,3 +473,8 @@ REGRAS:
 
 window.mediaLibrary = mediaLibrary;
 document.addEventListener('DOMContentLoaded', () => mediaLibrary.init());
+
+// Export for Jest testing
+if (typeof module !== 'undefined' && module.exports) {
+    module.exports = mediaLibrary;
+}

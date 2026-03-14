@@ -4,6 +4,7 @@
   "description": "Painel de Controle WordPress Headless com IA",
   "main": "server.js",
   "scripts": {
+    "test": "jest",
     "start": "node server.js",
     "dev": "node server.js"
   },
@@ -15,5 +16,9 @@
     "express": "^4.22.1",
     "html2canvas": "^1.4.1",
     "multer": "^1.4.5-lts.1"
+  },
+  "devDependencies": {
+    "jest": "^30.3.0",
+    "jest-environment-jsdom": "^30.3.0"
   }
 }
