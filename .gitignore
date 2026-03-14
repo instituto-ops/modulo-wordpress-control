@@ -14,3 +14,4 @@ dist/
 build/
 .vscode/
 .antigravity/
+frontend/coverage/
