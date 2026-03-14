@@ -218,6 +218,7 @@ const mediaLibrary = {
         const btnStatus = document.querySelector('button[onclick*="fixGallerySEO"]');
         const originalText = btnStatus.innerText;
 
+        const tasks = [];
         for(let i=0; i<fixButtons.length; i++) {
             const btn = fixButtons[i];
             
@@ -227,20 +228,39 @@ const mediaLibrary = {
                 const match = btn.getAttribute('onclick').match(clickRegex);
                 
                 if (match) {
-                    const mediaId = match[1];
-                    const mediaUrl = match[2];
-                    
-                    btnStatus.innerText = `⏳ Otimizando ${i+1}/${fixButtons.length}...`;
-                    btn.scrollIntoView({ behavior: 'smooth', block: 'center' });
-                    
-                    // Aguarda a resolução da imagem atual antes de passar pra próxima (Evitar Rate Limit do Gemini)
-                    await this.fixSEO(mediaId, mediaUrl);
-                    
-                    // Pequeno delay entre requisições
-                    await new Promise(r => setTimeout(r, 2000));
+                    tasks.push({ btn, mediaId: match[1], mediaUrl: match[2], index: i });
                 }
             }
         }
+
+        const CONCURRENCY_LIMIT = 3;
+        const executing = [];
+        const queue = [];
+
+        for (const task of tasks) {
+            const p = Promise.resolve().then(async () => {
+                btnStatus.innerText = `⏳ Otimizando ${task.index+1}/${fixButtons.length}...`;
+                task.btn.scrollIntoView({ behavior: 'smooth', block: 'center' });
+
+                // Aguarda a resolução da imagem atual (Evitar Rate Limit agressivo do Gemini)
+                await this.fixSEO(task.mediaId, task.mediaUrl);
+
+                // Pequeno delay entre requisições
+                await new Promise(r => setTimeout(r, 1000));
+            });
+
+            queue.push(p);
+
+            if (CONCURRENCY_LIMIT <= tasks.length) {
+                const e = p.then(() => executing.splice(executing.indexOf(e), 1));
+                executing.push(e);
+                if (executing.length >= CONCURRENCY_LIMIT) {
+                    await Promise.race(executing);
+                }
+            }
+        }
+
+        await Promise.all(queue);
         
         btnStatus.innerText = originalText;
         alert("Otimização em Lote concluída!");
