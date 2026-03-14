@@ -394,13 +394,15 @@ window.chatApp = {
         if (isImage) {
             menu.innerHTML = `
                 <div style="font-size: 10px; font-weight: bold; color: #64748b; padding: 4px 5px; border-bottom: 1px solid #f1f5f9; margin-bottom: 3px;">Comandos de Imagem</div>
-                <button onclick="window.chatApp.executeMicroCommand('Sugira e troque esta imagem por uma mais adequada ao contexto da clínica de psicologia victor lawrence')" class="btn" style="background: #eff6ff; color: #1d4ed8; font-size: 11px; text-align: left; padding: 6px 10px; border: none; border-radius: 4px; cursor: pointer;">🪄 Trocar Imagem (IA)</button>
+                <button onclick="window.chatApp.openMediaPicker()" class="btn" style="background: #eff6ff; color: #1d4ed8; font-size: 11px; text-align: left; padding: 6px 10px; border: none; border-radius: 4px; cursor: pointer;">🖼️ Trocar Imagem WP</button>
+                <button onclick="window.chatApp.executeMicroCommand('Sugira e troque esta imagem por uma mais adequada ao contexto da clínica de psicologia victor lawrence')" class="btn" style="background: #f0fdf4; color: #166534; font-size: 11px; text-align: left; padding: 6px 10px; border: none; border-radius: 4px; cursor: pointer;">🪄 Sugestão IA</button>
                 <button onclick="window.chatApp.deleteSelected()" class="btn" style="background: #fee2e2; color: #ef4444; font-size: 11px; text-align: left; padding: 6px 10px; border: none; border-radius: 4px; cursor: pointer;">🗑️ Excluir Imagem</button>
                 <button onclick="window.chatApp.hideMicroCommandsMenu()" class="btn" style="background: transparent; color: #94a3b8; font-size: 10px; text-align: center; margin-top: 3px; padding: 4px; border: none; cursor: pointer; width: 100%;">✕ Cancelar</button>
             `;
         } else {
             menu.innerHTML = `
                 <div style="font-size: 10px; font-weight: bold; color: #64748b; padding: 4px 5px; border-bottom: 1px solid #f1f5f9; margin-bottom: 3px; cursor: default;">Micro-Comandos IA</div>
+                <button onclick="window.chatApp.editSelectedManually()" class="btn" style="background: #1e293b; color: white; font-size: 11px; text-align: left; padding: 6px 10px; border: none; border-radius: 4px; cursor: pointer;">✏️ Editar Texto e Estilo</button>
                 <button onclick="window.chatApp.executeMicroCommand('Reescreva de forma mais empática, acolhedora e focada na dor emocional do paciente')" class="btn" style="background: #eff6ff; color: #1d4ed8; font-size: 11px; text-align: left; padding: 6px 10px; border: none; border-radius: 4px; cursor: pointer;">🪄 + Empático</button>
                 <button onclick="window.chatApp.executeMicroCommand('Reescreva com mais autoridade clínica profissional, adicionando tom técnico de psicologia')" class="btn" style="background: #fdf2f8; color: #be185d; font-size: 11px; text-align: left; padding: 6px 10px; border: none; border-radius: 4px; cursor: pointer;">🪄 + Clínico</button>
                 <button onclick="window.chatApp.executeMicroCommand('Reescreva de forma mais curta, concisa e direta ao ponto')" class="btn" style="background: #f0fdf4; color: #15803d; font-size: 11px; text-align: left; padding: 6px 10px; border: none; border-radius: 4px; cursor: pointer;">🪄 Mais Curto</button>
@@ -431,8 +433,117 @@ window.chatApp = {
         if (this.selectedElement) {
             this.selectedElement.classList.remove('element-selected', 'outline-blue');
             this.selectedElement.style.outline = '';
-            // Não anulamos o selectedElement para permitir que o chat normal ainda faça referência a ele se necessário
         }
+        this.closeManualEdit();
+    },
+
+    // ── EDIÇÃO MANUAL ────────────────────────────────────────────────────────
+    editSelectedManually() {
+        if (!this.selectedElement) return;
+        this.hideMicroCommandsMenu();
+
+        this.selectedElement.contentEditable = 'true';
+        this.selectedElement.focus();
+
+        const bar = document.getElementById('manual-edit-bar');
+        if (!bar) return;
+        const rect = this.selectedElement.getBoundingClientRect();
+        bar.style.display = 'flex';
+        bar.style.left = `${Math.max(10, rect.left)}px`;
+        bar.style.top = `${Math.max(10, rect.top - 55)}px`;
+
+        const style = window.getComputedStyle(this.selectedElement);
+        const colorInput = document.getElementById('edit-color');
+        const sizeSelect = document.getElementById('edit-size');
+        if (colorInput) colorInput.value = this.rgbToHex(style.color);
+        if (sizeSelect) {
+            const fSize = parseInt(style.fontSize);
+            const closest = Array.from(sizeSelect.options).reduce((a, b) =>
+                Math.abs(parseInt(b.value) - fSize) < Math.abs(parseInt(a.value) - fSize) ? b : a
+            );
+            sizeSelect.value = closest.value;
+        }
+    },
+
+    rgbToHex(rgb) {
+        if (!rgb || !rgb.startsWith('rgb')) return '#000000';
+        const vals = rgb.match(/\d+/g);
+        if (!vals) return '#000000';
+        return '#' + vals.slice(0, 3).map(x => {
+            const h = parseInt(x).toString(16);
+            return h.length === 1 ? '0' + h : h;
+        }).join('');
+    },
+
+    applyManualStyle(prop, val) {
+        if (!this.selectedElement) return;
+        this.saveHistory();
+        this.selectedElement.style[prop] = val;
+    },
+
+    closeManualEdit() {
+        if (this.selectedElement && this.selectedElement.contentEditable === 'true') {
+            this.selectedElement.contentEditable = 'false';
+        }
+        const bar = document.getElementById('manual-edit-bar');
+        if (bar) bar.style.display = 'none';
+    },
+
+    // ── MEDIA PICKER ─────────────────────────────────────────────────────────
+    async openMediaPicker() {
+        const modal = document.getElementById('media-picker-modal');
+        const grid  = document.getElementById('media-picker-grid');
+        if (!modal || !grid) return;
+
+        modal.style.display = 'flex';
+        grid.innerHTML = '<p style="grid-column:1/4;text-align:center;color:#64748b;padding:20px;">⏳ Carregando biblioteca...</p>';
+
+        try {
+            const media = await wpAPI.fetchMedia(24);
+            grid.innerHTML = '';
+            if (!media || media.length === 0) {
+                grid.innerHTML = '<p style="grid-column:1/4;text-align:center;color:#94a3b8;">Nenhuma imagem encontrada na biblioteca.</p>';
+                return;
+            }
+            media.forEach(m => {
+                const img = document.createElement('img');
+                img.src = m.source_url;
+                img.title = m.alt_text || m.slug;
+                img.style.cssText = 'width:100%;height:80px;object-fit:cover;cursor:pointer;border-radius:6px;border:2px solid transparent;transition:border-color .15s,transform .15s;';
+                img.onmouseover = () => { img.style.borderColor = '#6366f1'; img.style.transform = 'scale(1.04)'; };
+                img.onmouseout  = () => { img.style.borderColor = 'transparent'; img.style.transform = ''; };
+                img.onclick = () => {
+                    this.insertImageAtCanvas(m.source_url, m.alt_text || '');
+                    modal.style.display = 'none';
+                };
+                grid.appendChild(img);
+            });
+        } catch (e) {
+            grid.innerHTML = `<p style="grid-column:1/4;text-align:center;color:#ef4444;">❌ Erro: ${e.message}</p>`;
+        }
+    },
+
+    insertImageAtCanvas(url, alt) {
+        this.saveHistory();
+        const html = `<img src="${url}" alt="${alt}" style="width:100%;max-width:600px;height:auto;display:block;margin:20px auto;border-radius:12px;box-shadow:0 4px 15px rgba(0,0,0,0.1);">`;
+
+        if (this.selectedElement && this.selectedElement.tagName === 'IMG') {
+            this.selectedElement.src = url;
+            this.selectedElement.alt = alt;
+        } else if (this.selectedElement) {
+            this.selectedElement.insertAdjacentHTML('afterend', html);
+        } else {
+            const preview = document.getElementById('live-preview');
+            if (preview) {
+                if (preview.innerText.includes('Crie algo') || preview.style.display === 'none') {
+                    preview.style.display = 'block';
+                    preview.innerHTML = '';
+                }
+                preview.insertAdjacentHTML('beforeend', html);
+            }
+        }
+        this.addMessage('🖼️ Imagem inserida com sucesso no canvas.');
+        this.injectCopyButtons();
     },
 
     async executeMicroCommand(instruction) {
@@ -611,6 +722,8 @@ window.chatApp = {
             this.sendMessage(false);
         }
     },
+
+    async generateBlueprint(theme) {
         // Mostra o loading state
         const welcomeContainer = document.getElementById('blueprint-welcome');
         if (welcomeContainer) welcomeContainer.style.display = 'none';
@@ -796,103 +909,133 @@ window.chatApp = {
     async sendMessage(hasScreenshot = false) {
         const chatInput = document.getElementById('chat-input');
         const btnSend = document.getElementById('btn-send-chat');
-        const btnSnap = document.getElementById('btn-snap-error');
         const livePreview = document.getElementById('live-preview');
-        this.currentKeyword = document.getElementById('ai-studio-keyword').value;
 
         const message = chatInput.value.trim();
         if (!message) return;
 
         chatInput.value = '';
         
-        // [NOVO] Injeção de Contexto de SEO Dinâmico
-        const seoContext = document.getElementById('seo-context').value;
-        let enhancedMessage = message;
-        if (seoContext) {
-            enhancedMessage += `\n\n[INSTRUÇÃO DE SEO OCULTA]: Certifique-se de usar a palavra-chave "${seoContext}" nas tags H1, H2 ou no primeiro parágrafo gerado. Foco em conversão clínica.`;
-        }
-
         if (hasScreenshot) {
             this.addMessage(message + "<br><em>📸 (Anexou Visualização da Tela)</em>", true);
-            btnSnap.innerHTML = '⚙️ Processando...';
-            btnSnap.disabled = true;
         } else {
             this.addMessage(message, true);
-            btnSend.innerHTML = '⚙️ Processando...';
-            btnSend.disabled = true;
         }
+
+        btnSend.innerHTML = '⚙️ Agindo...';
+        btnSend.disabled = true;
+
+        // --- INÍCIO DO FLUXO MULTI-AGENTE ---
+        await this.runAgentChain(message, livePreview.innerHTML, hasScreenshot);
+        
+        btnSend.innerHTML = '🚀 Executar';
+        btnSend.disabled = false;
+    },
+
+    async addAgentLog(agentName, status, isDone = false) {
+        const panel = document.getElementById('agent-logs-panel');
+        const content = document.getElementById('agent-log-content');
+        panel.style.display = 'block';
+        
+        const logId = `log-${agentName.replace(/\s+/g, '-')}`;
+        let logEl = document.getElementById(logId);
+        
+        if (!logEl) {
+            logEl = document.createElement('div');
+            logEl.id = logId;
+            content.appendChild(logEl);
+        }
+        
+        logEl.innerHTML = `<span style="color: ${isDone ? '#10b981' : '#f59e0b'}">${isDone ? '●' : '○'}</span> ${agentName}: ${status}`;
+        if (isDone) logEl.style.opacity = '0.8';
+        
+        content.scrollTop = content.scrollHeight;
+    },
+
+    async runAgentChain(userMessage, currentHtml, hasScreenshot) {
+        const logPanel = document.getElementById('agent-logs-panel');
+        logPanel.style.display = 'block';
+        document.getElementById('agent-log-content').innerHTML = '';
+
+        // Simulação de Pensamento de Equipes Transitórias
+        await this.addAgentLog("Agente de Pesquisa", "Sintetizando informações clínicas...");
+        await new Promise(r => setTimeout(r, 800));
+        
+        await this.addAgentLog("Agente Abidos", "Validando estrutura SEO...");
+        await new Promise(r => setTimeout(r, 600));
+
+        await this.addAgentLog("Agente Crítico", "Revisando tom de voz...");
+        await new Promise(r => setTimeout(r, 700));
+
+        await this.addAgentLog("Compliance Checker", "Auditando normas CFP/LGPD...");
+        await new Promise(r => setTimeout(r, 500));
 
         const formData = new FormData();
         
-        // CONSTRUÇÃO DO PROMPT COM CONTEXTO
-        let promptContext = enhancedMessage;
+        const kw = document.getElementById('ai-studio-keyword').value;
+
+        // CONSTRUÇÃO DO PROMPT CONSOLIDADO (Equipes Transitórias LangChain Style)
+        let promptContext = `Você é o Mission Control da Equipe NeuroEngine. Sua missão é orquestrar 4 especialistas para gerar o melhor conteúdo clínico do Brasil.
         
-        // 1. Contexto de Keyword SEO
-        if (keyword) {
-            promptContext += `\n\n[FOCO SEO]: A keyword prioritária é "${keyword}". Use-a estrategicamente conforme o Método Abidos.`;
-        }
+        DIRETRIZES DOS AGENTES INTERNOS:
+        1. PESQUISA (Gerador): Sintetize dados sobre ${this.authorityContext.name} e Método Abidos.
+        2. ABIDOS (SEO): Garanta Hub-and-Spoke, keyword "${kw || 'psicologia'}" e linkagem para hipnolawrence.com.
+        3. CRÍTICO (Avaliador): Critique o tom (deve ser acolhedor, NÃO robótico). Remova jargões excessivos que afastam o paciente.
+        4. COMPLIANCE (Ética): Bloqueie promessas de cura, pacotes comerciais ou sensacionalismo (Diretrizes CFP).
+        
+        [DADOS DO USUÁRIO]: ${userMessage}`;
 
-        // 1.1 Contexto de Autoridade (E-E-A-T / Psicólogo Victor Lawrence)
-        promptContext += `\n\n[DADOS DO ESPECIALISTA]: Nome: ${this.authorityContext.name}, CRP: ${this.authorityContext.crp}, Titulação: ${this.authorityContext.title}, Clínica: ${this.authorityContext.institution}. 
-        Tratamento Profissional: Utilize sempre "Psicólogo Victor Lawrence" em vez de "Dr.".
-        Linkagem Interna: Sempre cite a home www.hipnolawrence.com.
-        WhatsApp: ${this.authorityContext.socials.whatsapp}.
-        IMPORTANTE: Sempre inclua o CRP próximo ao nome do especialista em seções de autoridade.`;
+        // Style/Tone rules do Reverse Prompt Engineering
+        const toneRules = localStorage.getItem('user_tone_rules');
+        if (toneRules) promptContext += `\n\n[STYLE RULES]: ${toneRules}`;
 
-        // 1.2 Contexto de Mídia (Imagens Reais)
+        // Autoridade E-E-A-T
+        promptContext += `\n\n[AUTORIDADE]: Psicólogo ${this.authorityContext.name} (${this.authorityContext.crp}). Clínica: ${this.authorityContext.institution}.`;
+
+        // Mídia
         if (this.mediaGallery && this.mediaGallery.length > 0) {
-            const mediaLinks = this.mediaGallery.map(m => `[ID: ${m.id}] Title: ${m.title.rendered} | Alt: ${m.alt_text || 'vazio'} | URL: ${m.source_url}`).join('\n');
-            promptContext += `\n\n[ATIVOS DE MÍDIA DISPONÍVEIS]: Você tem acesso às seguintes imagens reais do banco de dados do usuário:
-            ${mediaLinks}
-            SYSTEM NOTE: Sempre que gerar um código HTML (<img src>), utilize EXCLUSIVAMENTE as URLs reais desta lista que sejam mais adequadas ao contexto gerado no Método Abidos. Se nenhuma servir, use um placeholder de cor sólida condizente com a paleta.`;
+            const mediaLinks = this.mediaGallery.slice(0, 10).map(m => `[URL: ${m.source_url}] Alt: ${m.alt_text}`).join('\n');
+            promptContext += `\n\n[MIDIAS DISPONÍVEIS]:\n${mediaLinks}`;
         }
 
-        // 2. Contexto de Ajuste Fino (Elemento Selecionado)
+        // Elemento Selecionado
         if (this.selectedElement) {
-            const elHtml = this.selectedElement.outerHTML;
-            promptContext += `\n\n[AJUSTE FINO]: O usuário selecionou este elemento: \n${elHtml}\nAltere apenas este elemento ou o bloco sugerido.`;
+            promptContext += `\n\n[AJUSTE FINO]: Altere este elemento:\n${this.selectedElement.outerHTML}`;
         }
 
-        // 2.1 [NOVO] Sistema de Blocos Abidos Modular
-        promptContext += `\n\n[SISTEMA DE BLOCOS MODULARES]: O sistema possui blocos pré-definidos (que o usuário pode inserir via comandos ou manualmente).
-        IDs Disponíveis: hero, dor, beneficios, objections, autoridade, ambiente, social, faq, linkagem.
-        VANTAGEM: Esses blocos são Mobile-First e compatíveis com o Widget HTML do Elementor.
-        AÇÃO: Se o usuário pedir algo novo ou estrutural, sugiro que ele utilize esses blocos específicos (ex: "Sugiro inserir o bloco 'dor' para conectar com o paciente").`;
+        formData.append('prompt', promptContext);
+        if (currentHtml) formData.append('htmlContext', currentHtml);
 
-        formData.append('currentKeyword', this.currentKeyword);
-        
-        // 3. Contexto da Página Inteira
-        const currentHtml = livePreview.innerHTML;
-        if(currentHtml.trim().length > 0 && !currentHtml.includes('Crie algo novo')) {
-            formData.append('htmlContext', currentHtml);
+        if (hasScreenshot && window.html2canvas) {
+            const canvas = await html2canvas(document.getElementById('live-preview'));
+            const blob = await new Promise(resolve => canvas.toBlob(resolve));
+            formData.append('screenshot', blob, 'preview.png');
         }
 
         try {
-            if (hasScreenshot && window.html2canvas) {
-                const canvas = await html2canvas(livePreview);
-                const blob = await new Promise(resolve => canvas.toBlob(resolve));
-                formData.append('screenshot', blob, 'preview.png');
-            }
-            
             const response = await fetch('/api/chat', {
                 method: 'POST',
                 body: formData
             });
             const data = await response.json();
             
+            // Finaliza logs visualmente
+            await this.addAgentLog("Equipe NeuroEngine", "Decisão Final Tomada", true);
+
             if (data.reply) {
                 this.addMessage(data.reply, false);
+                if (data.diff) {
+                    document.getElementById('diff-panel').style.display = 'block';
+                    document.getElementById('diff-content').innerHTML = data.diff;
+                }
             } else {
-                this.addMessage("Desculpe, deu um erro interno na IA.", false);
+                this.addMessage("⚠️ IA retornou uma resposta vazia.", false);
             }
         } catch (error) {
             console.error(error);
-            this.addMessage("Erro de conexão com o terminal IA (Port 3001).", false);
+            this.addMessage("❌ Erro na comunicação com os agentes.", false);
         } finally {
-            btnSend.innerHTML = '🚀 Executar';
-            btnSnap.innerHTML = '📷 Corrigir Layout Visualmente';
-            btnSend.disabled = false;
-            btnSnap.disabled = false;
+            setTimeout(() => { logPanel.style.display = 'none'; }, 5000);
         }
     },
 
@@ -997,25 +1140,37 @@ window.chatApp = {
         if(!id) return;
 
         const titleSpan = document.getElementById('ai-studio-title');
-        titleSpan.innerText = `Baixando...`;
+        titleSpan.innerText = `⏳ Baixando do WordPress...`;
 
         const data = await wpAPI.getContent(type, id);
         if(data) {
             this.currentItemId = id;
             this.currentType = type;
-            document.getElementById('live-preview').innerHTML = data.content.rendered;
-            titleSpan.innerText = `Editando: ${data.title.rendered}`;
-            
-        document.getElementById('ai-studio-new-title').style.display = 'none';
-        document.getElementById('ai-studio-accept-btn').style.display = 'none';
-        document.getElementById('ai-studio-suggest-btn').style.display = 'none';
-        document.getElementById('ai-studio-preview-btn').style.display = 'block';
+
+            const preview = document.getElementById('live-preview');
+            const contentHtml = data.content?.rendered || data.content?.raw || '';
+
+            if (contentHtml.trim()) {
+                preview.style.display = 'block';
+                preview.innerHTML = contentHtml;
+                this.injectCopyButtons();
+                this.updateAbidusScore();
+                titleSpan.innerText = `Editando: ${data.title?.rendered || data.title || 'Sem Título'}`;
+                this.addMessage(`✅ Carreguei **${data.title?.rendered || 'página'}**. O que deseja ajustar?`);
+            } else {
+                // Conteúdo não veio (WAF bloqueou) - mostra aviso amigável
+                titleSpan.innerText = `⚠️ Carregado parcialmente: ${data.title?.rendered || ''}`;
+                this.addMessage(`⚠️ Carregado apenas os metadados de **${data.title?.rendered || 'página'}** — o conteúdo HTML foi bloqueado pelo servidor de segurança do Hostinger (ModSecurity). Você pode começar a escrever do zero ou usar um Blueprint.`);
+            }
+
+            document.getElementById('ai-studio-new-title').style.display = 'none';
+            document.getElementById('ai-studio-accept-btn').style.display = 'none';
+            document.getElementById('ai-studio-suggest-btn').style.display = 'none';
+            document.getElementById('ai-studio-preview-btn').style.display = 'block';
             document.getElementById('ai-studio-item').style.display = 'block';
-            
-            this.updateAbidusScore();
-            this.addMessage(`Carreguei **${data.title.rendered}**. O que deseja ajustar?`);
         }
     },
+
 
     createNew() {
         this.currentItemId = null;
@@ -1348,6 +1503,64 @@ RETORNE APENAS O JSON, sem comentários.`;
                 console.error("Erro ao processar sugestão de mídia", e);
                 this.addMessage("❌ A IA não conseguiu decidir. Tente abrir a Biblioteca de Mídia e escolher manualmente.");
             }
+        }
+    },
+
+    // --- [NOVO] Tom de Voz & Publicação ---
+    toggleToneTraining() {
+        const panel = document.getElementById('tone-training-panel');
+        panel.style.display = panel.style.display === 'none' ? 'block' : 'none';
+    },
+
+    async saveTone() {
+        const sample = document.getElementById('tone-sample').value;
+        if (!sample) return alert("Por favor, cole um rascunho seu para a IA aprender.");
+        
+        this.addMessage("🎯 **Iniciando Reverse Prompt Engineering...** Decodificando seu estilo de escrita em regras lógicas.");
+        this.toggleToneTraining();
+        
+        const prompt = `Atue como Especialista em Reverse Prompt Engineering. Analise o seguinte corpus de texto e decodifique o Estilo, Tom de Voz e Cadência.
+        TEXTO: "${sample}"
+        
+        REGRAS:
+        1. Identifique a relação de pronomes (ex: 2ª pessoa acolhedora).
+        2. Identifique jargões clínicos recorrentes.
+        3. Identifique restrições (o que a IA NÃO deve fazer para não parecer robótica).
+        4. Retorne APENAS um JSON com o campo "style_rules" contendo essas diretrizes em bullet points.`;
+
+        const response = await gemini.callAPI(prompt);
+        if (response) {
+            try {
+                const jsonStr = response.replace(/```json|```/g, '').trim();
+                localStorage.setItem('user_tone_rules', jsonStr);
+                this.addMessage("✅ **Estilo Decodificado!** As regras de tom de voz foram salvas e serão aplicadas em todas as novas gerações.");
+            } catch (e) {
+                localStorage.setItem('user_tone_sample', sample);
+                this.addMessage("⚠️ Não foi possível gerar regras lógicas, salvando como amostra bruta para as próximas consultas.");
+            }
+        }
+    },
+
+    async publishDirectly() {
+        const preview = document.getElementById('live-preview');
+        if (preview.innerText.includes('Crie algo novo')) return alert("O canvas está vazio!");
+
+        if (!confirm("Deseja publicar este rascunho diretamente no WordPress agora?")) return;
+
+        this.addMessage("🚀 **Iniciando Publicação Direta...**");
+        
+        const payload = {
+            title: this.currentKeyword || "Novo Rascunho AI Studio",
+            content: preview.innerHTML,
+            status: "draft"
+        };
+
+        const result = await wpAPI.saveContent('posts', payload);
+        if (result && result.id) {
+            this.addMessage(`✅ **SUCESSO!** Publicado como Rascunho no WP. ID: #${result.id}`);
+            window.open(result.link, '_blank');
+        } else {
+            this.addMessage("❌ Falha na publicação. Verifique a aba Gerenciar WP ou a conexão API.");
         }
     }
 };

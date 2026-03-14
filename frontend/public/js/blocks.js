@@ -375,7 +375,6 @@ window.AbidosBlocks = {
 'faq': `
 <section data-bloco="faq" style="padding:3rem 1.5rem;background:linear-gradient(135deg,#f5f7fa 0%,#e9ecf1 100%);">
   <div style="max-width:900px;margin:0 auto;">
-    <!-- H2: FAQ — OBRIGATÓRIO ser H2 pelo Método Abidos, nunca H3 ou H4 -->
     <h2 style="font-size:clamp(1.5rem,4vw,2.25rem);font-weight:700;text-align:center;color:#1e293b;margin:0 0 1rem 0;">
       Perguntas Frequentes sobre Psicologia e TEA Adulto em Goiânia
     </h2>
@@ -446,7 +445,6 @@ window.AbidosBlocks = {
 'linkagem': `
 <section data-bloco="silos" style="padding:3rem 1.5rem;background:#ffffff;">
   <div style="max-width:1200px;margin:0 auto;">
-    <!-- H2: Linkagem interna — distribuição de autoridade (silos Hub & Spoke) -->
     <h2 style="font-size:clamp(1.5rem,4vw,2.25rem);font-weight:700;text-align:center;color:#1e293b;margin:0 0 1rem 0;">
       Explore Outros Serviços Especializados em Goiânia
     </h2>

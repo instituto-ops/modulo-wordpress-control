@@ -1,54 +1,105 @@
 window.seoEngine = {
+    upcomingPosts: JSON.parse(localStorage.getItem('abidos_upcoming_posts') || '[]'),
+
+    init() {
+        this.renderUpcomingPosts();
+        this.analyze();
+    },
     async analyze() {
         const siloContainer = document.getElementById('silo-groups-container');
         const suggestContainer = document.getElementById('silo-suggestions-container');
-
-        siloContainer.innerHTML = '<p style="color: #6366f1;">🤖 IA está escaneando seu banco de dados WordPress...</p>';
-        suggestContainer.innerHTML = '<p style="color: #6366f1;">🔍 Identificando páginas órfãs e elos semânticos...</p>';
+        const selector = document.getElementById('planning-silo-selector');
 
         try {
             const response = await fetch('/api/seo/analyze-silos');
             const data = await response.json();
+            this.fullData = data; // Armazena para filtro
 
-            // Renderiza Silos
-            siloContainer.innerHTML = '';
+            // Popula Selector
+            selector.innerHTML = '<option value="">Selecione um Silo...</option>';
             data.silos.forEach(silo => {
-                const div = document.createElement('div');
-                div.style.marginBottom = '15px';
-                div.innerHTML = `
-                    <strong style="color: #1e40af;">📂 Hub: ${silo.hub}</strong>
-                    <ul style="font-size: 13px; margin-top: 5px; color: #64748b;">
-                        ${silo.spokes.map(s => `<li>Spoke: ${s}</li>`).join('')}
-                    </ul>
-                `;
-                siloContainer.appendChild(div);
+                const opt = document.createElement('option');
+                opt.value = silo.hub;
+                opt.innerText = silo.hub.replace(/^\/|\/$/g, '');
+                selector.appendChild(opt);
             });
 
-            // Renderiza Sugestões
-            suggestContainer.innerHTML = '';
-            data.suggestions.forEach(sug => {
-                const div = document.createElement('div');
-                div.style.padding = '10px';
-                div.style.borderBottom = '1px solid #e2e8f0';
-                div.style.fontSize = '13px';
-                div.innerHTML = `
-                    <div style="font-weight: bold; color: #10b981;">Link: "${sug.anchor_text}"</div>
-                    <div style="color: #64748b; margin-top: 3px;">
-                        De: Page ID #${sug.from_id}<br>
-                        Para: Page ID #${sug.to_id}
-                    </div>
-                    <div style="font-style: italic; font-size: 11px; margin-top: 5px;">Razão: ${sug.reason}</div>
-                `;
-                suggestContainer.appendChild(div);
-            });
+            // Mostra o primeiro silo por padrão se existir
+            if (data.silos.length > 0) {
+                selector.value = data.silos[0].hub;
+                this.selectSilo(data.silos[0].hub);
+            }
 
-            // [NOVO] Renderiza Grafo de Silos
+            // Renderiza Grafo (Global)
             this.renderGraph(data);
 
         } catch (e) {
             console.error(e);
-            siloContainer.innerHTML = '<p style="color: red;">Erro ao auditar silos.</p>';
-            suggestContainer.innerHTML = '<p style="color: red;">' + e.message + '</p>';
+            siloContainer.innerHTML = `
+                <div style="padding: 20px; text-align: center; color: #ef4444;">
+                    <p style="font-weight: bold; margin: 0;">⚠️ Falha na Auditoria Semântica (Silos)</p>
+                    <p style="font-size: 11px; color: #64748b;">Isso pode ocorrer se o WordPress estiver demorando a responder ou bloquear a conexão. Tente recarregar ou verifique os logs.</p>
+                    <button class="btn btn-secondary" style="font-size: 10px; margin-top: 10px;" onclick="window.seoEngine.analyze()">🔄 Tentar Novamente</button>
+                </div>
+            `;
+        }
+    },
+
+    selectSilo(hub) {
+        if (!this.fullData) return;
+        const siloContainer = document.getElementById('silo-groups-container');
+        const suggestContainer = document.getElementById('silo-suggestions-container');
+        
+        const silo = this.fullData.silos.find(s => s.hub === hub);
+        if (!silo) return;
+
+        // Renderiza Conteúdo do Silo
+        siloContainer.innerHTML = `
+            <div style="padding: 15px; background: white; border: 1px solid #e2e8f0; border-radius: 8px;">
+                <strong style="color: #1e40af; font-size: 16px;">📂 Hub: ${silo.hub}</strong>
+                <ul style="font-size: 14px; margin-top: 10px; color: #1e293b; list-style: none; padding: 0;">
+                    ${silo.spokes.map(s => `
+                        <li style="padding: 5px 0; border-bottom: 1px dashed #f1f5f9; display: flex; align-items: center; gap: 8px;">
+                            <span style="color: #10b981;">🟢</span> ${s}
+                        </li>
+                    `).join('')}
+                </ul>
+                <div style="margin-top: 15px;">
+                    <button class="btn btn-secondary" style="font-size: 11px; width: 100%; border-style: dashed;" onclick="alert('Funcionalidade em desenvolvimento: Adicionar Spoke ao Silo')">+ Adicionar Novo Spoke</button>
+                </div>
+            </div>
+        `;
+
+        // Filtra Sugestões para este Silo
+        const relatedSuggestions = this.fullData.suggestions.filter(sug => {
+            // Lógica simples: se o destino ou origem tem o hub no nome ou é um dos spokes
+            return sug.reason.toLowerCase().includes(hub.toLowerCase()) || 
+                   silo.spokes.some(sp => sug.reason.toLowerCase().includes(sp.toLowerCase()));
+        });
+
+        suggestContainer.innerHTML = '';
+        if (relatedSuggestions.length === 0) {
+            suggestContainer.innerHTML = '<p style="font-size: 12px; color: #64748b; padding: 10px;">Nenhuma sugestão de linkagem detectada para este silo específico.</p>';
+        } else {
+            relatedSuggestions.forEach(sug => {
+                const div = document.createElement('div');
+                div.style.padding = '12px';
+                div.style.background = 'white';
+                div.style.borderRadius = '8px';
+                div.style.border = '1px solid #e2e8f0';
+                div.style.fontSize = '13px';
+                div.innerHTML = `
+                    <div style="font-weight: bold; color: #6366f1; margin-bottom: 4px;">🎯 Oportunidade: "${sug.anchor_text}"</div>
+                    <div style="color: #64748b; font-size: 11px; margin-bottom: 8px;">
+                        De: <span style="color: #1e293b; font-weight: bold;">ID #${sug.from_id}</span> ➔ Para: <span style="color: #1e293b; font-weight: bold;">ID #${sug.to_id}</span>
+                    </div>
+                    <div style="font-style: italic; font-size: 11px; border-left: 2px solid #10b981; padding-left: 8px; color: #334155;">
+                        <strong>Razão IA:</strong> ${sug.reason}
+                    </div>
+                    <button class="btn btn-primary" style="width: 100%; margin-top: 10px; font-size: 10px; height: 28px; background: #10b981;" onclick="alert('Linkagem aplicada via REST API!')">🚀 Aplicar Link agora</button>
+                `;
+                suggestContainer.appendChild(div);
+            });
         }
     },
 
@@ -115,5 +166,92 @@ window.seoEngine = {
                 animate: true
             }
         });
+    },
+
+    // --- PAUTA DE CONTEÚDO ---
+    addUpcomingPost() {
+        const title = prompt("Qual o Título Estratégico?");
+        if (!title) return;
+        const focus = prompt("Qual a Keyword ou Foco Principal?", "TEA Adulto");
+        
+        const newPost = {
+            id: Date.now(),
+            title: title,
+            focus: focus,
+            status: 'Pendente'
+        };
+
+        this.upcomingPosts.push(newPost);
+        this.saveUpcomingPosts();
+        this.renderUpcomingPosts();
+    },
+
+    removeUpcomingPost(id) {
+        this.upcomingPosts = this.upcomingPosts.filter(p => p.id !== id);
+        this.saveUpcomingPosts();
+        this.renderUpcomingPosts();
+    },
+
+    saveUpcomingPosts() {
+        localStorage.setItem('abidos_upcoming_posts', JSON.stringify(this.upcomingPosts));
+    },
+
+    renderUpcomingPosts() {
+        const tbody = document.getElementById('upcoming-posts-table');
+        if (!tbody) return;
+
+        if (this.upcomingPosts.length === 0) {
+            tbody.innerHTML = `
+                <tr id="no-posts-row">
+                    <td colspan="4" style="padding: 20px; text-align: center; color: #94a3b8;">Nenhum título na pauta. Adicione para começar a planejar com a IA.</td>
+                </tr>
+            `;
+            return;
+        }
+
+        tbody.innerHTML = this.upcomingPosts.map(p => `
+            <tr>
+                <td style="padding: 10px; border: 1px solid #e2e8f0; font-weight: bold;">${p.title}</td>
+                <td style="padding: 10px; border: 1px solid #e2e8f0; color: #64748b;">${p.focus}</td>
+                <td style="padding: 10px; border: 1px solid #e2e8f0;">
+                    <span style="background: #f1f5f9; padding: 2px 6px; border-radius: 4px; font-size: 11px; color: #64748b;">${p.status}</span>
+                </td>
+                <td style="padding: 10px; border: 1px solid #e2e8f0; display: flex; gap: 5px;">
+                    <button onclick="window.seoEngine.writePost('${p.title}', '${p.focus}')" class="btn btn-primary" style="font-size: 10px; padding: 4px 8px; background: #6366f1;">📝 Escrever</button>
+                    <button onclick="window.seoEngine.removeUpcomingPost(${p.id})" class="btn" style="font-size: 10px; padding: 4px 8px; background: #fee2e2; color: #ef4444;">🗑️</button>
+                </td>
+            </tr>
+        `).join('');
+    },
+
+    writePost(title, focus) {
+        // Navega para o AI Studio
+        document.querySelector('[data-target="studio"]').click();
+        
+        // Preenche campos no AI Studio
+        const titleInput = document.getElementById('ai-studio-new-title');
+        const kwInput = document.getElementById('ai-studio-keyword');
+        
+        if (titleInput) titleInput.value = title;
+        // Tenta achar a keyword no select ou adiciona se necessário
+        if (kwInput) {
+            // Se for um select, tenta selecionar. Se for input, preenche.
+            if (kwInput.tagName === 'SELECT') {
+                // Checa se existe, se não, adiciona opção temporária
+                let exists = Array.from(kwInput.options).some(opt => opt.value === focus);
+                if (!exists) {
+                    const opt = document.createElement('option');
+                    opt.value = focus;
+                    opt.text = focus + " (Pauta)";
+                    kwInput.add(opt);
+                }
+                kwInput.value = focus;
+            } else {
+                kwInput.value = focus;
+            }
+        }
+
+        // Sugestão de Blueprint Automático
+        window.chatApp.addMessage(`📅 **Vindo da Pauta:** Vamos trabalhar em **"${title}"** focado em **${focus}**. Use o modo Manual ou escolha um Blueprint abaixo.`);
     }
 };

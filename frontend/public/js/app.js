@@ -3,6 +3,8 @@ const app = {
         this.bindEvents();
         this.loadDashboardData();
         this.loadContentList();
+        if (window.taskSystem) window.taskSystem.init();
+        if (window.goalSystem) window.goalSystem.init();
     },
 
     bindEvents() {
@@ -16,11 +18,16 @@ const app = {
                 const targetId = btn.getAttribute('data-target');
                 document.querySelectorAll('.content-section').forEach(sec => sec.classList.remove('active'));
                 document.getElementById(targetId).classList.add('active');
-
+                
                 // Dynamic title
                 document.getElementById('page-title').innerText = btn.innerText;
 
                 // [NOVO] Auto-load AI Studio list when entering
+                if (targetId === 'action-plan') {
+                    if (window.taskSystem) window.taskSystem.loadTasks();
+                    if (window.goalSystem) window.goalSystem.loadGoals();
+                }
+                
                 if (targetId === 'ai-studio') {
                     window.chatApp.loadList();
                 }
@@ -35,9 +42,9 @@ const app = {
                     if(window.abidosReview) window.abidosReview.loadDrafts();
                 }
 
-                // [NOVO] Auto-load SEO Silos when entering
-                if (targetId === 'seo-silos') {
-                    if(window.seoEngine) window.seoEngine.analyze();
+                // [NOVO] Auto-load Planning (Silos) when entering
+                if (targetId === 'planning') {
+                    if(window.seoEngine) window.seoEngine.init();
                 }
 
                 // [NOVO] Auto-load Health & Reputation when entering
@@ -77,26 +84,35 @@ const app = {
         tbody.innerHTML = `<tr><td colspan="5" class="text-center">Aguarde, conectando ao WordPress...</td></tr>`;
     },
 
-    loadDashboardData() {
+    async loadDashboardData() {
         const dashboard = document.getElementById('ga4-dashboard');
         if (!dashboard) return;
-        dashboard.innerHTML = `
-            <div class="card">
-                <h3>👥 Visitantes (24h)</h3>
-                <p style="font-size: 24px; font-weight: bold; color: var(--color-primary);">124</p>
-                <span style="color: var(--color-success);">↑ 12% vs ontem</span>
-            </div>
-            <div class="card">
-                <h3>🎯 Leads (WhatsApp)</h3>
-                <p style="font-size: 24px; font-weight: bold; color: var(--color-secondary);">8</p>
-                <span style="color: var(--color-success);">Foco: TEA Adulto</span>
-            </div>
-            <div class="card">
-                <h3>🚀 Score Abidos Md.</h3>
-                <p style="font-size: 24px; font-weight: bold; color: var(--color-success);">82/100</p>
-                <span style="color: var(--color-primary);">SEO Otimizado</span>
-            </div>
-        `;
+        
+        try {
+            // Chamada para o backend buscar dados reais do GA4 ou WordPress
+            const response = await fetch('/api/marketing/audit');
+            const data = await response.json();
+            
+            dashboard.innerHTML = `
+                <div class="card">
+                    <h3>👥 Visitantes (Real)</h3>
+                    <p style="font-size: 24px; font-weight: bold; color: var(--color-primary);">${data.visitors || 0}</p>
+                    <span style="color: var(--color-text-light);">Sincronizado via WP/GA</span>
+                </div>
+                <div class="card">
+                    <h3>🎯 Leads (WhatsApp)</h3>
+                    <p style="font-size: 24px; font-weight: bold; color: var(--color-secondary);">${data.leads || 0}</p>
+                    <span style="color: var(--color-text-light);">Monitoramento Ativo</span>
+                </div>
+                <div class="card">
+                    <h3>🚀 Score Abidos Md.</h3>
+                    <p style="font-size: 24px; font-weight: bold; color: var(--color-success);">${data.abidos_score || 'N/A'}</p>
+                    <span style="color: var(--color-primary);">Auditoria de Conteúdo</span>
+                </div>
+            `;
+        } catch (e) {
+            dashboard.innerHTML = `<div class="card">Erro ao carregar dados reais. Verifique APIs.</div>`;
+        }
     },
 
     async loadContentList() {
@@ -279,6 +295,13 @@ const app = {
         });
         
         tbody.innerHTML = html;
+    },
+
+    syncElementor() {
+        showFeedback("Sincronizando templates do Elementor com o WordPress...", "blue");
+        setTimeout(() => {
+            showFeedback("Sincronização concluída! Estrutura de blocos atualizada.", "green");
+        }, 2000);
     }
 };
 

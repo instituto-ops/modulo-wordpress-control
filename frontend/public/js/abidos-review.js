@@ -100,27 +100,26 @@ window.abidosReview = {
     },
 
     async approveDraft() {
-        const draft = this.drafts.find(d => d.draft_id === this.currentDraftId);
+        const id = this.currentDraftId.replace('WP-', '');
         const editedContent = document.getElementById('draft-modal-content').value;
 
-        // [CLONE DE VOZ] Se houve edição, envia para o Nó de Aprendizado (Text Diff)
-        if (draft && draft.conteudo_gerado !== editedContent) {
-            console.log("🧬 Ajustando perfil de voz baseado nas suas edições...");
-            fetch('/api/agents/analyze-diff', {
-                method: 'POST',
-                headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify({ 
-                    original: draft.conteudo_gerado, 
-                    edited: editedContent 
-                })
-            }).then(r => r.json()).then(data => {
-                if(data.success) console.log("✅ DNA de escrita atualizado com as novas preferências.");
-            }).catch(e => console.error("Erro ao treinar voz:", e));
-        }
+        if(!confirm("Deseja publicar este conteúdo agora no site?")) return;
 
-        alert("Publicação Final: Agente de Integração ativado! O WordPress irá receber a carga final formatada via REST API.");
-        document.getElementById('draft-modal').style.display = 'none';
-        this.loadDrafts(); // Atualiza a lista
+        try {
+            // 1. Atualiza o conteúdo se houver edição e muda status para publish
+            const result = await wpAPI.saveContent('posts', {
+                content: editedContent,
+                status: 'publish'
+            }, id);
+
+            if(result) {
+                alert("✅ Publicado com sucesso!");
+                document.getElementById('draft-modal').style.display = 'none';
+                this.loadDrafts();
+            }
+        } catch (e) {
+            alert("Erro ao publicar: " + e.message);
+        }
     },
 
     async rejectDraft() {

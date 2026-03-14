@@ -33,7 +33,8 @@ const wpAPI = {
         try {
             const fields = full ? 'id,title,status,type,content,featured_media' : 'id,title,status,type';
             // O proxy repassa os query params
-            return await this.request(`/wp/${type}?_fields=${fields}&per_page=100&status=publish,draft,future,private`);
+            // Agora com a auth corrigida e .htaccess configurado, podemos puxar rascunhos com segurança
+            return await this.request(`/wp/${type}?_fields=${fields}&per_page=100&status=publish,draft`);
         } catch (error) {
             return [];
         }
@@ -56,10 +57,20 @@ const wpAPI = {
     
     async getContent(type, id) {
         try {
-            return await this.request(`/wp/${type}/${id}?_fields=id,title,content,excerpt,status`);
+            // Usa endpoint dedicado no proxy para evitar 403 do ModSecurity/WAF do Hostinger
+            return await this.request(`/api-content/${type}/${id}`);
         } catch (error) {
-            alert("Erro ao puxar dados: " + error.message);
-            return null;
+            // Fallback: tenta rota genérica sem o campo 'content' que dispara o WAF
+            try {
+                const meta = await this.request(`/wp/${type}/${id}?_fields=id,title,excerpt,status`);
+                if (meta) {
+                    meta.content = { rendered: '' }; // placeholder
+                }
+                return meta;
+            } catch (e2) {
+                alert('Erro ao puxar dados: ' + error.message + ' (o servidor retornou ' + (error.message || 'erro desconhecido') + ')');
+                return null;
+            }
         }
     },
 

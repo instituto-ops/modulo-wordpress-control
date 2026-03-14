@@ -379,6 +379,95 @@ const mediaLibrary = {
     closeModal() {
         document.getElementById('upload-modal').style.display = 'none';
         this.currentFile = null;
+    },
+
+    async recommendMediaDemand() {
+        const btn = document.getElementById('btn-analyze-media-demand');
+        const resultPanel = document.getElementById('media-planning-result');
+        const originalText = btn.innerText;
+
+        btn.innerText = "⏳ Analisando ecossistema WP...";
+        btn.disabled = true;
+        resultPanel.style.display = 'none';
+
+        try {
+            // 1. Busca todo o conteúdo relevante (posts, páginas, rascunhos)
+            const [posts, pages, drafts] = await Promise.all([
+                wpAPI.fetchContent('posts', true),
+                wpAPI.fetchContent('pages', true),
+                fetch('/api/drafts').then(r => r.json())
+            ]);
+
+            const allContent = [...posts, ...pages, ...drafts];
+            if (allContent.length === 0) {
+                alert("Nenhum conteúdo encontrado para análise.");
+                return;
+            }
+
+            // 2. Prepara um resumo simplificado para a IA não estourar tokens
+            const summary = allContent.slice(0, 10).map(c => ({
+                title: c.title.rendered || c.titulo,
+                type: c.type || 'draft',
+                has_media: c.content ? c.content.rendered.includes('<img') : false
+            }));
+
+            const prompt = `Atue como Diretor de Arte do Método Abidos.
+Analise os últimos conteúdos do site de um Psicólogo:
+${JSON.stringify(summary)}
+
+REGRAS:
+1. Identifique conteúdos que estão "pobres" visualmente (sem imagens ou com pouca autoridade).
+2. Sugira 3 novas mídias estratégicas (foco em TEA, Hipnose, Clínica, Victor Lawrence).
+3. Para cada mídia, crie um "Prompt para NanoBanana" (IA Geradora de Imagem realista e acolhedora).
+4. Retorne APENAS um JSON no formato:
+[
+  {"content_title": "Título do Post", "media_type": "Foto/Ilustração", "reason": "Por que precisa?", "prompt": "Prompt para IA"}
+]`;
+
+            const response = await gemini.callAPI(prompt);
+            if (!response) throw new Error("IA não respondeu.");
+
+            const cleanJson = response.replace(/```json/g, '').replace(/```/g, '').trim();
+            const recommendations = JSON.parse(cleanJson);
+
+            // 3. Renderiza Tabela
+            resultPanel.innerHTML = `
+                <table style="width: 100%; border-collapse: collapse; font-size: 13px; background: white; border-radius: 8px; overflow: hidden; box-shadow: 0 1px 3px rgba(0,0,0,0.1);">
+                    <thead>
+                        <tr style="background: #f1f5f9; text-align: left;">
+                            <th style="padding: 12px; border-bottom: 2px solid #e2e8f0;">Conteúdo Foco</th>
+                            <th style="padding: 12px; border-bottom: 2px solid #e2e8f0;">Tipo / Razão</th>
+                            <th style="padding: 12px; border-bottom: 2px solid #e2e8f0;">🤖 Prompt NanoBanana</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        ${recommendations.map(r => `
+                            <tr>
+                                <td style="padding: 12px; border-bottom: 1px solid #f1f5f9; font-weight: bold;">${r.content_title}</td>
+                                <td style="padding: 12px; border-bottom: 1px solid #f1f5f9;">
+                                    <span style="display: block; font-weight: bold; color: #6366f1;">${r.media_type}</span>
+                                    <span style="font-size: 11px; color: #64748b;">${r.reason}</span>
+                                </td>
+                                <td style="padding: 12px; border-bottom: 1px solid #f1f5f9;">
+                                    <div style="background: #f8fafc; padding: 8px; border-radius: 4px; font-family: monospace; font-size: 11px; border: 1px solid #e2e8f0; position: relative;">
+                                        ${r.prompt}
+                                        <button onclick="navigator.clipboard.writeText('${r.prompt.replace(/'/g, "\\'")}'); alert('Prompt Copiado!')" style="position: absolute; top: 2px; right: 2px; padding: 2px 5px; font-size: 9px; cursor: pointer; background: #e2e8f0; border: none; border-radius: 3px;">📋</button>
+                                    </div>
+                                </td>
+                            </tr>
+                        `).join('')}
+                    </tbody>
+                </table>
+            `;
+            resultPanel.style.display = 'block';
+
+        } catch (e) {
+            console.error(e);
+            alert("Erro ao analisar demanda de mídia: " + e.message);
+        } finally {
+            btn.innerText = originalText;
+            btn.disabled = false;
+        }
     }
 };
 
