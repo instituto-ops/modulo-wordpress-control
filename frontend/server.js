@@ -12,7 +12,7 @@ const port = 3000; // Unificando na porta 3000 (Frontend + API)
 // Configuração de CORS: Como agora operamos na mesma porta, CORS é menos crítico,
 // mas mantemos por segurança para acessos via IP ou subdomínios.
 app.use(cors());
-app.use(express.json({ limit: '50mb' }));
+app.use(express.json({ limit: '5mb' }));
 
 // 1. SERVIR ARQUIVOS ESTÁTICOS (Frontend)
 app.use(express.static(path.join(__dirname, 'public')));
