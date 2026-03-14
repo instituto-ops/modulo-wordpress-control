@@ -64,19 +64,24 @@ const callWP = async (method, endpoint, data = null, params = {}) => {
     }
 };
 
+// Utility handler for WP API errors
+const handleWPError = (res, e) => {
+    res.status(e.response?.status || 500).json(e.response?.data || {error: e.message});
+};
+
 // Endpoints Genéricos (GET, POST, PUT, DELETE)
 app.get('/api/wp/:type', async (req, res) => {
     try {
         const response = await callWP('GET', `/${req.params.type}`, null, req.query);
         res.json(response.data);
-    } catch (e) { res.status(e.response?.status || 500).json(e.response?.data || {error: e.message}); }
+    } catch (e) { handleWPError(res, e); }
 });
 
 app.post('/api/wp/:type', async (req, res) => {
     try {
         const response = await callWP('POST', `/${req.params.type}`, req.body);
         res.json(response.data);
-    } catch (e) { res.status(e.response?.status || 500).json(e.response?.data || {error: e.message}); }
+    } catch (e) { handleWPError(res, e); }
 });
 
 app.all('/api/wp/:type/:id', async (req, res) => {
@@ -84,7 +89,7 @@ app.all('/api/wp/:type/:id', async (req, res) => {
         const { type, id } = req.params;
         const response = await callWP(req.method, `/${type}/${id}`, req.body, req.query);
         res.json(response.data);
-    } catch (e) { res.status(e.response?.status || 500).json(e.response?.data || {error: e.message}); }
+    } catch (e) { handleWPError(res, e); }
 });
 
 // ──────────────────────────────────────────────────────────────────────────────
