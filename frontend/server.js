@@ -155,7 +155,7 @@ app.post('/api/wp-settings', async (req, res) => {
 // Endpoint especial para Upload de Mídia (Multipart/Form-Data)
 app.post('/api/wp-upload-media', upload.shared ? upload.single('file') : upload.single('file'), async (req, res) => {
     try {
-        if (!req.file) throw new Error("Nenhum arquivo enviado.");
+        if (!req.file) throw new Error("Nenhum arquivo enviado");
 
         const formData = new (require('form-data'))();
         formData.append('file', req.file.buffer, {
@@ -639,8 +639,12 @@ app.post('/api/audit', async (req, res) => {
     } catch (e) { res.status(500).json({ error: e.message }); }
 });
 
-app.listen(port, () => {
-    console.log(`\n🚀 AntiGravity CMS: Mission Control Ativo!`);
-    console.log(`📡 Frontend & API rodando em http://localhost:${port}`);
-    console.log(`🔐 Camada de Segurança Proxy: ON`);
-});
+if (require.main === module) {
+    app.listen(port, () => {
+        console.log(`\n🚀 AntiGravity CMS: Mission Control Ativo!`);
+        console.log(`📡 Frontend & API rodando em http://localhost:${port}`);
+        console.log(`🔐 Camada de Segurança Proxy: ON`);
+    });
+}
+
+module.exports = app;
