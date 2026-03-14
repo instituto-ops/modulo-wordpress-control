@@ -30,7 +30,7 @@ add_action('rest_api_init', function() {
         $origin = get_http_origin();
 
         // Se a requisição vier de uma das nossas URLs locais conhecidas
-        if (in_array($origin, $allowed_origins)) {
+        if (in_array($origin, $allowed_origins, true)) {
             header('Access-Control-Allow-Origin: ' . esc_url_raw($origin));
         } else {
             // Em produção, se não estiver na lista, não enviamos o header de origem,
