@@ -3,6 +3,8 @@ const multer = require('multer');
 const cors = require('cors');
 const axios = require('axios');
 const path = require('path');
+const basicAuth = require('express-basic-auth');
+
 require('dotenv').config({ path: '../.env' }); 
 const { GoogleGenerativeAI } = require('@google/generative-ai');
 
@@ -19,6 +21,20 @@ app.use(express.static(path.join(__dirname, 'public')));
 
 const storage = multer.memoryStorage();
 const upload = multer({ storage: storage });
+
+if (!process.env.DASHBOARD_USER || !process.env.DASHBOARD_PASSWORD) {
+    console.error("❌ CRITICAL: Missing DASHBOARD_USER and DASHBOARD_PASSWORD in .env");
+    process.exit(1);
+}
+
+const authMiddleware = basicAuth({
+    users: { [process.env.DASHBOARD_USER]: process.env.DASHBOARD_PASSWORD },
+    challenge: true,
+    realm: 'NeuroEngine Mission Control'
+});
+
+app.use('/api', authMiddleware);
+
 
 // Initialize Gemini SDK
 const genAI = new GoogleGenerativeAI(process.env.GEMINI_API_KEY);
@@ -141,7 +157,13 @@ app.get('/api/wp-settings', async (req, res) => {
             headers: { 'Authorization': `Basic ${WP_AUTH}` }
         });
         res.json(response.data);
-    } catch (e) { res.status(500).json({ error: e.message }); }
+    } catch (e) {
+        console.error("❌ [CHAT ERROR]", e.message);
+        res.status(500).json({
+            error: e.message,
+            reply: "Não foi possível processar a requisição de chat no momento."
+        });
+    }
 });
 
 app.post('/api/wp-settings', async (req, res) => {
@@ -150,7 +172,13 @@ app.post('/api/wp-settings', async (req, res) => {
             headers: { 'Authorization': `Basic ${WP_AUTH}`, 'Content-Type': 'application/json' }
         });
         res.json(response.data);
-    } catch (e) { res.status(500).json({ error: e.message }); }
+    } catch (e) {
+        console.error("❌ [BLUEPRINT ERROR]", e.message);
+        res.status(500).json({
+            error: e.message,
+            html: "<p>Erro na geração do Blueprint.</p>"
+        });
+    }
 });
 // Endpoint especial para Upload de Mídia (Multipart/Form-Data)
 app.post('/api/wp-upload-media', upload.shared ? upload.single('file') : upload.single('file'), async (req, res) => {
@@ -195,7 +223,11 @@ app.post('/api/ai/generate', async (req, res) => {
         res.json({ text: resp.text() });
     } catch (e) { 
         console.error("❌ [AI PROXY ERROR]", e.message);
-        res.status(500).json({ error: e.message }); 
+        // Fallback response for missing API key or timeout
+        res.status(500).json({
+            error: "Serviço de IA indisponível. " + e.message,
+            text: "Não foi possível gerar uma resposta no momento. Verifique as configurações de API ou tente novamente mais tarde."
+        });
     }
 });
 
@@ -320,7 +352,10 @@ app.post('/api/agents/generate-pipeline', async (req, res) => {
         res.json({ success: true, draft: newDraft });
     } catch (e) {
         console.error("❌ [PIPELINE ERROR]", e.message);
-        res.status(500).json({ error: e.message });
+        res.status(500).json({
+            error: "Falha na pipeline de agentes: " + e.message,
+            draft: null
+        });
     }
 });
 
@@ -358,7 +393,10 @@ app.post('/api/agents/audit', async (req, res) => {
         res.json({ success: true, report: resp.text() });
     } catch (e) {
         console.error("❌ [AGENTE ABIDOS ERROR]", e.message);
-        res.status(500).json({ error: e.message });
+        res.status(500).json({
+            error: e.message,
+            report: "<strong>Auditoria Indisponível:</strong> Ocorreu um erro ao comunicar com a IA."
+        });
     }
 });
 
@@ -399,7 +437,10 @@ app.post('/api/agents/learn-style', async (req, res) => {
         res.json({ success: true, profile: voiceProfile });
     } catch (e) {
         console.error("❌ [LEARN STYLE ERROR]", e.message);
-        res.status(500).json({ error: e.message });
+        res.status(500).json({
+            error: "Falha ao processar aprendizado de estilo: " + e.message,
+            success: false
+        });
     }
 });
 
@@ -430,7 +471,10 @@ app.post('/api/agents/analyze-diff', async (req, res) => {
         res.json({ success: true, profile: voiceProfile });
     } catch (e) {
         console.error("❌ [DIFF ANALYZE ERROR]", e.message);
-        res.status(500).json({ error: e.message });
+        res.status(500).json({
+            error: "Falha ao analisar edições: " + e.message,
+            success: false
+        });
     }
 });
 
@@ -604,7 +648,13 @@ app.post('/api/chat', upload.single('screenshot'), async (req, res) => {
         const result = await model.generateContent({ contents: [{ role: 'user', parts }] });
         const resp = await result.response;
         res.json({ reply: resp.text() });
-    } catch (e) { res.status(500).json({ error: e.message }); }
+    } catch (e) {
+        console.error("❌ [AUDIT ERROR]", e.message);
+        res.status(500).json({
+            error: e.message,
+            checklist: []
+        });
+    }
 });
 
 app.post('/api/blueprint', async (req, res) => {
@@ -639,8 +689,12 @@ app.post('/api/audit', async (req, res) => {
     } catch (e) { res.status(500).json({ error: e.message }); }
 });
 
-app.listen(port, () => {
-    console.log(`\n🚀 AntiGravity CMS: Mission Control Ativo!`);
-    console.log(`📡 Frontend & API rodando em http://localhost:${port}`);
-    console.log(`🔐 Camada de Segurança Proxy: ON`);
-});
+
+if (require.main === module) {
+    app.listen(port, () => {
+        console.log(`\n🚀 AntiGravity CMS: Mission Control Ativo!`);
+        console.log(`📡 Frontend & API rodando em http://localhost:${port}`);
+        console.log(`🔐 Camada de Segurança Proxy: ON`);
+    });
+}
+module.exports = app;

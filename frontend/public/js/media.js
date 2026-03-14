@@ -393,8 +393,8 @@ const mediaLibrary = {
         try {
             // 1. Busca todo o conteúdo relevante (posts, páginas, rascunhos)
             const [posts, pages, drafts] = await Promise.all([
-                wpAPI.fetchContent('posts', true),
-                wpAPI.fetchContent('pages', true),
+                wpAPI.request('/wp/posts?_fields=id,title,status,type,content,featured_media&per_page=10&status=publish,draft'),
+                wpAPI.request('/wp/pages?_fields=id,title,status,type,content,featured_media&per_page=10&status=publish,draft'),
                 fetch('/api/drafts').then(r => r.json())
             ]);
 
