@@ -2,7 +2,7 @@
 /**
  * Plugin Name: AntiGravity CORS & Security (Headless)
  * Description: Bloqueia ataques, permite CORS com o painel JS e otimiza a REST API do WordPress para a Metodologia Abidos.
- * Version: 1.0.0
+ * Version: 1.1.0
  * Author: NeuroStrategy OS
  */
 
@@ -11,74 +11,66 @@ if (!defined('ABSPATH')) {
 }
 
 /**
- * 1. CONFIGURAÇÃO DE CORS (Cross-Origin Resource Sharing)
- * Permite que apenas o seu Mission Control (na sua máquina local ou futuro servidor do painel)
- * faça requisições de criação, edição e leitura para a API do WordPress.
+ * 1. CONFIGURAÇÃO DE CORS E SEGURANÇA
+ * Permite que apenas o seu Mission Control faça requisições de escrita/leitura.
  */
 add_action('rest_api_init', function() {
     remove_filter('rest_pre_serve_request', 'rest_send_cors_headers');
     add_filter('rest_pre_serve_request', function($value) {
         
-        // Defina aqui a URL de onde o painel AntiGravity está rodando (atualize para domínio oficial no futuro)
         $allowed_origins = array(
             'http://localhost:3000',
             'http://localhost:5173',
-            'http://localhost:5500', // Live Server do VSCode
-            'http://127.0.0.1:5500'  // Outro IP comum do Live Server
+            'http://localhost:5500',
+            'http://127.0.0.1:5500'
         );
 
         $origin = get_http_origin();
 
-        // Se a requisição vier de uma das nossas URLs locais conhecidas
         if (in_array($origin, $allowed_origins)) {
             header('Access-Control-Allow-Origin: ' . esc_url_raw($origin));
-        } else {
-            // Em produção, se não estiver na lista, não enviamos o header de origem,
-            // o que fará o navegador bloquear a requisição por padrão.
-            // Para requisições GET públicas, o WP já tem comportamento padrão.
-            // Aqui silenciamos para evitar exposição.
         }
 
         header('Access-Control-Allow-Methods: POST, GET, OPTIONS, PUT, DELETE');
         header('Access-Control-Allow-Credentials: true');
         header('Access-Control-Expose-Headers: X-WP-Total, X-WP-TotalPages, Authorization');
-        // Adiciona headers críticos que o fetch no JS envia
         header('Access-Control-Allow-Headers: Authorization, X-WP-Nonce, Content-Type, X-Requested-With, Application-Password');
+        
+        // Headers Adicionais de Segurança (Anti-XSS, Anti-Sniffing)
+        header('X-Content-Type-Options: nosniff');
+        header('X-Frame-Options: SAMEORIGIN');
+        header('Referrer-Policy: strict-origin-when-cross-origin');
 
         return $value;
     });
 }, 15);
 
 /**
- * 2. EXPOSIÇÃO DO CAMPO META (Para Meta Descriptions do Yoast/Rank Math) nas respostas REST.
- * Quando o seu painel enviar "excerpt", o WordPress não atualiza a tag de Meta Description (SEO) automaticamente.
- * É necessário permitir a escrita dos dados no `_yoast_wpseo_metadesc` (Yoast) ou `rank_math_description` (RankM).
+ * 2. EXPOSIÇÃO DO CAMPO META (SEO) nas respostas REST.
  */
 add_action('rest_api_init', 'antigravity_expose_seo_meta');
 function antigravity_expose_seo_meta() {
-    $post_types = ['post', 'page']; // Aplica a Páginas e Posts
+    $post_types = ['post', 'page'];
     
     foreach ($post_types as $pt) {
-        // Expondo o campo EXCERPT (Resumo) para quem não usa Yoast/RankMath ou usa no tema.
+        // Expondo o campo EXCERPT (Resumo)
         register_rest_field($pt, 'excerpt', array(
             'get_callback' => function($object) {
                 return $object['excerpt']['rendered'] ?? '';
             },
-            'update_callback' => function($value, $post, $field_name) {
+            'update_callback' => function($value, $post) {
                 return wp_update_post(array('ID' => $post->ID, 'post_excerpt' => $value));
             },
             'schema' => null,
         ));
         
-        // Expondo as Meta Descriptions para os plugins de SEO (A API do Gemini vai escrever nelas).
+        // Expondo Meta Descriptions para Yoast e RankMath
         register_rest_field($pt, 'seo_meta_desc', array(
             'get_callback' => function($object) {
                 $yoast = get_post_meta($object['id'], '_yoast_wpseo_metadesc', true);
-                if($yoast) return $yoast;
-                return get_post_meta($object['id'], 'rank_math_description', true);
+                return $yoast ? $yoast : get_post_meta($object['id'], 'rank_math_description', true);
             },
-            'update_callback' => function($value, $post, $field_name) {
-                // Atualiza ambos para garantir compatibilidade caso você mude de plugin.
+            'update_callback' => function($value, $post) {
                 update_post_meta($post->ID, '_yoast_wpseo_metadesc', $value);
                 update_post_meta($post->ID, 'rank_math_description', $value);
                 return true;
@@ -89,45 +81,30 @@ function antigravity_expose_seo_meta() {
 }
 
 /**
- * 3. DESABILITAR ROTAS INÚTEIS DA API
- * Isso evita que bots de sucateamento extraiam usuários do seu WordPress (medida crítica de segurança).
+ * 3. SEGURANÇA: ESCONDER USUÁRIOS E PREVENIR ENUMERAÇÃO
  */
 add_filter('rest_endpoints', function($endpoints) {
-    // Esconder a lista de autores/usuários
-    if (isset($endpoints['/wp/v2/users'])) {
-        unset($endpoints['/wp/v2/users']);
-    }
-    if (isset($endpoints['/wp/v2/users/(?P<id>[\d]+)'])) {
-        unset($endpoints['/wp/v2/users/(?P<id>[\d]+)']);
-    }
+    if (isset($endpoints['/wp/v2/users'])) unset($endpoints['/wp/v2/users']);
+    if (isset($endpoints['/wp/v2/users/(?P<id>[\d]+)'])) unset($endpoints['/wp/v2/users/(?P<id>[\d]+)']);
     return $endpoints;
 });
 
 /**
- * 4. FORÇAR AUTENTICAÇÃO
- * Ninguém de fora pode ver conteúdos ainda em status "Rascunho" sem validarem o JWT/Application Password.
+ * 4. ELEMENTOR LIBRARY NA REST API
+ * Via filter (método recomendado)
  */
-add_filter('rest_authentication_errors', function($result) {
-    if (!empty($result)) {
-        return $result;
+add_filter('register_post_type_args', function($args, $post_type) {
+    if ($post_type === 'elementor_library') {
+        $args['show_in_rest'] = true;
+        $args['rest_base'] = 'elementor_library';
     }
-    return $result; 
-});
+    return $args;
+}, 10, 2);
 
 /**
- * 5. EXPOSIÇÃO DO ELEMENTOR THEME BUILDER E CONFIGURAÇÕES GERAIS (ASTRA E WP)
- * Permite que a API Headless acesse layouts criados, cabeçalhos do Elementor e configurações globais
+ * 5. ROTAS CUSTOMIZADAS DE CONFIGURAÇÃO (Headless Dashboard)
  */
 add_action('rest_api_init', function() {
-    // Expor custom post type do Elementor (elementor_library) na REST API
-    global $wp_post_types;
-    if (isset($wp_post_types['elementor_library'])) {
-        $wp_post_types['elementor_library']->show_in_rest = true;
-        // Permite endpoint /wp-json/wp/v2/elementor_library
-        $wp_post_types['elementor_library']->rest_base = 'elementor_library'; 
-    }
-
-    // Criar Rota Customizada para Configurações Gerais (Astra, Tema Básico, Site Kit básico)
     register_rest_route('antigravity/v1', '/settings', array(
         'methods' => 'GET',
         'callback' => 'antigravity_get_settings',
@@ -142,15 +119,13 @@ add_action('rest_api_init', function() {
 });
 
 function antigravity_get_settings() {
-    // Busca opções cruciais de SEO, Tema Astra e WP Core
-    $settings = array(
-        'site_title' => get_option('blogname'),
+    return rest_ensure_response(array(
+        'site_title'     => get_option('blogname'),
         'site_description' => get_option('blogdescription'),
-        'astra_settings' => get_option('astra-settings', []),
+        'astra_settings'  => get_option('astra-settings', array()),
         'elementor_disable_color_schemes' => get_option('elementor_disable_color_schemes', ''),
         'elementor_disable_typography_schemes' => get_option('elementor_disable_typography_schemes', '')
-    );
-    return rest_ensure_response($settings);
+    ));
 }
 
 function antigravity_update_settings($request) {
@@ -158,7 +133,12 @@ function antigravity_update_settings($request) {
     
     if (isset($params['site_title'])) update_option('blogname', sanitize_text_field($params['site_title']));
     if (isset($params['site_description'])) update_option('blogdescription', sanitize_text_field($params['site_description']));
-    if (isset($params['astra_settings'])) update_option('astra-settings', $params['astra_settings']);
+    
+    // Atualiza Astra Settings (preservando estrutura de array)
+    if (isset($params['astra_settings']) && is_array($params['astra_settings'])) {
+        update_option('astra-settings', $params['astra_settings']);
+    }
 
-    return rest_ensure_response(['status' => 'success', 'message' => 'Configurações atualizadas no banco de dados.']);
+    return rest_ensure_response(array('status' => 'success', 'message' => 'Configurações sincronizadas com AntiGravity.'));
 }
+
