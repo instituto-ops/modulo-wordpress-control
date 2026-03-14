@@ -639,8 +639,12 @@ app.post('/api/audit', async (req, res) => {
     } catch (e) { res.status(500).json({ error: e.message }); }
 });
 
-app.listen(port, () => {
-    console.log(`\n🚀 AntiGravity CMS: Mission Control Ativo!`);
-    console.log(`📡 Frontend & API rodando em http://localhost:${port}`);
-    console.log(`🔐 Camada de Segurança Proxy: ON`);
-});
+if (require.main === module) {
+    app.listen(port, () => {
+        console.log(`\n🚀 AntiGravity CMS: Mission Control Ativo!`);
+        console.log(`📡 Frontend & API rodando em http://localhost:${port}`);
+        console.log(`🔐 Camada de Segurança Proxy: ON`);
+    });
+}
+
+module.exports = app;
