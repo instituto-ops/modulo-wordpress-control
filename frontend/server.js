@@ -3,6 +3,7 @@ const multer = require('multer');
 const cors = require('cors');
 const axios = require('axios');
 const path = require('path');
+const basicAuth = require('express-basic-auth');
 require('dotenv').config({ path: '../.env' }); 
 const { GoogleGenerativeAI } = require('@google/generative-ai');
 
@@ -19,6 +20,26 @@ app.use(express.static(path.join(__dirname, 'public')));
 
 const storage = multer.memoryStorage();
 const upload = multer({ storage: storage });
+
+
+// ==============================================================================
+// 0. AUTENTICAÇÃO DO DASHBOARD (Basic Auth)
+// ==============================================================================
+const dashboardUser = process.env.DASHBOARD_USER;
+const dashboardPassword = process.env.DASHBOARD_PASSWORD;
+
+if (!dashboardUser || !dashboardPassword) {
+    console.error("❌ ERRO CRÍTICO DE SEGURANÇA: DASHBOARD_USER ou DASHBOARD_PASSWORD não definidos no .env.");
+    console.error("❌ O painel de controle e APIs não podem iniciar sem proteção. Encerrando processo.");
+    process.exit(1);
+}
+
+// Aplicamos a proteção em todas as rotas que começam com /api
+app.use('/api', basicAuth({
+    users: { [dashboardUser]: dashboardPassword },
+    challenge: true,
+    realm: 'AntiGravity CMS Dashboard'
+}));
 
 // Initialize Gemini SDK
 const genAI = new GoogleGenerativeAI(process.env.GEMINI_API_KEY);
@@ -639,8 +660,12 @@ app.post('/api/audit', async (req, res) => {
     } catch (e) { res.status(500).json({ error: e.message }); }
 });
 
-app.listen(port, () => {
-    console.log(`\n🚀 AntiGravity CMS: Mission Control Ativo!`);
-    console.log(`📡 Frontend & API rodando em http://localhost:${port}`);
-    console.log(`🔐 Camada de Segurança Proxy: ON`);
-});
+if (require.main === module) {
+    app.listen(port, () => {
+        console.log(`\n🚀 AntiGravity CMS: Mission Control Ativo!`);
+        console.log(`📡 Frontend & API rodando em http://localhost:${port}`);
+        console.log(`🔐 Camada de Segurança Proxy: ON`);
+    });
+}
+
+module.exports = app;
