@@ -141,6 +141,23 @@ add_action('rest_api_init', function() {
     ));
 });
 
+function antigravity_sanitize_array($array) {
+    if (!is_array($array)) {
+        return sanitize_text_field($array);
+    }
+
+    $sanitized = array();
+    foreach ($array as $key => $value) {
+        $sanitized_key = sanitize_text_field($key);
+        if (is_array($value)) {
+            $sanitized[$sanitized_key] = antigravity_sanitize_array($value);
+        } else {
+            $sanitized[$sanitized_key] = sanitize_text_field($value);
+        }
+    }
+    return $sanitized;
+}
+
 function antigravity_get_settings() {
     // Busca opções cruciais de SEO, Tema Astra e WP Core
     $settings = array(
@@ -158,7 +175,7 @@ function antigravity_update_settings($request) {
     
     if (isset($params['site_title'])) update_option('blogname', sanitize_text_field($params['site_title']));
     if (isset($params['site_description'])) update_option('blogdescription', sanitize_text_field($params['site_description']));
-    if (isset($params['astra_settings'])) update_option('astra-settings', $params['astra_settings']);
+    if (isset($params['astra_settings'])) update_option('astra-settings', antigravity_sanitize_array($params['astra_settings']));
 
     return rest_ensure_response(['status' => 'success', 'message' => 'Configurações atualizadas no banco de dados.']);
 }
