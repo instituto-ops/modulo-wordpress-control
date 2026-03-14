@@ -113,6 +113,7 @@ const mediaLibrary = {
 
         } catch (error) { 
             console.error(error); 
+            container.innerHTML = '<p style="color: red;">Erro ao carregar mídia.</p>';
             // Se falhar o WP, tenta carregar apenas os locais para não ficar vazio
             this.renderLocalIcons();
         }
