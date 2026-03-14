@@ -65,7 +65,11 @@ function antigravity_expose_seo_meta() {
                 return $object['excerpt']['rendered'] ?? '';
             },
             'update_callback' => function($value, $post, $field_name) {
-                return wp_update_post(array('ID' => $post->ID, 'post_excerpt' => $value));
+                if ( ! current_user_can( 'edit_post', $post->ID ) ) {
+                    return new WP_Error( 'rest_cannot_update', 'Sorry, you are not allowed to edit this post.', array( 'status' => rest_authorization_required_code() ) );
+                }
+                $sanitized_value = sanitize_textarea_field( $value );
+                return wp_update_post(array('ID' => $post->ID, 'post_excerpt' => $sanitized_value));
             },
             'schema' => null,
         ));
@@ -78,9 +82,13 @@ function antigravity_expose_seo_meta() {
                 return get_post_meta($object['id'], 'rank_math_description', true);
             },
             'update_callback' => function($value, $post, $field_name) {
+                if ( ! current_user_can( 'edit_post', $post->ID ) ) {
+                    return new WP_Error( 'rest_cannot_update', 'Sorry, you are not allowed to edit this post.', array( 'status' => rest_authorization_required_code() ) );
+                }
+                $sanitized_value = sanitize_textarea_field( $value );
                 // Atualiza ambos para garantir compatibilidade caso você mude de plugin.
-                update_post_meta($post->ID, '_yoast_wpseo_metadesc', $value);
-                update_post_meta($post->ID, 'rank_math_description', $value);
+                update_post_meta($post->ID, '_yoast_wpseo_metadesc', $sanitized_value);
+                update_post_meta($post->ID, 'rank_math_description', $sanitized_value);
                 return true;
             },
             'schema' => null,
