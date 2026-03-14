@@ -759,7 +759,7 @@ window.chatApp = {
             const data = await response.json();
             
             if (data.html) {
-                preview.innerHTML = data.html;
+                preview.innerHTML = DOMPurify.sanitize(data.html);
                 this.addMessage(`✅ Blueprint de **${theme}** gerado com sucesso. Clique em qualquer texto à esquerda para usar os Micro-Comandos.`, false);
             } else {
                 throw new Error("HTML não retornado pela API");
@@ -862,7 +862,7 @@ window.chatApp = {
         }
 
         if (blockHtml) {
-            preview.innerHTML += blockHtml;
+            preview.innerHTML += DOMPurify.sanitize(blockHtml);
             this.addMessage("✅ Bloco injetado no final da página. Revise o Live Preview.", false);
         }
     },
@@ -1026,7 +1026,7 @@ window.chatApp = {
                 this.addMessage(data.reply, false);
                 if (data.diff) {
                     document.getElementById('diff-panel').style.display = 'block';
-                    document.getElementById('diff-content').innerHTML = data.diff;
+                    document.getElementById('diff-content').innerHTML = DOMPurify.sanitize(data.diff);
                 }
             } else {
                 this.addMessage("⚠️ IA retornou uma resposta vazia.", false);
@@ -1152,7 +1152,7 @@ window.chatApp = {
 
             if (contentHtml.trim()) {
                 preview.style.display = 'block';
-                preview.innerHTML = contentHtml;
+                preview.innerHTML = DOMPurify.sanitize(contentHtml);
                 this.injectCopyButtons();
                 this.updateAbidusScore();
                 titleSpan.innerText = `Editando: ${data.title?.rendered || data.title || 'Sem Título'}`;
@@ -1582,7 +1582,7 @@ window.injectCode = function(btn) {
     } else if (mode === 'prepend') {
         preview.insertAdjacentHTML('afterbegin', code);
     } else {
-        preview.innerHTML = code;
+        preview.innerHTML = DOMPurify.sanitize(code);
     }
 
     window.chatApp.updateAbidusScore();
