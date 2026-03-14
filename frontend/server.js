@@ -5,6 +5,7 @@ const axios = require('axios');
 const path = require('path');
 require('dotenv').config({ path: '../.env' }); 
 const { GoogleGenerativeAI } = require('@google/generative-ai');
+const basicAuth = require('express-basic-auth');
 
 const app = express();
 const port = 3000; // Unificando na porta 3000 (Frontend + API)
@@ -13,6 +14,20 @@ const port = 3000; // Unificando na porta 3000 (Frontend + API)
 // mas mantemos por segurança para acessos via IP ou subdomínios.
 app.use(cors());
 app.use(express.json({ limit: '50mb' }));
+
+// Basic Authentication setup for the dashboard
+const dashboardUser = process.env.DASHBOARD_USER || 'admin';
+const dashboardPassword = process.env.DASHBOARD_PASSWORD || 'admin';
+
+const authMiddleware = basicAuth({
+    users: { [dashboardUser]: dashboardPassword },
+    challenge: true,
+    realm: 'NeuroEngine'
+});
+
+// Protect all /api and /api-content endpoints
+app.use('/api', authMiddleware);
+app.use('/api-content', authMiddleware);
 
 // 1. SERVIR ARQUIVOS ESTÁTICOS (Frontend)
 app.use(express.static(path.join(__dirname, 'public')));
