@@ -400,9 +400,16 @@ window.chatApp = {
                 <button onclick="window.chatApp.hideMicroCommandsMenu()" class="btn" style="background: transparent; color: #94a3b8; font-size: 10px; text-align: center; margin-top: 3px; padding: 4px; border: none; cursor: pointer; width: 100%;">✕ Cancelar</button>
             `;
         } else {
+            const linkEl = target.closest('a');
+            let linkBtn = '';
+            if (linkEl) {
+                linkBtn = `<button onclick="window.chatApp.editSelectedLink()" class="btn" style="background: #fff7ed; color: #c2410c; font-size: 11px; text-align: left; padding: 6px 10px; border: none; border-radius: 4px; cursor: pointer;">🔗 Editar Link (href)</button>`;
+            }
+
             menu.innerHTML = `
                 <div style="font-size: 10px; font-weight: bold; color: #64748b; padding: 4px 5px; border-bottom: 1px solid #f1f5f9; margin-bottom: 3px; cursor: default;">Micro-Comandos IA</div>
                 <button onclick="window.chatApp.editSelectedManually()" class="btn" style="background: #1e293b; color: white; font-size: 11px; text-align: left; padding: 6px 10px; border: none; border-radius: 4px; cursor: pointer;">✏️ Editar Texto e Estilo</button>
+                ${linkBtn}
                 <button onclick="window.chatApp.executeMicroCommand('Reescreva de forma mais empática, acolhedora e focada na dor emocional do paciente')" class="btn" style="background: #eff6ff; color: #1d4ed8; font-size: 11px; text-align: left; padding: 6px 10px; border: none; border-radius: 4px; cursor: pointer;">🪄 + Empático</button>
                 <button onclick="window.chatApp.executeMicroCommand('Reescreva com mais autoridade clínica profissional, adicionando tom técnico de psicologia')" class="btn" style="background: #fdf2f8; color: #be185d; font-size: 11px; text-align: left; padding: 6px 10px; border: none; border-radius: 4px; cursor: pointer;">🪄 + Clínico</button>
                 <button onclick="window.chatApp.executeMicroCommand('Reescreva de forma mais curta, concisa e direta ao ponto')" class="btn" style="background: #f0fdf4; color: #15803d; font-size: 11px; text-align: left; padding: 6px 10px; border: none; border-radius: 4px; cursor: pointer;">🪄 Mais Curto</button>
@@ -435,6 +442,22 @@ window.chatApp = {
             this.selectedElement.style.outline = '';
         }
         this.closeManualEdit();
+    },
+
+    editSelectedLink() {
+        if (!this.selectedElement) return;
+        const linkEl = this.selectedElement.tagName === 'A' ? this.selectedElement : this.selectedElement.closest('a');
+        if (!linkEl) return;
+        
+        const currentUrl = linkEl.getAttribute('href') || '#';
+        const newUrl = prompt("Digite a nova URL para este botão/link:", currentUrl);
+        
+        if (newUrl !== null) {
+            linkEl.setAttribute('href', newUrl);
+            this.addMessage(`✅ Link atualizado para: **${newUrl}**`, false);
+            this.updateAbidusScore(); // Recalcula o score Abidos
+        }
+        this.hideMicroCommandsMenu();
     },
 
     // ── EDIÇÃO MANUAL ────────────────────────────────────────────────────────
