@@ -565,6 +565,10 @@ window.chatApp = {
             formData.append('message', prompt);
             if (this.currentKeyword) formData.append('currentKeyword', this.currentKeyword);
             
+            // WhatsApp dinâmico
+            const waInput = document.getElementById('setting-whatsapp');
+            if (waInput && waInput.value) formData.append('whatsapp', waInput.value);
+            
             const response = await fetch('/api/chat', {
                 method: 'POST',
                 body: formData
@@ -748,6 +752,15 @@ window.chatApp = {
         try {
             const formData = new FormData();
             formData.append('theme', theme);
+            
+            // WhatsApp dinâmico
+            const waInput = document.getElementById('setting-whatsapp');
+            if (waInput && waInput.value) {
+                formData.append('whatsapp', waInput.value);
+                this.authorityContext.socials.whatsapp = waInput.value;
+            } else {
+                formData.append('whatsapp', this.authorityContext.socials.whatsapp);
+            }
             
             const response = await fetch('/api/blueprint', {
                 method: 'POST',
@@ -1005,6 +1018,15 @@ window.chatApp = {
 
         formData.append('prompt', promptContext);
         if (currentHtml) formData.append('htmlContext', currentHtml);
+        
+        // WhatsApp dinâmico das configurações
+        const waInput = document.getElementById('setting-whatsapp');
+        if (waInput && waInput.value) {
+            formData.append('whatsapp', waInput.value);
+            this.authorityContext.socials.whatsapp = waInput.value;
+        } else {
+            formData.append('whatsapp', this.authorityContext.socials.whatsapp);
+        }
 
         if (hasScreenshot && window.html2canvas) {
             const canvas = await html2canvas(document.getElementById('live-preview'));

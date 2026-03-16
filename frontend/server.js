@@ -570,8 +570,10 @@ app.get('/api/marketing/audit', async (req, res) => {
 
 app.post('/api/chat', upload.single('screenshot'), async (req, res) => {
     try {
-        const { message, htmlContext, currentKeyword } = req.body;
+        const { message, htmlContext, currentKeyword, whatsapp } = req.body;
         const model = genAI.getGenerativeModel({ model: VISION_MODEL });
+        
+        const waNumber = whatsapp || '62982171845';
         
         let promptText = `
         VOCÊ É JULES, ASSISTENTE ELITE DA CLÍNICA VICTOR LAWRENCE (GOIÂNIA).
@@ -579,7 +581,7 @@ app.post('/api/chat', upload.single('screenshot'), async (req, res) => {
         
         REGRAS DE OURO:
         1. ESTRUTURA SEMPRE EM 4 SEÇÕES:
-           - Seção 1 (Hero): H1 (Keyword exata + Benefício + Goiânia), Subtítulo, CTA WhatsApp (62982171845).
+           - Seção 1 (Hero): H1 (Keyword exata + Benefício + Goiânia), Subtítulo, CTA WhatsApp (${waNumber}).
            - Seção 2 (Jornada/Corpo): H2 (Identificação da Dor), Texto H2 (Serviços), H3 (Quebra de Objeções).
            - Seção 3 (E-E-A-T): H2 (Apresentação), H2 (Ambiente), Prova Social (USE AS REVIEWS ABAIXO).
            - Seção 4 (Retenção): H2 (FAQ), Link Interno estilo "Veja também" para Silos de Conteúdo.
@@ -611,12 +613,13 @@ app.post('/api/chat', upload.single('screenshot'), async (req, res) => {
 
 app.post('/api/blueprint', async (req, res) => {
     try {
-        const { theme } = req.body;
+        const { theme, whatsapp } = req.body;
+        const waNumber = whatsapp || '62982171845';
         const model = genAI.getGenerativeModel({ model: VISION_MODEL });
         const prompt = `
         GERE UM BLUEPRINT HTML COMPLETO (4 SEÇÕES ABIDOS) PARA: ${theme}.
         LOCAÇÃO: Goiânia. 
-        WHATSAPP: 62982171845.
+        WHATSAPP: ${waNumber}.
         REVIEWS: Inclua depoimentos reais da Doctoralia (Carla, Y, etc).
         ESTRUTURA: 
         1. Hero (H1 Estratégico)

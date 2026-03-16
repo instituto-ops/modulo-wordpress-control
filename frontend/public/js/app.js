@@ -236,6 +236,7 @@ const app = {
 
         document.getElementById('setting-site-title').value = data.site_title || '';
         document.getElementById('setting-site-desc').value = data.site_description || '';
+        document.getElementById('setting-whatsapp').value = data.antigravity_whatsapp || '';
         document.getElementById('setting-astra').value = data.astra_settings ? JSON.stringify(data.astra_settings, null, 2) : 'Nenhuma configuração customizada Astra encontrada.';
         
         showFeedback("Configurações Carregadas do Banco de Dados", "green");
@@ -258,6 +259,7 @@ const app = {
         const payload = {
             site_title: document.getElementById('setting-site-title').value,
             site_description: document.getElementById('setting-site-desc').value,
+            antigravity_whatsapp: document.getElementById('setting-whatsapp').value,
             astra_settings: astraParsed
         };
 

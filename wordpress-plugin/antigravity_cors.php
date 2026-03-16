@@ -123,6 +123,7 @@ function antigravity_get_settings() {
         'site_title'     => get_option('blogname'),
         'site_description' => get_option('blogdescription'),
         'astra_settings'  => get_option('astra-settings', array()),
+        'antigravity_whatsapp' => get_option('antigravity_whatsapp', '62982171845'),
         'elementor_disable_color_schemes' => get_option('elementor_disable_color_schemes', ''),
         'elementor_disable_typography_schemes' => get_option('elementor_disable_typography_schemes', '')
     ));
@@ -133,6 +134,7 @@ function antigravity_update_settings($request) {
     
     if (isset($params['site_title'])) update_option('blogname', sanitize_text_field($params['site_title']));
     if (isset($params['site_description'])) update_option('blogdescription', sanitize_text_field($params['site_description']));
+    if (isset($params['antigravity_whatsapp'])) update_option('antigravity_whatsapp', sanitize_text_field($params['antigravity_whatsapp']));
     
     // Atualiza Astra Settings (preservando estrutura de array)
     if (isset($params['astra_settings']) && is_array($params['astra_settings'])) {
@@ -141,4 +143,5 @@ function antigravity_update_settings($request) {
 
     return rest_ensure_response(array('status' => 'success', 'message' => 'Configurações sincronizadas com AntiGravity.'));
 }
+
 
