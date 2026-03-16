@@ -93,7 +93,7 @@ app.all('/api/wp/:type/:id', async (req, res) => {
 // ENDPOINT DEDICADO: Busca conteúdo completo contornando WAF/ModSecurity 403
 // Estratégia: duas chamadas menores em vez de uma grande com content=HTML
 // ──────────────────────────────────────────────────────────────────────────────
-app.get('/api-content/:type/:id', async (req, res) => {
+app.get('/api/api-content/:type/:id', async (req, res) => {
     try {
         const { type, id } = req.params;
         console.log(`📄 [CONTENT] Buscando ${type}/${id} com estratégia anti-WAF...`);
