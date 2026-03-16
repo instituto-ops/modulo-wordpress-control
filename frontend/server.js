@@ -573,7 +573,7 @@ app.post('/api/chat', upload.single('screenshot'), async (req, res) => {
         const { message, htmlContext, currentKeyword, whatsapp } = req.body;
         const model = genAI.getGenerativeModel({ model: VISION_MODEL });
         
-        const waNumber = whatsapp || '62982171845';
+        const waNumber = whatsapp || '5562991545295';
         
         let promptText = `
         VOCÊ É JULES, ASSISTENTE ELITE DA CLÍNICA VICTOR LAWRENCE (GOIÂNIA).
@@ -614,7 +614,7 @@ app.post('/api/chat', upload.single('screenshot'), async (req, res) => {
 app.post('/api/blueprint', async (req, res) => {
     try {
         const { theme, whatsapp } = req.body;
-        const waNumber = whatsapp || '62982171845';
+        const waNumber = whatsapp || '5562991545295';
         const model = genAI.getGenerativeModel({ model: VISION_MODEL });
         const prompt = `
         GERE UM BLUEPRINT HTML COMPLETO (4 SEÇÕES ABIDOS) PARA: ${theme}.

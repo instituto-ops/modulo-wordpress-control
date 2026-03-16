@@ -16,7 +16,7 @@ window.chatApp = {
         socials: {
             instagram: "https://www.instagram.com/hipnolawrence",
             doctoralia: "https://www.doctoralia.com.br/victor-lawrence-bernardes-santana/psicologo-terapeuta-complementar/goiania",
-            whatsapp: "62 98217-1845"
+            whatsapp: "5562991545295"
         }
     },
     mediaGallery: [], // Cache de mídias para a IA

@@ -123,7 +123,7 @@ function antigravity_get_settings() {
         'site_title'     => get_option('blogname'),
         'site_description' => get_option('blogdescription'),
         'astra_settings'  => get_option('astra-settings', array()),
-        'antigravity_whatsapp' => get_option('antigravity_whatsapp', '62982171845'),
+        'antigravity_whatsapp' => get_option('antigravity_whatsapp', '5562991545295'),
         'elementor_disable_color_schemes' => get_option('elementor_disable_color_schemes', ''),
         'elementor_disable_typography_schemes' => get_option('elementor_disable_typography_schemes', '')
     ));
