@@ -1,0 +1,134 @@
+Aqui está o Protocolo Oficial de Design e Engenharia Web detalhando a metodologia que desenvolvemos.
+
+Este documento foi estruturado para servir como um Manual de Instruções de Alto Nível (Prompt/Protocolo) para a criação de futuras páginas. Ele pode ser fornecido ao seu sistema de IA ou a uma equipe de desenvolvedores para garantir que o padrão de excelência, a estética de neuromarketing e a blindagem técnica sejam replicados sem os atritos que enfrentamos.
+
+📘 PROTOCOLO ABIDOS V3.2: Arquitetura de Conversão, Neuromarketing e Engenharia WordPress
+1. Filosofia de Design: A Experiência Clínica Digital
+
+O objetivo deste design não é criar um "site bonito", mas sim uma extensão do ambiente terapêutico. Para pacientes com ansiedade, burnout ou neurodivergências (TEA), a sobrecarga cognitiva (muitas cores, textos espremidos, elementos piscando) gera aversão imediata.
+
+Fluência Cognitiva: O cérebro do usuário não pode fazer esforço para ler. Textos devem ter alto contraste e espaçamento generoso.
+
+Transe Visual (Pacing): A alternância entre seções muito escuras (foco profundo/introspecção) e seções claras (clareza/despertar) simula o ritmo de uma indução clínica.
+
+E-E-A-T (Expertise, Autoridade e Confiança): O design de luxo transfere percepção de valor. A estética sóbria valida automaticamente o rigor científico do profissional antes mesmo de o texto ser lido.
+
+2. Paleta de Cores e Tipografia (O Sistema Visual)
+🎨 Cores Fundamentais
+
+Midnight Dark (#05080f): O fundo principal escuro. Não usamos preto puro (#000000). Este tom "chumbo-azulado" absorve a luz e passa uma sensação de clínica "Boutique/Premium".
+
+Deep Blue (#0b1221 e #0f172a): Usado para cartões escuros ou elementos de sobreposição.
+
+Teal / Verde-Água (#2dd4bf e #14b8a6): A cor de ação (botões, ícones, destaques). Transmite cura, calma clínica e tecnologia. Tem alto contraste tanto no claro quanto no escuro.
+
+Off-White / Cream (#faf9f6): O fundo das seções claras. Nunca usar branco puro (#ffffff) no fundo para não causar fadiga visual (Eye Strain).
+
+🔤 Tipografia: A Regra do "Fim da Falsa Elegância"
+
+Fonte Única: Inter (limpa, geométrica, sem serifas).
+
+Títulos (H2, H3): Devem ser massivos, com pesos fortes (font-bold, font-extrabold) e letras mais unidas (tracking-tight, leading-[1.1]).
+
+Parágrafos: O grande erro do design amador é usar fontes finas (font-light) em textos longos. Sempre use font-normal (peso 400) nos parágrafos, com cores sólidas (text-slate-300 no escuro, text-slate-700 no claro) e entrelinhas generoso (leading-[1.8]). Isso garante acessibilidade (WCAG AAA).
+
+3. Engenharia de Efeitos Visuais (UI/UX)
+
+Para criar o aspecto "único" e sofisticado, três técnicas devem ser replicadas:
+
+A. Glassmorphism Sóbrio (Vidro Desfocado)
+
+Substituir caixas sólidas por painéis translúcidos que absorvem a cor do fundo.
+
+Fórmula Dark: Fundo quase transparente (rgba(250,249,246, 0.02)), desfoque altíssimo (backdrop-filter: blur(24px)) e borda microscópica (border: 1px solid rgba(255,255,255, 0.05)).
+
+Fórmula Light: Fundo quase branco (rgba(255,255,255, 0.95)), desfoque (blur(20px)) e sombra suave longa (shadow-[0_30px_60px_rgba(11,18,33,0.03)]).
+
+B. Luz Hipnótica (Orb Glow)
+
+Em vez de fundos chapados, insira "esferas de luz" desfocadas no fundo das seções escuras para dar profundidade de campo.
+
+Fórmula: Uma div absoluta com cor Teal (bg-[#2dd4bf]), desfoque extremo (blur-[150px]), opacidade baixa (opacity-20) e uma animação CSS infinita de pulsação (scale e translate sutis).
+
+C. Animação de Entrada (Reveal on Scroll)
+
+Os elementos não devem estar estáticos. Devem surgir flutuando de baixo para cima.
+
+Fórmula: Classe .reveal com opacity: 0 e transform: translateY(30px). Via JavaScript (Intersection Observer), adiciona-se a classe .active quando o elemento entra na tela, retornando a opacidade para 1 e o translate para 0.
+
+4. Metodologia de Blindagem (Wordpress + Elementor + Astra)
+
+A maior dor de cabeça na injeção de código HTML via Elementor em temas como o Astra são os conflitos de CSS e bloqueio de JS. Esta é a receita definitiva para evitar que o site quebre:
+
+🛡️ Regra 1: O "Wrapper" Mestre
+
+Nunca use tags <html>, <head> ou <body> no widget HTML do Elementor.
+Coloque todo o seu código dentro de uma <div class="abidos-wrapper"> e aplique o CSS referenciando ela.
+
+🛡️ Regra 2: Desativar o Preflight do Tailwind
+
+O Tailwind CDN destrói o CSS global do WordPress. Antes de importar o script do Tailwind, injete este script para proibir o reset global:
+
+code
+Html
+download
+content_copy
+expand_less
+<script>
+    tailwind = { config: { corePlugins: { preflight: false } } }
+</script>
+🛡️ Regra 3: O Modificador !important no Tailwind
+
+Como desativamos o Preflight, o tema Astra tentará forçar o estilo dele nas suas fontes, botões e cores. Para vencer essa "guerra", todas as classes cruciais do Tailwind devem ter o prefixo ! (ex: !text-white, !font-bold, !bg-[#2dd4bf], !no-underline).
+
+🛡️ Regra 4: Proteção do Editor do Elementor (Tela Escura)
+
+O Elementor bloqueia scripts de animação dentro do editor visual. Para evitar que os textos fiquem com opacity: 0 (invisíveis) enquanto você tenta editar, injete este CSS:
+
+code
+CSS
+download
+content_copy
+expand_less
+body.elementor-editor-active .reveal { 
+    opacity: 1 !important; transform: none !important; transition: none !important; 
+}
+🛡️ Regra 5: Inicialização Segura de JavaScript
+
+O Elementor carrega blocos dinamicamente. Nunca use apenas DOMContentLoaded. Use uma função de fallback:
+
+code
+JavaScript
+download
+content_copy
+expand_less
+if (document.readyState === 'loading') {
+    document.addEventListener('DOMContentLoaded', initFunction);
+} else {
+    initFunction(); // Força o JS a rodar se o DOM já foi carregado
+}
+5. Protocolos de Layout e Mobile-First
+
+Erros comuns que corrigimos e devem ser evitados em novas páginas:
+
+Imagens Amassadas: Galerias de fotos nunca devem ter altura fixa (h-72). Devem usar aspect-ratio (ex: aspect-square md:aspect-[4/5]) e object-cover. Assim, elas se adaptam à largura da tela sem distorcer.
+
+Colisão de Botões Flutuantes: O botão do WhatsApp fixo no canto inferior direito colide com o botão de "Voltar ao Topo" nativo do Astra.
+
+Solução: No CSS do botão do WhatsApp, configure right: 16px no mobile, mas afaste para right: 85px !important no Desktop/Tablet.
+
+Quebra de Textos em Botões (Mobile): Textos grandes dentro de botões ovais quebram em duas linhas no celular e estragam o design.
+
+Solução: Use a classe !whitespace-nowrap e reduza a fonte text-[10px] md:text-sm em links de ação.
+
+Tamanho da Primeira Dobra (Hero): Para evitar que a primeira tela corte o conteúdo ou seja empurrada pela barra de navegação do Safari/Chrome no celular, use min-h-[90vh] ou min-h-[100svh] e organize os elementos internamente com flex justify-between.
+
+Flutuadores Absolutos (O Gráfico na Foto): Elementos em position: absolute vazam da tela do celular se usarmos coordenadas fixas.
+
+Solução Mobile: Use left-1/2 -translate-x-1/2 e um width protegido (ex: w-[95%] max-w-[320px]). Ajuste a margem da foto principal (!mb-24) para garantir que o elemento flutuante não cubra o texto que vem logo abaixo.
+
+Como usar este manual no futuro?
+
+Sempre que solicitar a uma IA a criação de uma Nova Página de Serviço (ex: Terapia de Casal, Avaliação Neuropsicológica), envie este prompt:
+
+"Atue como um Web Designer Sênior e Especialista em Neuromarketing. Crie o código HTML/Tailwind para a página de [Nome do Serviço]. Você deve seguir ESTRITAMENTE o 'Protocolo Abidos v3.2'. Use a paleta de cores Midnight/Teal, aplique o Glassmorphism Sóbrio, desative o preflight do Tailwind no script, use o wrapper .abidos-wrapper com as devidas blindagens !important nas classes, e aplique o JS seguro para o Elementor com a proteção body.elementor-editor-active. Mantenha a tipografia legível (font-normal em parágrafos) e garanta a responsividade absoluta."
