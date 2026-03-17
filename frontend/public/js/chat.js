@@ -67,6 +67,18 @@ window.chatApp = {
             this.addMessage("🗑️ Clique em um elemento no Preview para selecioná-lo antes de deletar.", false);
             return;
         }
+
+        const previewContainer = document.getElementById('live-preview');
+
+        // PROTEÇÃO: Não permitir deletar o container raiz ou elementos críticos do painel
+        if (this.selectedElement === previewContainer || 
+            this.selectedElement.id === 'live-preview' || 
+            this.selectedElement.closest('.float-controls') ||
+            !previewContainer.contains(this.selectedElement)) {
+            this.addMessage("⚠️ Operação negada: Você tentou deletar um container do sistema ou um elemento fora do canvas.", false);
+            return;
+        }
+
         if (!confirm(`Deletar elemento <${this.selectedElement.tagName.toLowerCase()}>?`)) return;
         this.saveHistory();
         this.selectedElement.remove();
@@ -355,7 +367,8 @@ window.chatApp = {
         // Clique com botão direito ou segurando ALT para mostrar caixa de comando direto
         preview.addEventListener('contextmenu', (e) => {
             const valid = ['p', 'h1', 'h2', 'h3', 'span', 'li', 'a', 'section', 'div', 'img'];
-            if (valid.includes(e.target.tagName.toLowerCase())) {
+            // Impede selecionar o próprio container do preview ou elementos estruturais
+            if (valid.includes(e.target.tagName.toLowerCase()) && e.target.id !== 'live-preview') {
                 e.preventDefault();
                 this.selectedElement = e.target;
                 this.showCustomCommandBox(e.target);
@@ -797,6 +810,8 @@ window.chatApp = {
             if (data.html) {
                 preview.innerHTML = data.html;
                 this.addMessage(`✅ Blueprint de **${theme}** gerado com sucesso. Clique em qualquer texto à esquerda para usar os Micro-Comandos.`, false);
+                // Automatiza Geração do SEO
+                this.generateSEOMeta();
             } else {
                 throw new Error("HTML não retornado pela API");
             }
@@ -809,6 +824,39 @@ window.chatApp = {
         }
     },
     
+    openCodeImport() {
+        const preview = document.getElementById('live-preview');
+        const welcomeContainer = document.getElementById('blueprint-welcome');
+        if (welcomeContainer) welcomeContainer.style.display = 'none';
+
+        const chatCanvas = document.getElementById('studio-canvas');
+        if(chatCanvas) chatCanvas.classList.add('split-active');
+        const studioSidebarArea = document.getElementById('studio-sidebar');
+        if (studioSidebarArea) studioSidebarArea.style.display = 'flex';
+        
+        preview.style.display = 'block';
+        preview.innerHTML = `
+            <div style="padding: 20px; text-align: center; margin-top: 40px; background: #f8fafc; border-radius: 12px; border: 2px dashed #cbd5e1; max-width: 800px; margin-left: auto; margin-right: auto;">
+                <h3 style="color: #334155; margin-bottom: 20px; font-size: 18px;">📦 Cole o código HTML do WordPress</h3>
+                <textarea id="import-code-textarea" placeholder="Cole o código do Elementor/Rascunho (<section>...) aqui..." style="width: 100%; height: 400px; padding: 15px; border-radius: 8px; border: 1px solid #cbd5e1; font-family: monospace; font-size: 13px; outline: none; resize: vertical; margin-bottom: 10px;"></textarea>
+                <div style="display: flex; gap: 10px; justify-content: center;">
+                    <button onclick="window.chatApp.submitImportedCode()" class="btn btn-primary" style="padding: 12px 24px; font-size: 14px; background: #6366f1; color: white; border: none; border-radius: 8px; cursor: pointer; font-weight: bold;">Carregar no Canvas 🎬</button>
+                    <button onclick="window.location.reload()" class="btn btn-secondary" style="padding: 12px 24px; font-size: 14px; background: #e2e8f0; color: #475569; border: none; border-radius: 8px; cursor: pointer; font-weight: bold;">Cancelar</button>
+                </div>
+            </div>
+        `;
+        this.addMessage("📦 Modo de importação ativado. Cole o código HTML à esquerda e clique em Carregar.", false);
+    },
+
+    submitImportedCode() {
+        const textarea = document.getElementById('import-code-textarea');
+        if(!textarea || !textarea.value.trim()) return alert("O código está vazio!");
+        const preview = document.getElementById('live-preview');
+        preview.innerHTML = textarea.value;
+        this.addMessage("✅ Código carregado no canvas com sucesso! Você pode usar os Micro-Comandos clicando nos blocos ou comandar no chat.", false);
+        this.generateSEOMeta();
+    },
+
     async auditAbidos() {
         const preview = document.getElementById('live-preview');
         const currentHtml = preview.innerHTML;
@@ -935,7 +983,7 @@ window.chatApp = {
 
             // Formatando markdown básico
             formattedText = formattedText.replace(/\*\*(.*?)\*\*/g, '<strong>$1</strong>');
-            msgDiv.innerHTML = `<strong>NeuroEngine:</strong><br>${formattedText}`;
+            msgDiv.innerHTML = `<strong>NeuroEngine AI:</strong><br>${formattedText}`;
         }
         
         chatHistory.appendChild(msgDiv);
@@ -1006,18 +1054,22 @@ window.chatApp = {
         await this.addAgentLog("Compliance Checker", "Auditando normas CFP/LGPD...");
         await new Promise(r => setTimeout(r, 500));
 
+        await this.addAgentLog("Design & Layout", "Refinando estética e legibilidade...");
+        await new Promise(r => setTimeout(r, 600));
+
         const formData = new FormData();
         
         const kw = document.getElementById('ai-studio-keyword').value;
 
         // CONSTRUÇÃO DO PROMPT CONSOLIDADO (Equipes Transitórias LangChain Style)
-        let promptContext = `Você é o Mission Control da Equipe NeuroEngine. Sua missão é orquestrar 4 especialistas para gerar o melhor conteúdo clínico do Brasil.
+        let promptContext = `Você é a NeuroEngine AI, Orquestradora do Hub de Agentes Especialistas (Missão Abidos 3.1).
         
         DIRETRIZES DOS AGENTES INTERNOS:
         1. PESQUISA (Gerador): Sintetize dados sobre ${this.authorityContext.name} e Método Abidos.
         2. ABIDOS (SEO): Garanta Hub-and-Spoke, keyword "${kw || 'psicologia'}" e linkagem para hipnolawrence.com.
-        3. CRÍTICO (Avaliador): Critique o tom (deve ser acolhedor, NÃO robótico). Remova jargões excessivos que afastam o paciente.
-        4. COMPLIANCE (Ética): Bloqueie promessas de cura, pacotes comerciais ou sensacionalismo (Diretrizes CFP).
+        3. CRÍTICO (Avaliador): Tom acolhedor e Mobile-First. Use verbos táteis ("Toque aqui", "Agende pelo WhatsApp"). Evite jargões frios.
+        4. COMPLIANCE (Ética CFP): Bloqueie promessas de cura, depoimentos comerciais ou fotos antes/depois. Use Validação Acadêmica (Mestrado UFU, AQ10b).
+        5. DESIGN & LAYOUT (Visual): Garanta estética premium (Domínio Ouro). Use Containers Flexbox, tipografia Inter/Outfit e conformidade "Erro Zero". PROIBIDO H1 (O tema Astra já fornece o título). PROIBIDO o wrapper <div class="lw-page-wrapper">. Aplique vidromorfismo, sombras suaves e arredondamento (12px).
         
         [DADOS DO USUÁRIO]: ${userMessage}`;
 
@@ -1065,7 +1117,7 @@ window.chatApp = {
             const data = await response.json();
             
             // Finaliza logs visualmente
-            await this.addAgentLog("Equipe NeuroEngine", "Decisão Final Tomada", true);
+            await this.addAgentLog("NeuroEngine AI", "Decisão Final Tomada", true);
 
             if (data.reply) {
                 this.addMessage(data.reply, false);
@@ -1209,10 +1261,17 @@ window.chatApp = {
             }
 
             document.getElementById('ai-studio-new-title').style.display = 'none';
-            document.getElementById('ai-studio-accept-btn').style.display = 'none';
-            document.getElementById('ai-studio-suggest-btn').style.display = 'none';
-            document.getElementById('ai-studio-preview-btn').style.display = 'block';
-            document.getElementById('ai-studio-item').style.display = 'block';
+            const acceptBtn = document.getElementById('ai-studio-accept-btn');
+            if (acceptBtn) acceptBtn.style.display = 'none';
+
+            const suggestBtn = document.getElementById('ai-studio-suggest-btn');
+            if (suggestBtn) suggestBtn.style.display = 'none';
+
+            const previewBtn = document.getElementById('ai-studio-preview-btn');
+            if (previewBtn) previewBtn.style.display = 'block';
+
+            const itemSelect = document.getElementById('ai-studio-item');
+            if (itemSelect) itemSelect.style.display = 'block';
         }
     },
 
@@ -1227,10 +1286,17 @@ window.chatApp = {
         titleInput.value = "";
         titleInput.focus();
         
-        document.getElementById('ai-studio-accept-btn').style.display = 'block';
-        document.getElementById('ai-studio-suggest-btn').style.display = 'block';
-        document.getElementById('live-preview').innerHTML = '<h1 style="color: #1a202c; font-size: 24px; text-align: center; margin-top: 50px; opacity: 0.5;">Comece a escrever seu novo rascunho ou peça para a IA...</h1>';
-        document.getElementById('ai-studio-title').innerText = "Novo Rascunho";
+        const acceptBtn = document.getElementById('ai-studio-accept-btn');
+        if (acceptBtn) acceptBtn.style.display = 'block';
+
+        const suggestBtn = document.getElementById('ai-studio-suggest-btn');
+        if (suggestBtn) suggestBtn.style.display = 'block';
+
+        const previewCanvas = document.getElementById('live-preview');
+        if (previewCanvas) previewCanvas.innerHTML = '<h1 style="color: #1a202c; font-size: 24px; text-align: center; margin-top: 50px; opacity: 0.5;">Comece a escrever seu novo rascunho ou peça para a IA...</h1>';
+        
+        const titleLabel = document.getElementById('ai-studio-title');
+        if (titleLabel) titleLabel.innerText = "Novo Rascunho";
         
         this.addMessage(`Pronto! Digite o título, clique em ✅ para confirmar e use os botões de prompts rápidos para começar.`);
     },
@@ -1400,13 +1466,17 @@ REGRAS:
     },
 
     async generateSEOMeta() {
-        const title = document.getElementById('ai-studio-new-title').value || "Psicoterapia em Goiânia";
-        const keyword = document.getElementById('ai-studio-keyword').value || "Autismo Adulto";
+        const title = document.getElementById('ai-studio-new-title').value || "Página de Serviço";
+        const keyword = document.getElementById('ai-studio-keyword').value || "Terapia";
+        const html = document.getElementById('live-preview').innerHTML;
         
-        this.addMessage("⚙️ Gerando configurações de SEO otimizadas...");
+        this.addMessage("⚙️ Gerando configurações de SEO otimizadas com base no conteúdo (Abidos 3.1)...");
 
-        const prompt = `Atue como um Especialista em SEO Técnico e Copywriter.
-Sugerir configurações de SEO para o conteúdo: "${title}" com a keyword foco "${keyword}".
+        const prompt = `Atue como um Especialista em SEO Técnico. Leia o seguinte código HTML e extraia as intenções principais para criar metadados otimizados para a palavra-chave provável sobre o tema: "${title}" (foco: "${keyword}").
+        
+HTML DA PÁGINA:
+"""${html.substring(0, 3000)}..."""
+
 REGRAS:
 1. URL (Slug): Silo geolocalizado, curta e sem acentos (ex: terapia-ansiedade-em-goiania).
 2. Título SEO: Keyword nos primeiros 50 caracteres (total 50-60 carac.).

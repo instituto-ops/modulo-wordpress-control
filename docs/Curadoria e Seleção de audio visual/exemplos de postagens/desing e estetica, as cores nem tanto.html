@@ -1,373 +1,440 @@
 <!DOCTYPE html>
-<html lang="pt-BR">
+<html lang="pt-BR" class="scroll-smooth bg-[#05080f]">
 <head>
-<meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Panorama da Psicologia Clínica: TEA e Hipnose</title>
-<script src="https://cdn.tailwindcss.com"></script>
-<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
-<link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600;800&display=swap" rel="stylesheet">
-<style>
-body {
-    font-family: 'Inter', sans-serif;
-    background-color: #f8fafc;
-    color: #0f172a;
-}
-.chart-container {
-    position: relative;
-    width: 100%;
-    max-width: 600px;
-    margin-left: auto;
-    margin-right: auto;
-    height: 350px;
-    max-height: 400px;
-}
-@media (min-width: 768px) {
-    .chart-container {
-        height: 400px;
-    }
-}
-.timeline-item {
-    border-left: 4px solid #14b8a6;
-    padding-left: 1.5rem;
-    padding-bottom: 2rem;
-    position: relative;
-}
-.timeline-item::before {
-    content: '■';
-    color: #14b8a6;
-    position: absolute;
-    left: -0.55rem;
-    top: 0;
-    font-size: 1rem;
-}
-.timeline-item:last-child {
-    border-left-color: transparent;
-}
-.glass-card {
-    background: rgba(255, 255, 255, 0.95);
-    backdrop-filter: blur(10px);
-    border: 1px solid rgba(255, 255, 255, 0.2);
-}
-</style>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Victor Lawrence | Psicólogo e Hipnoterapeuta Clínico em Goiânia</title>
+    
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    
+    <style>
+        /* Tipografia Local (Zerar CLS) */
+        @font-face { font-family: 'Inter'; src: local('Inter Regular'), local('Inter-Regular'); font-weight: 300; font-display: swap; }
+        @font-face { font-family: 'Inter'; src: local('Inter Regular'), local('Inter-Regular'); font-weight: 400; font-display: swap; }
+        @font-face { font-family: 'Inter'; src: local('Inter Bold'), local('Inter-Bold'); font-weight: 700; font-display: swap; }
+
+        :root {
+            --abidos-darkest: #05080f; 
+            --abidos-deep: #0b1221;
+            --abidos-teal: #2dd4bf;
+            --abidos-teal-glow: rgba(45, 212, 191, 0.15);
+            --abidos-cream: #faf9f6;
+        }
+
+        body {
+            font-family: 'Inter', system-ui, sans-serif;
+            background-color: var(--abidos-darkest);
+            color: #e2e8f0;
+            margin: 0;
+            padding: 0;
+            -webkit-font-smoothing: antialiased;
+            -moz-osx-font-smoothing: grayscale;
+            overflow-x: hidden;
+        }
+
+        /* Efeitos Hipnóticos e Sóbrios */
+        .glass-panel {
+            background: rgba(250, 249, 246, 0.03);
+            backdrop-filter: blur(20px);
+            -webkit-backdrop-filter: blur(20px);
+            border: 1px solid rgba(255, 255, 255, 0.05);
+        }
+
+        .glass-panel-light {
+            background: rgba(255, 255, 255, 0.85);
+            backdrop-filter: blur(20px);
+            -webkit-backdrop-filter: blur(20px);
+            border: 1px solid rgba(255, 255, 255, 0.5);
+            box-shadow: 0 30px 60px rgba(11, 18, 33, 0.05);
+        }
+
+        /* Animações de Foco */
+        .orb-glow {
+            animation: slowPulse 8s infinite alternate ease-in-out;
+        }
+
+        @keyframes slowPulse {
+            0% { transform: scale(0.8) translate(-5%, -5%); opacity: 0.3; }
+            100% { transform: scale(1.1) translate(5%, 5%); opacity: 0.6; }
+        }
+
+        /* Reveal on Scroll */
+        .reveal {
+            opacity: 0;
+            transform: translateY(30px);
+            transition: all 1s cubic-bezier(0.25, 0.46, 0.45, 0.94);
+        }
+        .reveal.active {
+            opacity: 1;
+            transform: translateY(0);
+        }
+        .delay-100 { transition-delay: 100ms; }
+        .delay-200 { transition-delay: 200ms; }
+        .delay-300 { transition-delay: 300ms; }
+
+        .chart-container { position: relative; width: 100%; height: 220px; }
+        
+        details > summary { list-style: none; cursor: pointer; }
+        details > summary::-webkit-details-marker { display: none; }
+        details[open] summary ~ * { animation: fadeInDown 0.4s ease-in-out; }
+        
+        @keyframes fadeInDown {
+            from { opacity: 0; transform: translateY(-10px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        .wpp-boutique {
+            position: fixed;
+            bottom: 30px;
+            right: 30px;
+            background: rgba(37, 211, 102, 0.95);
+            backdrop-filter: blur(10px);
+            color: white;
+            padding: 14px 24px;
+            border-radius: 50px;
+            box-shadow: 0 10px 30px rgba(37, 211, 102, 0.25);
+            z-index: 9999;
+            font-weight: 700;
+            font-size: 0.95rem;
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            text-decoration: none;
+            border: 1px solid rgba(255, 255, 255, 0.2);
+            transition: all 0.4s cubic-bezier(0.16, 1, 0.3, 1);
+        }
+        .wpp-boutique:hover {
+            transform: translateY(-5px);
+            background: rgba(37, 211, 102, 1);
+            box-shadow: 0 15px 40px rgba(37, 211, 102, 0.4);
+        }
+    </style>
 </head>
-<body class="antialiased">
+<body>
 
-<nav class="sticky top-0 z-50 bg-white/90 backdrop-blur-md shadow-sm">
-    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-        <div class="flex justify-between h-16 items-center">
-            <div class="flex-shrink-0 flex items-center gap-2">
-                <span class="text-2xl font-black text-indigo-600">■</span>
-                <span class="font-bold text-xl tracking-tight text-slate-800">PsicoData</span>
-            </div>
-            <div class="hidden md:flex space-x-8">
-                <a href="#cenario" class="text-slate-600 hover:text-indigo-600 font-medium transition-colors">Cenário Atual</a>
-                <a href="#tea" class="text-slate-600 hover:text-indigo-600 font-medium transition-colors">TEA em Adultos</a>
-                <a href="#hipnose" class="text-slate-600 hover:text-indigo-600 font-medium transition-colors">Hipnose Clínica</a>
-            </div>
-        </div>
-    </div>
-</nav>
+    <!-- CTA Flutuante -->
+    <a href="https://wa.me/5562982171845?text=Olá,%20Victor.%20Vim%20pelo%20site%20e%20gostaria%20de%20agendar%20uma%20avaliação." class="wpp-boutique" target="_blank" rel="noopener noreferrer">
+        <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" fill="currentColor" viewBox="0 0 24 24"><path d="M.057 24l1.687-6.163c-1.041-1.804-1.588-3.849-1.587-5.946.003-6.556 5.338-11.891 11.893-11.891 3.181.001 6.167 1.24 8.413 3.488 2.245 2.248 3.481 5.236 3.48 8.414-.003 6.557-5.338 11.892-11.893 11.892-1.99-.001-3.951-.5-5.688-1.448l-6.305 1.654zm6.597-3.807c1.676.995 3.276 1.591 5.392 1.592 5.448 0 9.886-4.434 9.889-9.885.002-5.462-4.415-9.89-9.881-9.892-5.452 0-9.887 4.434-9.889 9.884-.001 2.225.651 3.891 1.746 5.634l-.999 3.648 3.742-.981zm11.387-5.464c-.074-.124-.272-.198-.57-.347-.297-.149-1.758-.868-2.031-.967-.272-.099-.47-.149-.669.149-.198.297-.768.967-.941 1.165-.173.198-.347.223-.644.074-.297-.149-1.255-.462-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.297-.347.446-.521.151-.172.2-.296.3-.495.099-.198.05-.372-.025-.521-.075-.148-.669-1.611-.916-2.206-.242-.579-.487-.501-.669-.51l-.57-.01c-.198 0-.52.074-.792.347-.272.297-1.04 1.016-1.04 2.479 0 1.463 1.065 2.876 1.213 3.074.149.198 2.095 3.2 5.076 4.487.709.306 1.263.489 1.694.626.712.226 1.36.194 1.872.118.571-.085 1.758-.719 2.006-1.413.248-.695.248-1.29.173-1.414z"/></svg>
+        <span>Falar com o Consultório</span>
+    </a>
 
-<header class="bg-indigo-600 text-white py-20 px-4">
-    <div class="max-w-4xl mx-auto text-center">
-        <h1 class="text-4xl md:text-6xl font-black mb-6 leading-tight">A Nova Fronteira da <span class="text-teal-300">Psicologia Clínica</span></h1>
-        <p class="text-xl md:text-2xl text-indigo-100 mb-8 font-light">Compreendendo o avanço do diagnóstico de TEA na vida adulta e a eficácia baseada em evidências da Hipnose Clínica.</p>
-        <div class="flex justify-center gap-4">
-            <div class="bg-indigo-800/50 rounded-lg p-4 backdrop-blur-sm border border-indigo-500/30">
-                <p class="text-3xl font-bold text-teal-300">+240%</p>
-                <p class="text-sm font-medium text-indigo-100 uppercase tracking-wide">Busca por Diagnóstico</p>
-            </div>
-            <div class="bg-indigo-800/50 rounded-lg p-4 backdrop-blur-sm border border-indigo-500/30">
-                <p class="text-3xl font-bold text-rose-400">78%</p>
-                <p class="text-sm font-medium text-indigo-100 uppercase tracking-wide">Eficácia Terapêutica</p>
-            </div>
-        </div>
-    </div>
-</header>
+    <main class="w-full flex flex-col items-center">
+        
+        <!-- 
+            1. HERO SECTION (CORRIGIDA)
+            Solução: Aumentado o padding inferior (pb-40 lg:pb-48) para garantir 
+            que o botão central jamais colida com a seta "Descubra" no absolute bottom. 
+        -->
+        <section class="w-full min-h-[95vh] flex flex-col items-center justify-center text-center relative overflow-hidden px-6 pt-32 pb-40 lg:pb-48">
+            <div class="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[60vw] h-[60vw] max-w-[800px] max-h-[800px] bg-[#2dd4bf] blur-[150px] rounded-full pointer-events-none orb-glow mix-blend-screen opacity-20"></div>
+            <div class="absolute top-0 right-0 w-[40vw] h-[40vw] bg-[#fbbf24] blur-[180px] rounded-full pointer-events-none opacity-5 mix-blend-screen"></div>
 
-<main class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12 space-y-24">
-
-    <section id="cenario" class="space-y-8">
-        <div class="max-w-3xl">
-            <h2 class="text-3xl font-bold text-slate-800 mb-4 border-b-4 border-amber-400 pb-2 inline-block">Motivações Clínicas</h2>
-            <p class="text-lg text-slate-600 leading-relaxed">
-                A prática clínica contemporânea observa uma mudança significativa nas demandas dos pacientes. O autoconhecimento, a regulação emocional e a busca por intervenções focadas têm superado as procuras tradicionais. O gráfico abaixo ilustra a composição das principais queixas iniciais nos consultórios.
-            </p>
-        </div>
-
-        <div class="grid grid-cols-1 md:grid-cols-2 gap-8 items-center">
-            <div class="glass-card shadow-lg rounded-2xl p-6">
-                <div class="chart-container">
-                    <canvas id="motivosChart"></canvas>
+            <div class="max-w-4xl flex flex-col items-center gap-10 relative z-10 reveal">
+                <div class="inline-flex items-center gap-3 px-5 py-2 glass-panel rounded-full border border-white/10 shadow-2xl">
+                    <span class="w-2 h-2 rounded-full bg-[#2dd4bf] animate-pulse"></span>
+                    <span class="text-slate-300 font-medium text-[10px] md:text-xs uppercase tracking-[0.2em]">
+                        Atendimento Presencial Goiânia e Online
+                    </span>
                 </div>
-            </div>
-            <div class="space-y-6">
-                <div class="bg-white p-6 rounded-xl shadow-sm border border-slate-100">
-                    <h3 class="text-xl font-bold text-teal-600 mb-2">Ansiedade e Burnout</h3>
-                    <p class="text-slate-600">Representam a esmagadora maioria das buscas, impulsionadas pelo ritmo de vida moderno e cobranças profissionais.</p>
-                </div>
-                <div class="bg-white p-6 rounded-xl shadow-sm border border-slate-100">
-                    <h3 class="text-xl font-bold text-indigo-600 mb-2">Investigação Neurodivergente</h3>
-                    <p class="text-slate-600">Uma área em franca expansão. Adultos que passaram a vida mascarando sintomas buscam validação e respostas sobre seu funcionamento cognitivo.</p>
-                </div>
-            </div>
-        </div>
-    </section>
-
-    <section id="tea" class="space-y-8">
-        <div class="max-w-3xl">
-            <h2 class="text-3xl font-bold text-slate-800 mb-4 border-b-4 border-teal-400 pb-2 inline-block">O Despertar do TEA na Vida Adulta</h2>
-            <p class="text-lg text-slate-600 leading-relaxed">
-                Historicamente, o Transtorno do Espectro Autista foi associado exclusivamente à infância. Hoje, vivemos uma revolução diagnóstica. Muitos adultos, especialmente mulheres, estão sendo diagnosticados tardiamente, revelando uma vida de camuflagem social ("masking") e exaustão mental.
-            </p>
-        </div>
-
-        <div class="grid grid-cols-1 md:grid-cols-2 gap-8">
-            <div class="glass-card shadow-lg rounded-2xl p-6 md:col-span-2">
-                <h3 class="text-center font-bold text-slate-700 mb-4">Crescimento de Diagnósticos Tardios (Projeção Anual)</h3>
-                <div class="chart-container w-full max-w-4xl">
-                    <canvas id="teaTrendChart"></canvas>
+                
+                <h2 class="text-4xl md:text-6xl lg:text-7xl font-bold text-white leading-[1.1] tracking-tight">
+                    Recupere o controle.<br>
+                    <span class="font-light text-slate-300 block mt-3 text-2xl md:text-5xl">Reprograme sua mente com <span class="text-white font-bold">Hipnose Clínica.</span></span>
+                </h2>
+                
+                <p class="text-base md:text-xl text-slate-300 font-normal max-w-2xl leading-relaxed reveal delay-100">
+                    O alívio da ansiedade profunda e a compreensão do Autismo (TEA) na vida adulta, conduzidos através do rigor científico e da comunicação simbólica ericksoniana.
+                </p>
+                
+                <div class="mt-4 md:mt-8 reveal delay-200">
+                    <a href="https://hipnolawrence.com/agendamento/" class="group relative inline-flex items-center justify-center overflow-hidden rounded-full bg-[#2dd4bf] px-10 py-4 md:px-12 md:py-5 font-bold text-[#05080f] uppercase tracking-widest text-xs md:text-sm transition-all hover:bg-[#14b8a6] hover:shadow-[0_0_40px_rgba(45,212,191,0.3)]">
+                        <span class="relative z-10 transition-transform duration-300 group-hover:scale-105">Agendar Avaliação Inicial</span>
+                    </a>
                 </div>
             </div>
             
-            <div class="glass-card shadow-lg rounded-2xl p-6">
-                <h3 class="font-bold text-xl text-slate-800 mb-6">A Jornada do Diagnóstico Tardio</h3>
-                <div class="mt-4">
-                    <div class="timeline-item">
-                        <h4 class="font-bold text-teal-600">A Sensação de Deslocamento</h4>
-                        <p class="text-sm text-slate-600 mt-1">Sentimento crônico de ser "diferente", dificuldades sociais persistentes e sobrecarga sensorial não explicada ao longo da vida.</p>
+            <!-- Indicador "Descubra" redimensionado sutilmente e mantido no absolute bottom seguro -->
+            <div class="absolute bottom-12 left-1/2 -translate-x-1/2 flex flex-col items-center gap-3 opacity-60 animate-bounce">
+                <span class="text-[10px] uppercase tracking-[0.3em] text-slate-400 font-normal">Descubra</span>
+                <svg class="w-4 h-4 text-slate-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 14l-7 7m0 0l-7-7m7 7V3"></path></svg>
+            </div>
+        </section>
+
+        <!-- 2. IDENTIFICAÇÃO DA DOR (A CARGA INVISÍVEL) -->
+        <section class="w-full bg-[var(--abidos-cream)] text-slate-900 py-20 lg:py-32 px-6 relative rounded-t-[3rem] -mt-10 z-20 shadow-[0_-20px_50px_rgba(0,0,0,0.5)]">
+            <div class="max-w-7xl mx-auto flex flex-col gap-16 lg:gap-20">
+                <div class="text-center max-w-3xl mx-auto reveal">
+                    <span class="text-[#14b8a6] font-bold tracking-widest uppercase text-xs mb-4 block">A Carga Invisível</span>
+                    <h2 class="text-3xl md:text-4xl font-extrabold text-slate-900 mb-6 tracking-tight">Sente que a exaustão emocional está travando sua vida?</h2>
+                    <p class="text-slate-700 text-lg font-normal leading-relaxed">
+                        A terapia não precisa ser um esforço exaustivo. Muitos adultos chegam ao consultório após anos tentando resolver suas dores sozinhos. Veja se você se reconhece:
+                    </p>
+                </div>
+                
+                <div class="grid grid-cols-1 md:grid-cols-3 gap-8">
+                    <div class="glass-panel-light p-10 lg:p-12 rounded-[2rem] flex flex-col gap-6 reveal delay-100 hover:-translate-y-2 transition-transform duration-500 border border-slate-200">
+                        <svg class="w-10 h-10 text-slate-800" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M13 10V3L4 14h7v7l9-11h-7z"></path></svg>
+                        <div>
+                            <h3 class="font-extrabold text-slate-900 text-xl mb-3">O Cérebro que Não Desliga</h3>
+                            <p class="text-slate-700 font-normal text-base leading-relaxed">Crises de ansiedade constantes, insônia e a sensação de perigo iminente. O medo de perder o controle drena sua energia vital.</p>
+                        </div>
                     </div>
-                    <div class="timeline-item">
-                        <h4 class="font-bold text-amber-500">O Gatilho (Burnout Autista)</h4>
-                        <p class="text-sm text-slate-600 mt-1">Eventos de vida estressantes ou a exaustão de manter a "máscara social" levam a uma crise aguda, frequentemente confundida com depressão resistente.</p>
+                    
+                    <div class="glass-panel-light p-10 lg:p-12 rounded-[2rem] flex flex-col gap-6 reveal delay-200 hover:-translate-y-2 transition-transform duration-500 border border-slate-200">
+                        <svg class="w-10 h-10 text-[#14b8a6]" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M11 4a2 2 0 114 0v1a1 1 0 001 1h3a1 1 0 011 1v3a1 1 0 01-1 1h-1a2 2 0 100 4h1a1 1 0 011 1v3a1 1 0 01-1 1h-3a1 1 0 01-1-1v-1a2 2 0 10-4 0v1a1 1 0 01-1 1H7a1 1 0 01-1-1v-3a1 1 0 00-1-1H4a2 2 0 110-4h1a1 1 0 001-1V7a1 1 0 011-1h3a1 1 0 001-1V4z"></path></svg>
+                        <div>
+                            <h3 class="font-extrabold text-slate-900 text-xl mb-3">Dúvidas sobre o Espectro</h3>
+                            <p class="text-slate-700 font-normal text-base leading-relaxed">A sensação de que sempre precisou "estudar" como socializar. Sobrecarga sensorial e a busca por um diagnóstico tardio libertador.</p>
+                        </div>
                     </div>
-                    <div class="timeline-item">
-                        <h4 class="font-bold text-indigo-500">A Avaliação Neuropsicológica</h4>
-                        <p class="text-sm text-slate-600 mt-1">Busca por profissionais especializados. Realização de testes estruturados, anamnese profunda e análise do histórico de desenvolvimento.</p>
-                    </div>
-                    <div class="timeline-item">
-                        <h4 class="font-bold text-rose-500">Acomodação e Identidade</h4>
-                        <p class="text-sm text-slate-600 mt-1">Reconstrução da autoimagem, luto pelos anos sem suporte, e implementação de acomodações sensoriais e limites claros.</p>
+                    
+                    <div class="glass-panel-light p-10 lg:p-12 rounded-[2rem] flex flex-col gap-6 reveal delay-300 hover:-translate-y-2 transition-transform duration-500 border border-slate-200">
+                        <svg class="w-10 h-10 text-slate-600" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M20 7l-8-4-8 4m16 0l-8 4m8-4v10l-8 4m0-10L4 7m8 4v10M4 7v10l8 4"></path></svg>
+                        <div>
+                            <h3 class="font-extrabold text-slate-900 text-xl mb-3">Mascaramento e Burnout</h3>
+                            <p class="text-slate-700 font-normal text-base leading-relaxed">Exaustão profunda por forçar uma versão neurotípica de si mesmo. O peso de camuflar sintomas gera fadiga crônica ininterrupta.</p>
+                        </div>
                     </div>
                 </div>
             </div>
+        </section>
 
-            <div class="glass-card shadow-lg rounded-2xl p-6">
-                <h3 class="font-bold text-slate-700 mb-4 text-center">Comorbidades Mais Comuns em Adultos com TEA</h3>
-                <div class="chart-container">
-                    <canvas id="comorbidadesChart"></canvas>
+        <!-- 3. O PODER DA HIPNOSE -->
+        <section class="w-full bg-[var(--abidos-darkest)] text-white py-20 lg:py-32 px-6 relative overflow-hidden">
+            <div class="absolute inset-0 opacity-10" style="background-image: radial-gradient(rgba(255,255,255,0.2) 1px, transparent 1px); background-size: 40px 40px;"></div>
+            
+            <div class="max-w-7xl mx-auto flex flex-col lg:flex-row gap-16 lg:gap-20 relative z-10">
+                <div class="flex-1 reveal">
+                    <span class="text-[#2dd4bf] font-bold tracking-widest uppercase text-xs mb-6 block">O Processo Terapêutico</span>
+                    <h2 class="text-3xl md:text-5xl font-extrabold mb-8 tracking-tight leading-tight">Por que a Hipnose Ericksoniana é o caminho?</h2>
+                    <p class="text-slate-300 text-lg font-normal leading-relaxed mb-6">
+                        Diferente da psicoterapia tradicional — onde você tenta forçar a mente racional a mudar —, a Hipnose atua na raiz subjacente, de forma indolor e natural.
+                    </p>
+                    <p class="text-slate-300 text-lg font-normal leading-relaxed">
+                        Não há perda de consciência. Contornamos a resistência utilizando a <strong>comunicação simbólica</strong>. Ensinamos o seu sistema nervoso a encontrar segurança profunda e processar traumas em um estado de foco super-receptivo.
+                    </p>
                 </div>
-                <p class="text-sm text-slate-500 mt-4 text-center">A sobreposição de diagnósticos frequentemente atrasa a identificação do autismo estrutural subjacente.</p>
-            </div>
-        </div>
-    </section>
 
-    <section id="hipnose" class="space-y-8">
-        <div class="max-w-3xl">
-            <h2 class="text-3xl font-bold text-slate-800 mb-4 border-b-4 border-rose-400 pb-2 inline-block">Hipnose Clínica: Ciência e Eficácia</h2>
-            <p class="text-lg text-slate-600 leading-relaxed">
-                Distante dos mitos do entretenimento, a hipnose clínica é um estado de atenção concentrada e receptividade aumentada. É uma ferramenta coadjuvante poderosa em psicoterapia, alterando a percepção da dor, reestruturando fobias e facilitando o acesso a recursos cognitivos internos.
-            </p>
-        </div>
-
-        <div class="grid grid-cols-1 md:grid-cols-2 gap-8">
-            <div class="glass-card shadow-lg rounded-2xl p-6">
-                <h3 class="text-center font-bold text-slate-700 mb-4">Taxa de Eficácia Percebida por Transtorno</h3>
-                <div class="chart-container">
-                    <canvas id="hipnoseEficaciaChart"></canvas>
-                </div>
-            </div>
-
-            <div class="flex flex-col justify-center space-y-6">
-                <div class="bg-gradient-to-br from-indigo-50 to-white p-6 rounded-xl shadow-sm border border-indigo-100">
-                    <div class="flex items-center gap-4 mb-2">
-                        <span class="text-2xl font-black text-rose-500">x</span>
-                        <h3 class="text-xl font-bold text-slate-800">O que NÃO é</h3>
+                <div class="flex-1 flex flex-col gap-6">
+                    <div class="glass-panel p-8 lg:p-10 rounded-3xl reveal delay-100 border border-slate-700/50">
+                        <h3 class="text-xl font-bold text-white mb-3 flex items-center gap-4">
+                            <span class="w-8 h-[2px] bg-[#2dd4bf]"></span> Ansiedade e Pânico
+                        </h3>
+                        <p class="text-slate-300 font-normal text-base leading-relaxed">
+                            A hipnose cria "âncoras" mentais. Você aprende a desativar gatilhos de estresse inconscientes de forma fluida, retomando o controle do seu corpo antes que a crise escale.
+                        </p>
                     </div>
-                    <ul class="space-y-2 text-slate-600 ml-8 list-disc">
-                        <li>Perda de consciência ou controle.</li>
-                        <li>Controle mental por parte do terapeuta.</li>
-                        <li>Soro da verdade ou revelação de segredos.</li>
-                        <li>Magia ou misticismo.</li>
-                    </ul>
-                </div>
 
-                <div class="bg-gradient-to-br from-teal-50 to-white p-6 rounded-xl shadow-sm border border-teal-100">
-                    <div class="flex items-center gap-4 mb-2">
-                        <span class="text-2xl font-black text-teal-500">✓</span>
-                        <h3 class="text-xl font-bold text-slate-800">O que É</h3>
+                    <div class="glass-panel p-8 lg:p-10 rounded-3xl reveal delay-200 border border-slate-700/50">
+                        <h3 class="text-xl font-bold text-white mb-3 flex items-center gap-4">
+                            <span class="w-8 h-[2px] bg-slate-500"></span> Autismo Adulto (TEA)
+                        </h3>
+                        <p class="text-slate-300 font-normal text-base leading-relaxed">
+                            O uso múltiplo de metáforas hipnóticas contorna barreiras rígidas de comunicação. O foco é fornecer ferramentas de autorregulação sensorial sem forçar você a padrões neurotípicos exaustivos.
+                        </p>
                     </div>
-                    <ul class="space-y-2 text-slate-600 ml-8 list-disc">
-                        <li>Foco intenso e relaxamento periférico.</li>
-                        <li>Colaboração ativa entre paciente e terapeuta.</li>
-                        <li>Estado natural do cérebro (ondas alfa/theta).</li>
-                        <li>Ferramenta de modulação neurológica e emocional.</li>
-                    </ul>
                 </div>
             </div>
-        </div>
-    </section>
+        </section>
 
-</main>
+        <!-- 4. AUTORIDADE E-E-A-T (FOTO AJUSTADA) -->
+        <section class="w-full bg-[var(--abidos-cream)] text-slate-900 py-20 lg:py-32 px-6 overflow-hidden">
+            <div class="max-w-7xl mx-auto flex flex-col lg:flex-row gap-16 lg:gap-20 items-center">
+                <div class="flex-1 relative w-full reveal">
+                    <div class="relative w-full max-w-md mx-auto">
+                        <img src="https://hipnolawrence.com/wp-content/uploads/2026/03/IMG_4875.jpg" 
+                             alt="Victor Lawrence Psicólogo e Hipnoterapeuta" 
+                             class="rounded-[2rem] object-cover aspect-[4/5] shadow-[0_20px_50px_rgba(0,0,0,0.15)] z-10 relative">
+                        
+                        <!-- Flutuador Corrigido: Esfumaçado e elegante, sem pesar -->
+                        <div class="absolute -bottom-8 -right-4 md:-right-8 bg-[#0b1221]/90 backdrop-blur-md p-6 lg:p-8 rounded-[2rem] shadow-2xl z-20 w-[85%] sm:w-72 reveal delay-300 border border-white/10">
+                            <p class="text-[10px] lg:text-xs text-slate-300 font-bold uppercase tracking-widest mb-4 flex items-center gap-2 lg:gap-3">
+                                <span class="w-2 h-2 rounded-full bg-[#2dd4bf] animate-pulse"></span> Ciência do Rapport
+                            </p>
+                            <div class="w-full h-20 lg:h-24">
+                                <canvas id="rapportChart"></canvas>
+                            </div>
+                        </div>
+                    </div>
+                </div>
 
-<footer class="bg-slate-900 text-slate-400 py-8 mt-12 text-center">
-    <p>&copy; 2026 PsicoData Infographics. Visualização de dados para saúde mental.</p>
-</footer>
+                <div class="flex-1 space-y-6 lg:space-y-8 reveal delay-100">
+                    <div>
+                        <span class="text-slate-500 font-bold uppercase tracking-widest text-xs mb-4 block mt-10 lg:mt-0">Sobre o Profissional</span>
+                        <h2 class="text-3xl md:text-5xl font-extrabold text-slate-900 leading-[1.1] tracking-tight mb-4">
+                            Victor Lawrence
+                        </h2>
+                        <h3 class="text-slate-600 text-lg font-semibold tracking-wide">Mestrando em Ciências da Saúde (UFU) | CRP 09/11721</h3>
+                    </div>
+                    
+                    <div class="space-y-5 lg:space-y-6 text-slate-700 text-base lg:text-lg font-normal leading-relaxed">
+                        <p>A ciência da mente não precisa ser impessoal. Com <strong>mais de 10.000 horas de prática clínica</strong>, meu propósito é oferecer um espaço refinado onde você possa desmontar armaduras sem julgamentos.</p>
+                        
+                        <p>Com formação técnica rigorosa pela renomada <em>Milton H. Erickson Foundation</em> (EUA), uno a fluidez da hipnose à precisão psicométrica. Fui coautor da validação brasileira da escala AQ10 (2018) e, atualmente no Mestrado (UFU), desenvolvo a validação da escala <strong>RAS30</strong> <em>(em processo)</em> para aprimorar o diagnóstico de autismo em adultos.</p>
+                        
+                        <div class="flex items-center gap-4 pt-6 lg:pt-8 border-t border-slate-300">
+                            <div class="flex text-amber-500 text-xl">★★★★★</div>
+                            <p class="text-[10px] lg:text-xs font-bold text-slate-900 uppercase tracking-widest">84 avaliações exclusivas (Doctoralia)</p>
+                        </div>
+                    </div>
+                    
+                    <div class="pt-4">
+                        <a href="https://hipnolawrence.com/contato/" class="inline-flex items-center gap-3 text-slate-900 font-extrabold uppercase tracking-widest text-xs lg:text-sm hover:text-[#14b8a6] transition-colors group">
+                            Visualizar Currículo Científico 
+                            <span class="block w-8 h-[2px] bg-slate-900 group-hover:bg-[#14b8a6] transition-colors"></span>
+                        </a>
+                    </div>
+                </div>
+            </div>
+        </section>
 
-<script>
-function wrapLabel(label) {
-    if (label.length <= 16) return label;
-    const words = label.split(' ');
-    const lines = [];
-    let currentLine = '';
-    words.forEach(word => {
-        if ((currentLine + word).length > 16) {
-            if (currentLine) lines.push(currentLine.trim());
-            currentLine = word + ' ';
-        } else {
-            currentLine += word + ' ';
-        }
-    });
-    if (currentLine) lines.push(currentLine.trim());
-    return lines;
-}
+        <!-- 5. AMBIENTE (GALERIA CORRIGIDA - ASPECT RATIO PERFEITO) -->
+        <section class="w-full bg-white py-20 lg:py-32 px-6 border-t border-slate-100">
+            <div class="max-w-7xl mx-auto flex flex-col gap-12 lg:gap-16">
+                <div class="text-left md:text-center max-w-2xl mx-auto reveal">
+                    <h2 class="text-3xl md:text-4xl font-extrabold text-slate-900 mb-4 lg:mb-6 tracking-tight">Um refúgio sensorial.</h2>
+                    <p class="text-slate-700 text-lg font-normal leading-relaxed">Arquitetado em Goiânia para silenciar o mundo lá fora. Luz calculada, acústica tratada e respeito absoluto ao seu limiar sensorial.</p>
+                </div>
+                
+                <!-- Ajuste crucial: substituição de h-72 por aspect-[4/5] para evitar esmagamento das fotos -->
+                <div class="grid grid-cols-2 md:grid-cols-4 gap-4 w-full reveal delay-200">
+                    <img src="https://hipnolawrence.com/wp-content/uploads/2026/02/IMG_0298-scaled.jpeg" alt="Recepção do Consultório em Goiânia" class="object-cover aspect-square md:aspect-[4/5] w-full rounded-2xl lg:rounded-3xl grayscale-[15%] hover:grayscale-0 transition-all duration-700 shadow-md" loading="lazy">
+                    <img src="https://hipnolawrence.com/wp-content/uploads/2026/02/IMG_0312-scaled.jpeg" alt="Poltronas confortáveis Terapia" class="object-cover aspect-square md:aspect-[4/5] w-full rounded-2xl lg:rounded-3xl grayscale-[15%] hover:grayscale-0 transition-all duration-700 mt-0 lg:mt-8 shadow-md" loading="lazy">
+                    <img src="https://hipnolawrence.com/wp-content/uploads/2026/02/IMG_0359-scaled.jpeg" alt="Detalhes decorativos minimalistas" class="object-cover aspect-square md:aspect-[4/5] w-full rounded-2xl lg:rounded-3xl grayscale-[15%] hover:grayscale-0 transition-all duration-700 shadow-md" loading="lazy">
+                    <img src="https://hipnolawrence.com/wp-content/uploads/2026/03/98593981-F8A7-4F8E-86A4-BBF2C04F704C.jpg" alt="Sala de Atendimento Psicológico em Autismo" class="object-cover aspect-square md:aspect-[4/5] w-full rounded-2xl lg:rounded-3xl grayscale-[15%] hover:grayscale-0 transition-all duration-700 mt-0 lg:mt-8 shadow-md" loading="lazy">
+                </div>
+            </div>
+        </section>
 
-function processLabels(labelsArray) {
-    return labelsArray.map(label => wrapLabel(label));
-}
+        <!-- 6. FAQ (CLAREZA E ESPAÇAMENTO REVISADOS) -->
+        <section class="w-full bg-[var(--abidos-cream)] py-20 lg:py-32 px-6">
+            <div class="max-w-4xl mx-auto flex flex-col gap-12 lg:gap-16 reveal">
+                <h2 class="text-3xl md:text-4xl font-extrabold text-center text-slate-900 tracking-tight">Esclarecimentos Clínicos</h2>
+                
+                <div class="space-y-4">
+                    <details class="group border-b border-slate-300 pb-4">
+                        <summary class="py-6 font-bold flex justify-between items-center text-slate-900 text-base md:text-lg tracking-tight hover:text-[#14b8a6] transition-colors">
+                            O tratamento é focado apenas em Autismo (TEA)?
+                            <span class="text-slate-500 transition-transform group-open:rotate-45 font-light text-2xl">+</span>
+                        </summary>
+                        <div class="pb-6 text-slate-700 font-normal text-sm md:text-base leading-relaxed">
+                            Não. Além do foco investigativo e terapêutico no TEA adulto, a maior parte de minha prática envolve o tratamento de Ansiedade Generalizada (TAG), Síndrome do Pânico, Fobias e Burnout Emocional.
+                        </div>
+                    </details>
 
-const commonTooltipConfig = {
-    callbacks: {
-        title: function(tooltipItems) {
-            const item = tooltipItems[0];
-            let label = item.chart.data.labels[item.dataIndex];
-            if (Array.isArray(label)) {
-              return label.join(' ');
-            } else {
-              return label;
+                    <details class="group border-b border-slate-300 pb-4">
+                        <summary class="py-6 font-bold flex justify-between items-center text-slate-900 text-base md:text-lg tracking-tight hover:text-[#14b8a6] transition-colors">
+                            A Hipnose Ericksoniana faz perder a consciência?
+                            <span class="text-slate-500 transition-transform group-open:rotate-45 font-light text-2xl">+</span>
+                        </summary>
+                        <div class="pb-6 text-slate-700 font-normal text-sm md:text-base leading-relaxed">
+                            De forma alguma. O transe ericksoniano é um estado de hiperfoco e relaxamento vigilante. Você está sempre no controle, ouve minha voz, interage e lembra de tudo. A diferença é que a mente racional (que julga) descansa, permitindo mudanças rápidas.
+                        </div>
+                    </details>
+
+                    <details class="group border-b border-slate-300 pb-4">
+                        <summary class="py-6 font-bold flex justify-between items-center text-slate-900 text-base md:text-lg tracking-tight hover:text-[#14b8a6] transition-colors">
+                            O que é a escala RAS30?
+                            <span class="text-slate-500 transition-transform group-open:rotate-45 font-light text-2xl">+</span>
+                        </summary>
+                        <div class="pb-6 text-slate-700 font-normal text-sm md:text-base leading-relaxed">
+                            A RAS30 é um instrumento psicométrico brasileiro focado em rastrear traços de TEA em jovens adultos. Atualmente, ela encontra-se <em>em processo de validação acadêmica</em> no meu Mestrado em Ciências da Saúde (UFU).
+                        </div>
+                    </details>
+
+                    <details class="group border-b border-slate-300 pb-4">
+                        <summary class="py-6 font-bold flex justify-between items-center text-slate-900 text-base md:text-lg tracking-tight hover:text-[#14b8a6] transition-colors">
+                            O atendimento online funciona tão bem quanto o presencial?
+                            <span class="text-slate-500 transition-transform group-open:rotate-45 font-light text-2xl">+</span>
+                        </summary>
+                        <div class="pb-6 text-slate-700 font-normal text-sm md:text-base leading-relaxed">
+                            Absolutamente. A ciência comprova a eficácia da telepsicologia. Para neurodivergentes ou pessoas com ansiedade grave, ser atendido na própria casa muitas vezes reduz o atrito e potencializa os resultados.
+                        </div>
+                    </details>
+                </div>
+            </div>
+        </section>
+
+        <!-- 7. SILOS DE NAVEGAÇÃO -->
+        <section class="w-full bg-[var(--abidos-darkest)] py-16 lg:py-20 px-6 border-b border-white/10">
+            <div class="max-w-7xl mx-auto flex flex-col items-center gap-8 lg:gap-10 reveal">
+                <span class="text-slate-400 font-bold uppercase tracking-[0.2em] text-[10px] md:text-xs">Aprofunde-se nas Especialidades</span>
+                <div class="flex flex-wrap justify-center gap-3 lg:gap-4">
+                    <a href="https://hipnolawrence.com/terapia-para-ansiedade-e-estresse-em-goiania/" class="px-6 py-3 lg:px-8 lg:py-4 glass-panel rounded-full text-slate-200 text-xs lg:text-sm font-bold uppercase tracking-widest hover:bg-[#2dd4bf] hover:text-[#05080f] transition-all">Ansiedade</a>
+                    <a href="https://hipnolawrence.com/tratamento-para-depressao-em-goiania/" class="px-6 py-3 lg:px-8 lg:py-4 glass-panel rounded-full text-slate-200 text-xs lg:text-sm font-bold uppercase tracking-widest hover:bg-[#2dd4bf] hover:text-[#05080f] transition-all">Depressão</a>
+                    <a href="https://hipnolawrence.com/hipnose-clinica-em-goiania/" class="px-6 py-3 lg:px-8 lg:py-4 glass-panel rounded-full text-slate-200 text-xs lg:text-sm font-bold uppercase tracking-widest hover:bg-[#2dd4bf] hover:text-[#05080f] transition-all">Hipnose</a>
+                    <a href="https://hipnolawrence.com/psicologo-para-autismo-em-adultos-em-goiania/" class="px-6 py-3 lg:px-8 lg:py-4 glass-panel rounded-full text-slate-200 text-xs lg:text-sm font-bold uppercase tracking-widest hover:bg-[#2dd4bf] hover:text-[#05080f] transition-all">Autismo (TEA)</a>
+                </div>
+            </div>
+        </section>
+
+        <!-- 8. CHAMADA FINAL -->
+        <section class="w-full bg-[var(--abidos-darkest)] py-20 lg:py-32 px-6 text-center relative overflow-hidden">
+            <div class="absolute bottom-0 left-1/2 -translate-x-1/2 w-[80vw] h-[200px] bg-[#2dd4bf] blur-[150px] opacity-10 pointer-events-none"></div>
+            
+            <div class="max-w-3xl mx-auto reveal relative z-10">
+                <h2 class="text-3xl md:text-5xl font-extrabold text-white mb-10 lg:mb-12 tracking-tight leading-tight">
+                    Sua mente é seu único lar.<br> 
+                    <span class="text-slate-400 font-normal text-2xl md:text-4xl block mt-4">Torne-a um lugar mais seguro.</span>
+                </h2>
+                <div class="flex flex-col sm:flex-row gap-4 lg:gap-6 justify-center items-center">
+                    <a href="https://hipnolawrence.com/agendamento/" class="inline-flex items-center justify-center bg-[#2dd4bf] hover:bg-white text-[#05080f] font-extrabold py-4 px-10 md:py-5 md:px-12 rounded-full transition-colors uppercase tracking-widest text-xs lg:text-sm w-full sm:w-auto shadow-[0_0_30px_rgba(45,212,191,0.2)]">
+                        Iniciar Jornada
+                    </a>
+                    <a href="https://www.hipnolawrence.com" class="inline-flex items-center justify-center bg-transparent border-2 border-slate-500 hover:border-white hover:text-white text-slate-300 font-bold py-3.5 px-10 md:py-4.5 md:px-12 rounded-full transition-colors uppercase tracking-widest text-xs lg:text-sm w-full sm:w-auto">
+                        Retornar ao Início
+                    </a>
+                </div>
+            </div>
+        </section>
+    </main>
+
+    <script>
+        document.addEventListener("DOMContentLoaded", function() {
+            const reveals = document.querySelectorAll(".reveal");
+            const revealOnScroll = new IntersectionObserver((entries, observer) => {
+                entries.forEach(entry => {
+                    if (entry.isIntersecting) {
+                        entry.target.classList.add("active");
+                        observer.unobserve(entry.target);
+                    }
+                });
+            }, { rootMargin: "0px 0px -100px 0px" });
+
+            reveals.forEach(el => revealOnScroll.observe(el));
+
+            const ctxRapport = document.getElementById('rapportChart');
+            if (ctxRapport) {
+                new Chart(ctxRapport.getContext('2d'), {
+                    type: 'line',
+                    data: {
+                        labels:['Baixo', 'Médio', 'Alto TEA'],
+                        datasets:[{
+                            label: 'Rapport Inicial',
+                            data:[85, 45, 15],
+                            borderColor: '#2dd4bf',
+                            backgroundColor: 'rgba(45, 212, 191, 0.05)',
+                            fill: true,
+                            tension: 0.5,
+                            borderWidth: 2,
+                            pointBackgroundColor: '#2dd4bf',
+                            pointBorderColor: '#05080f',
+                            pointRadius: 4
+                        }]
+                    },
+                    options: {
+                        responsive: true,
+                        maintainAspectRatio: false,
+                        plugins: { legend: { display: false } },
+                        scales: { 
+                            y: { display: false },
+                            x: { grid: { display: false }, ticks: { font: { size: 11, family: 'Inter', weight: 400 }, color: '#94a3b8' } }
+                        }
+                    }
+                });
             }
-        }
-    }
-};
-
-const rawMotivosLabels = ['Ansiedade Generalizada e Estresse', 'Avaliação de Neurodivergência (TEA/TDAH)', 'Sintomas Depressivos e Luto', 'Problemas de Relacionamento', 'Transição de Carreira'];
-const motivosData = {
-    labels: processLabels(rawMotivosLabels),
-    datasets: [{
-        data: [45, 25, 15, 10, 5],
-        backgroundColor: ['#14b8a6', '#6366f1', '#f43f5e', '#f59e0b', '#8b5cf6'],
-        borderWidth: 0
-    }]
-};
-new Chart(document.getElementById('motivosChart'), {
-    type: 'doughnut',
-    data: motivosData,
-    options: {
-        responsive: true,
-        maintainAspectRatio: false,
-        plugins: {
-            legend: { position: 'right', labels: { font: { family: 'Inter' } } },
-            tooltip: commonTooltipConfig
-        },
-        cutout: '65%'
-    }
-});
-
-const rawTeaLabels = ['Ano Base 2018', 'Registros 2019', 'Registros 2020', 'Registros 2021', 'Registros 2022', 'Registros 2023'];
-const teaTrendData = {
-    labels: processLabels(rawTeaLabels),
-    datasets: [{
-        label: 'Índice Relativo de Diagnósticos em Adultos',
-        data: [100, 115, 140, 190, 260, 340],
-        borderColor: '#14b8a6',
-        backgroundColor: 'rgba(20, 184, 166, 0.2)',
-        borderWidth: 3,
-        pointBackgroundColor: '#fff',
-        pointBorderColor: '#14b8a6',
-        pointRadius: 5,
-        fill: true,
-        tension: 0.4
-    }]
-};
-new Chart(document.getElementById('teaTrendChart'), {
-    type: 'line',
-    data: teaTrendData,
-    options: {
-        responsive: true,
-        maintainAspectRatio: false,
-        plugins: {
-            legend: { display: false },
-            tooltip: commonTooltipConfig
-        },
-        scales: {
-            y: { beginAtZero: true, grid: { color: '#f1f5f9' } },
-            x: { grid: { display: false } }
-        }
-    }
-});
-
-const rawComorbLabels = ['Transtorno de Ansiedade Social', 'Episódios Depressivos Maiores', 'TDAH (Transtorno de Déficit de Atenção)', 'Transtorno Obsessivo Compulsivo'];
-const comorbData = {
-    labels: processLabels(rawComorbLabels),
-    datasets: [{
-        label: 'Prevalência (%)',
-        data: [65, 55, 40, 25],
-        backgroundColor: '#6366f1',
-        borderRadius: 6
-    }]
-};
-new Chart(document.getElementById('comorbidadesChart'), {
-    type: 'bar',
-    data: comorbData,
-    options: {
-        responsive: true,
-        maintainAspectRatio: false,
-        indexAxis: 'y',
-        plugins: {
-            legend: { display: false },
-            tooltip: commonTooltipConfig
-        },
-        scales: {
-            x: { max: 100, grid: { color: '#f1f5f9' } },
-            y: { grid: { display: false } }
-        }
-    }
-});
-
-const rawHipnoseLabels = ['Manejo da Dor Crônica', 'Controle de Ansiedade', 'Fobias Específicas', 'Cessação do Tabagismo', 'Distúrbios do Sono'];
-const hipnoseData = {
-    labels: processLabels(rawHipnoseLabels),
-    datasets: [{
-        label: 'Taxa de Resposta Positiva (%)',
-        data: [82, 75, 88, 65, 70],
-        backgroundColor: 'rgba(244, 63, 94, 0.6)',
-        borderColor: '#f43f5e',
-        borderWidth: 2,
-        pointBackgroundColor: '#f43f5e'
-    }]
-};
-new Chart(document.getElementById('hipnoseEficaciaChart'), {
-    type: 'radar',
-    data: hipnoseData,
-    options: {
-        responsive: true,
-        maintainAspectRatio: false,
-        plugins: {
-            legend: { display: false },
-            tooltip: commonTooltipConfig
-        },
-        scales: {
-            r: {
-                angleLines: { color: '#e2e8f0' },
-                grid: { color: '#e2e8f0' },
-                pointLabels: { font: { family: 'Inter', size: 12 }, color: '#475569' },
-                suggestedMin: 0,
-                suggestedMax: 100
-            }
-        }
-    }
-});
-</script>
+        });
+    </script>
 </body>
 </html>

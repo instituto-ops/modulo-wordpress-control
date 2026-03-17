@@ -22,7 +22,7 @@ const upload = multer({ storage: storage });
 
 // Initialize Gemini SDK
 const genAI = new GoogleGenerativeAI(process.env.GEMINI_API_KEY);
-const VISION_MODEL = 'gemini-1.5-flash'; 
+const VISION_MODEL = 'gemini-2.5-flash'; 
 const draftsDb = []; // In-memory store for newly generated drafts before WP sync
 
 
@@ -209,6 +209,199 @@ const DOCTORALIA_REVIEWS = `
 - L. F. S.: "Resultados nítidos e precisos. Indico fortemente."
 `;
 
+const REAL_ASSETS = `
+VERDADE ABSOLUTA: PROIBIDO INVENTAR LINKS OU DADOS FALSOS. USE APENAS OS SEGUINTES LINKS REAIS:
+
+LINKS DE SERVIÇOS E PÁGINAS (SILOS E HUB):
+- Agendamento: https://hipnolawrence.com/agendamento/
+- Ansiedade/Estresse: https://hipnolawrence.com/terapia-para-ansiedade-e-estresse-em-goiania/
+- Contato/Currículo: https://hipnolawrence.com/contato/
+- Depressão: https://hipnolawrence.com/tratamento-para-depressao-em-goiania/
+- Desempenho Psicológico: https://hipnolawrence.com/terapia-para-desempenho-psicologico-em-goiania/
+- Hipnose Clínica: https://hipnolawrence.com/hipnose-clinica-em-goiania/
+- Relacionamento: https://hipnolawrence.com/terapia-de-relacionamento-em-goiania/
+- Terapia Geral: https://hipnolawrence.com/terapia-em-goiania/
+- Sobre: https://hipnolawrence.com/sobre/
+- Autismo Adulto: https://hipnolawrence.com/psicologo-para-autismo-em-adultos-em-goiania/
+
+IMAGENS DO DR. VICTOR LAWRENCE:
+- https://hipnolawrence.com/wp-content/uploads/2026/03/Facetune_23-05-2023-21-43-27.jpg
+- https://hipnolawrence.com/wp-content/uploads/2026/03/IMG_4469.jpg
+- https://hipnolawrence.com/wp-content/uploads/2026/03/IMG_4511.jpg
+- https://hipnolawrence.com/wp-content/uploads/2026/03/IMG_5605.jpg
+- https://hipnolawrence.com/wp-content/uploads/2026/02/IMG_0876.jpg
+- https://hipnolawrence.com/wp-content/uploads/2026/03/IMG_4875.jpg
+- https://hipnolawrence.com/wp-content/uploads/2026/03/IMG_2046.jpg
+
+DEMONSTRAÇÃO DE HIPNOSE / EVENTOS:
+- https://hipnolawrence.com/wp-content/uploads/2026/03/5b6b7fbf-d665-4d68-96b0-aa8d2889a0bc.jpg
+- Palestra IFG: https://hipnolawrence.com/wp-content/uploads/2026/03/palestra-IFG2.jpeg
+- Congresso Autismo (2015): https://hipnolawrence.com/wp-content/uploads/2026/03/11148819_865048126899579_5754455918839697297_o.jpg
+- Defesa TCC: https://hipnolawrence.com/wp-content/uploads/2026/03/defesa-TCC.jpg
+
+LOGOMARCA:
+- https://hipnolawrence.com/wp-content/uploads/2025/12/Victor-Lawrence-Logo-Sem-Fundo-1.png
+
+AMBIENTE CONSULTÓRIO:
+- https://hipnolawrence.com/wp-content/uploads/2026/02/IMG_0298-scaled.jpeg
+- https://hipnolawrence.com/wp-content/uploads/2026/02/IMG_0312-scaled.jpeg
+- https://hipnolawrence.com/wp-content/uploads/2026/02/IMG_0359-scaled.jpeg
+- https://hipnolawrence.com/wp-content/uploads/2026/03/98593981-F8A7-4F8E-86A4-BBF2C04F704C.jpg
+`;
+
+const ABIDOS_TEMPLATE_MINIMO = `
+<!-- CONFIGURAÇÃO TAILWIND -->
+<script>
+    tailwind = {
+        config: {
+            corePlugins: { preflight: false } // Impede conflitos com o tema Astra
+        }
+    }
+</script>
+
+<!-- DEPENDÊNCIAS -->
+<script src="https://cdn.tailwindcss.com"></script>
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+
+<style>
+    /* Tipografia Local (Zerar CLS) */
+    @font-face { font-family: 'Inter'; src: local('Inter Regular'), local('Inter-Regular'); font-weight: 300; font-display: swap; }
+    @font-face { font-family: 'Inter'; src: local('Inter Regular'), local('Inter-Regular'); font-weight: 400; font-display: swap; }
+    @font-face { font-family: 'Inter'; src: local('Inter Bold'), local('Inter-Bold'); font-weight: 700; font-display: swap; }
+    @font-face { font-family: 'Inter'; src: local('Inter Black'), local('Inter-Black'); font-weight: 900; font-display: swap; }
+
+    /* BLINDAGEM EXTREMA CONTRA O ASTRA */
+    .abidos-wrapper {
+        font-family: 'Inter', system-ui, sans-serif !important;
+        background-color: #05080f;
+        width: 100%;
+        margin: 0;
+        padding: 0;
+        -webkit-font-smoothing: antialiased;
+        overflow-x: hidden;
+    }
+    
+    .abidos-wrapper h1, .abidos-wrapper h2, .abidos-wrapper h3, .abidos-wrapper p, .abidos-wrapper span {
+        font-family: 'Inter', system-ui, sans-serif !important;
+        margin: 0; padding: 0;
+    }
+
+    /* MATA OS SUBLINHADOS E BORDAS GLOBAIS DO TEMA NOS LINKS */
+    .abidos-wrapper a {
+        text-decoration: none !important;
+        border-bottom: none !important;
+        box-shadow: none !important;
+        outline: none !important;
+    }
+    .abidos-wrapper a:hover, .abidos-wrapper a:focus {
+        text-decoration: none !important;
+    }
+
+    /* Vidros Sóbrios (Glassmorphism de Alto Padrão) */
+    .abidos-glass-dark {
+        background: rgba(250, 249, 246, 0.02) !important;
+        backdrop-filter: blur(24px) !important;
+        -webkit-backdrop-filter: blur(24px) !important;
+        border: 1px solid rgba(255, 255, 255, 0.05) !important;
+    }
+
+    .abidos-glass-light {
+        background: rgba(255, 255, 255, 0.95) !important;
+        backdrop-filter: blur(20px) !important;
+        -webkit-backdrop-filter: blur(20px) !important;
+        border: 1px solid rgba(226, 232, 240, 0.8) !important;
+        box-shadow: 0 30px 60px rgba(11, 18, 33, 0.03) !important;
+    }
+
+    /* Efeito Visual (Luz Hipnótica) */
+    .orb-glow { animation: slowPulse 8s infinite alternate ease-in-out; }
+    @keyframes slowPulse {
+        0% { transform: scale(0.8) translate(-5%, -5%); opacity: 0.15; }
+        100% { transform: scale(1.1) translate(5%, 5%); opacity: 0.4; }
+    }
+
+    /* Animações Fluídas de Scroll */
+    .reveal {
+        opacity: 0;
+        transform: translateY(30px);
+        transition: all 0.8s cubic-bezier(0.25, 0.46, 0.45, 0.94);
+    }
+    .reveal.active { opacity: 1; transform: translateY(0); }
+    .delay-100 { transition-delay: 100ms; }
+    .delay-200 { transition-delay: 200ms; }
+    .delay-300 { transition-delay: 300ms; }
+
+    /* FORÇA VISIBILIDADE NO EDITOR ELEMENTOR */
+    body.elementor-editor-active .reveal { opacity: 1 !important; transform: none !important; transition: none !important; }
+
+    .chart-container { position: relative; width: 100%; height: 220px; }
+    
+    /* FAQ Safona Refinada */
+    .abidos-wrapper details > summary { list-style: none; cursor: pointer; }
+    .abidos-wrapper details > summary::-webkit-details-marker { display: none; }
+    .abidos-wrapper details[open] summary ~ * { animation: fadeInDown 0.5s cubic-bezier(0.16, 1, 0.3, 1); }
+    
+    @keyframes fadeInDown {
+        from { opacity: 0; transform: translateY(-15px); }
+        to { opacity: 1; transform: translateY(0); }
+    }
+
+    /* WhatsApp Boutique Mobile-First */
+    .wpp-boutique {
+        position: fixed;
+        bottom: 16px !important;
+        right: 16px !important;
+        background: rgba(37, 211, 102, 0.95) !important;
+        backdrop-filter: blur(10px) !important;
+        color: white !important;
+        padding: 10px 16px !important;
+        border-radius: 50px !important;
+        box-shadow: 0 10px 25px rgba(37, 211, 102, 0.3) !important;
+        z-index: 99999;
+        font-weight: 700 !important;
+        font-size: 0.8rem !important;
+        display: flex;
+        align-items: center;
+        gap: 8px !important;
+        border: 1px solid rgba(255, 255, 255, 0.2) !important;
+        transition: all 0.3s ease;
+    }
+    .wpp-boutique svg { width: 18px; height: 18px; }
+    
+    @media (min-width: 768px) {
+        .wpp-boutique { bottom: 32px !important; right: 85px !important; padding: 16px 28px !important; font-size: 1rem !important; gap: 12px !important; }
+        .wpp-boutique svg { width: 24px; height: 24px; }
+    }
+</style>
+
+<!-- WRAPPER MESTRE -->
+<div class="abidos-wrapper">
+    <!-- ESTRUTURA SEÇÕES AQUI -->
+</div>
+
+<script>
+    function initAbidos() {
+        const reveals = document.querySelectorAll(".reveal");
+        if('IntersectionObserver' in window) {
+            const revealOnScroll = new IntersectionObserver((entries, observer) => {
+                entries.forEach(entry => {
+                    if (entry.isIntersecting) {
+                        entry.target.classList.add("active");
+                        observer.unobserve(entry.target);
+                    }
+                });
+            }, { rootMargin: "0px 0px -50px 0px" });
+
+            reveals.forEach(el => revealOnScroll.observe(el));
+        } else {
+            reveals.forEach(el => el.classList.add("active"));
+        }
+    }
+
+    if (document.readyState === 'loading') { document.addEventListener('DOMContentLoaded', initAbidos); } else { initAbidos(); }
+</script>
+`;
+
 // ==============================================================================
 // 3. TABELA DE REVISÃO E PIPELINE DE AGENTES (HUMAN-IN-THE-LOOP & LANGGRAPH)
 // ==============================================================================
@@ -275,8 +468,8 @@ app.post('/api/agents/generate-pipeline', async (req, res) => {
         
         TAREFA: Escreva um rascunho de landing page sobre "${topic}" focado em Goiânia. 
         Mantenha a autoridade clínica, evite clichês de marketing robótico.
-        Use tags HTML simples (h1, h2, p).
-        `;
+        Use tags HTML simples (h2, h3, p). PROIBIDO H1 e PROIBIDO wrappers como <div class="lw-page-wrapper">.
+        ` ;
         const resGerador = await model.generateContent(pGerador);
         const rascunhoPrimario = resGerador.response.text();
 
@@ -285,7 +478,7 @@ app.post('/api/agents/generate-pipeline', async (req, res) => {
         const pAuditoria = `
         Analise rigorosamente o Rascunho HTML abaixo baseado:
         1. CFP/Etica (Sem promessas de cura, sem exibição antiética)
-        2. Abidos (Tem H1 com palavra chave? Tem CTAs?)
+        2. Abidos (NÃO pode ter H1, use H2 na Hero. Tem CTAs e keyword?)
         3. FactScore (Acurácia clínica para ${topic})
         Retorne APENAS um JSON: {"aprovado": boolean, "abidos_score": number, "compliance_pass": boolean, "med_f1": number, "correcoes": "texto com o rascunho consertado ou original html"}
         Rascunho: """${rascunhoPrimario}"""
@@ -341,7 +534,7 @@ app.post('/api/agents/audit', async (req, res) => {
         1. Decomposição Atômica: Quebre o texto em afirmações individuais.
         2. Validação Factual: Verifique se há "alucinações" ou promessas de cura (Proibido pelo CFP).
         3. MED-F1 (Extração de Entidades): Liste termos técnicos (ex: TEA, TDAH, ISRS) e verifique se o contexto está correto.
-        4. Hierarquia Abidos: Cheque se há H1 único com palavra-chave e localização (Goiânia).
+        4. Hierarquia Abidos: Cheque se NÃO há H1 (proibido) e se há H2 estratégico com palavra-chave e localização (Goiânia).
         
         Rascunho a auditar:
         """${content}"""
@@ -570,31 +763,45 @@ app.get('/api/marketing/audit', async (req, res) => {
 
 app.post('/api/chat', upload.single('screenshot'), async (req, res) => {
     try {
-        const { message, htmlContext, currentKeyword, whatsapp } = req.body;
+        const { prompt, message, htmlContext, currentKeyword, whatsapp } = req.body;
+        const finalMessage = prompt || message;
         const model = genAI.getGenerativeModel({ model: VISION_MODEL });
         
         const waNumber = whatsapp || '5562991545295';
         
         let promptText = `
-        VOCÊ É JULES, ASSISTENTE ELITE DA CLÍNICA VICTOR LAWRENCE (GOIÂNIA).
-        SUA MISSÃO: CRIAR LANDING PAGES DE ALTA CONVERSÃO USANDO O MÉTODO ABIDOS.
+        VOCÊ É A NEUROENGINE AI, ATUANDO COMO UM HUB DE AGENTES ESPECIALIZADOS (MISSÃO ABIDOS 3.1).
+        SUA MISSÃO: ORQUESTRAR OS AGENTES DE DESIGN, COPY, SEO E ESTRUTURA PARA GERAR LANDING PAGES DE ALTA PERFORMANCE.
         
-        REGRAS DE OURO:
-        1. ESTRUTURA SEMPRE EM 4 SEÇÕES:
-           - Seção 1 (Hero): H1 (Keyword exata + Benefício + Goiânia), Subtítulo, CTA WhatsApp (${waNumber}).
-           - Seção 2 (Jornada/Corpo): H2 (Identificação da Dor), Texto H2 (Serviços), H3 (Quebra de Objeções).
-           - Seção 3 (E-E-A-T): H2 (Apresentação), H2 (Ambiente), Prova Social (USE AS REVIEWS ABAIXO).
-           - Seção 4 (Retenção): H2 (FAQ), Link Interno estilo "Veja também" para Silos de Conteúdo.
+        REGRAS ABSOLUTAS (FIX ERRO TEXTO EMBARALHADO):
+        1. PROIBIÇÃO DE H1: O tema Astra já renderiza o título do post automaticamente. É PROIBIDO o uso de tag <h1> no código gerado. Substitua o título da Hero por <h2> ou <p> estilizado.
+        2. REMOÇÃO DE WRAPPERS: Nunca envolva o conteúdo em <div class="lw-page-wrapper">. Use apenas as <section> diretamente.
         
-        2. PROVA SOCIAL (DOCTORALIA):
+        REGRAS DE OURO (METODOLOGIA ABIDOS 3.1):
+        1. ESTRUTURA DE CONVERSÃO (4 SEÇÕES OBRIGATÓRIAS):
+           - Seção 1 (Hero): H2 Estratégico (Keyword + Promessa + Goiânia) + Botão WhatsApp ("Toque aqui").
+           - Seção 2 (A Jornada): H2 Validação da Dor + H2 O Método (Ciência e Foco).
+           - Seção 3 (E-E-A-T & Autoridade): H2 Dr. Victor Lawrence (Mestrado UFU, Autor AQ10b) + Fotos Reais do Consultório (Setor Sul).
+           - Seção 4 (Fechamento): H2 FAQ + Seção "Veja também" (Links para Silos).
+        
+        2. LINGUAGEM MOBILE-FIRST: Use verbos de ação táteis: "Toque aqui para falar comigo" ou "Agende pelo WhatsApp".
+        
+        3. COMPLIANCE ÉTICO (CFP): Proibido promessas de cura ou depoimentos comerciais. Use Validação Acadêmica.
+        
+        4. DESIGN & PERFORMANCE:
+           - Use Containers Flexbox (DOM Limpo). 
+           - Cores: #1e293b (primária), #0ea5e9 (destaque), #10b981 (sucesso/CTA).
+           - Imagens: WebP, border-radius: 12px, sombras suaves.
+        
+        5. PROVA SOCIAL (REFERÊNCIA ACADÊMICA/REVIEWS):
         ${DOCTORALIA_REVIEWS}
         
-        3. DESIGN: Use Tailwind, cores profissionais (#1e293b, #0ea5e9). Imagens: use tags <img src="URL" alt="SEO Description">.
-        
+        ${REAL_ASSETS}
+
         CONTEXTO ATUAL:
         - Keyword: ${currentKeyword || 'Não especificada'}
         - HTML Atual: ${htmlContext || 'Vazio'}
-        - Mensagem do Usuário: ${message}
+        - Mensagem do Usuário: ${finalMessage}
         
         SE O USUÁRIO PEDIR PARA CRIAR OU GERAR, RETORNE O HTML COMPLETO SEGUINDO O MÉTODO.
         SE O USUÁRIO PEDIR PARA TROCAR IMAGEM, SUGIRA UMA NOVA URL DE IMAGEM OU REMOVA A ATUAL.
@@ -617,15 +824,26 @@ app.post('/api/blueprint', async (req, res) => {
         const waNumber = whatsapp || '5562991545295';
         const model = genAI.getGenerativeModel({ model: VISION_MODEL });
         const prompt = `
-        GERE UM BLUEPRINT HTML COMPLETO (4 SEÇÕES ABIDOS) PARA: ${theme}.
+        GERE UM BLUEPRINT HTML COMPLETO (4 SEÇÕES ABIDOS - VERSÃO 3.1) PARA: ${theme}.
         LOCAÇÃO: Goiânia. 
         WHATSAPP: ${waNumber}.
-        REVIEWS: Inclua depoimentos reais da Doctoralia (Carla, Y, etc).
-        ESTRUTURA: 
-        1. Hero (H1 Estratégico)
-        2. Jornada (Dor e Benefícios)
-        3. Autoridade (Quem é Victor Lawrence + Clientes)
-        4. FAQ + Silos.
+        REPOSTS: Inclua referências acadêmicas e autoridade técnica do Dr. Victor Lawrence (Mestrado UFU, AQ10b).
+        REGRAS ABSOLUTAS: 
+        1. PROIBIDO H1 (Use H2 na Hero - Astra já fornece o título).
+        2. PROIBIDO <div class="lw-page-wrapper"> (Use apenas <section> ao invés de wrappers adicionais do Astra).
+        3. VERBOS TÁTEIS ("Toque aqui").
+        4. DESIGN E ARQUITETURA DE CÓDIGO (OBRIGATÓRIO): Siga a estrutura base HTML/CSS abaixo incluindo a configuração Tailwind, a tag <style> com todas as classes predefinidas, e todos os blocos contidos dentro da "div class='abidos-wrapper'". O design deve obrigatoriamente usar Glassmorphism (.abidos-glass-dark / light), luzes de efeito (orb-glow) e animações contidas no script "initAbidos()".
+        5. E-E-A-T ACADÊMICO (Sem promessas de cura).
+        6. FAQ E SILOS NO FINAL.
+        7. VERDADE ABSOLUTA: Use EXCLUSIVAMENTE os links reais para CTAs e Imagens fornecidos abaixo. PROIBIDO criar URLs fictícias.
+        
+        ============== TEMPLATE ESTRUTURAL MÍNIMO ==============
+        ${ABIDOS_TEMPLATE_MINIMO}
+        ======================================================
+        (ADAPTE O CONTEÚDO PARA FOCAR NO TEMA ${theme}, PRESERVANDO RIGOROSAMENTE AS TAGS STYLE/SCRIPT E O ABIDOS-WRAPPER).
+        
+        ${REAL_ASSETS}
+        
         RETORNE APENAS O HTML CRU.
         `;
         const result = await model.generateContent(prompt);
