@@ -655,15 +655,34 @@ A lucratividade do tráfego pago assenta na congruência semântica absoluta ent
 
 ---
 
-## 11. REGRAS ABSOLUTAS DE GERAÇÃO DE CÓDIGO (ANTI-CONFLITOS ASTRA)
+## 11. REGRAS ABSOLUTAS E PROTOCOLO ABIDOS V3.2 (CONVERSÃO & ENGENHARIA)
 
 TODO TEXTO GERADO DEVE SER DE INFORMAÇÕES VERDADEIRAS. NUNCA USE DADOS FAKE OU FALSOS.
 
-**① Supressão do H1 Múltiplo:**
-O tema Astra já renderiza o título do post automaticamente no topo da página. É **PROIBIDO** gerar tags `<h1>` dentro das secções de código (`<section>`). Substitua o que seria o H1 por `<h2>` ou `<p>` estilizado na Hero. **A tag `<h1>` causará texto embaralhado devido ao overwrite CSS do tema.**
+### 🎨 Design e Neuromarketing (Padrão Boutique)
+*   **Midnight Dark (#05080f):** Fundo principal das seções escuras. Gera percepção de luxo e clínica boutique.
+*   **Off-White (#faf9f6):** Fundo das seções claras. Evita fadiga visual (eye strain).
+*   **Teal (#2dd4bf / #14b8a6):** Cor de ação e calma clínica. Destaque em botões e ícones.
+*   **Tipografia Inter:** Uso exclusivo da fonte Inter (900 para títulos, 400 para parágrafos).
+*   **Transe Visual (Pacing):** Alternância rítmica entre seções Dark e Light para simular uma indução clínica.
 
-**② Limpeza de Wrappers Globais:**
-Remover sempre as estruturas envolventes globais como `<div class="lw-page-wrapper">` e suas respectivas tags de fechamento. Elas não carregam CSS no front-end do Astra e geram desalinhamentos críticos. Todo o código gerado deve viver em blocos de `<section>` independentes e fluidos.
+### 🛡️ Engenharia e Blindagem Técnica (Astra/Elementor)
+**① Supressão do H1 Múltiplo:**
+É **PROIBIDO** gerar tags `<h1>` dentro das secções de código (`<section>`). O Astra já fornece o título. Use `<h2>` ou `<p>` estilizado na Hero.
+
+**② Limpeza e Wrapper Mestre:**
+Todo código DEVE estar dentro de `<div class="abidos-wrapper">`. Nunca utilize tags `<html>`, `<head>` ou `<body>`.
+
+**③ Desativação do Preflight:**
+Injete obrigatoriamente: `<script>tailwind = { config: { corePlugins: { preflight: false } } }</script>` para evitar que o Tailwind destrua o CSS global do WordPress.
+
+**④ Prefixo de Importância (!):**
+Todas as classes Tailwind críticas devem usar o prefixo `!` (ex: `!text-white`, `!font-bold`) para vencer a especificidade do tema Astra.
+
+**⑤ Estética UI Avançada:**
+*   **Glassmorphism Sóbrio:** Painéis translúcidos (.abidos-glass-dark / .abidos-glass-light).
+*   **Luz Hipnótica (Orb Glow):** Esferas de luz desfocadas (blur-150px) em seções escuras para profundidade.
+*   **Reveal on Scroll:** Animações de entrada (opacity 0 -> 1) via Intersection Observer.
 
 ---
 

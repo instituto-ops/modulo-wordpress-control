@@ -306,7 +306,7 @@ const ABIDOS_TEMPLATE_MINIMO = `
     }
 
     .abidos-glass-light {
-        background: rgba(255, 255, 255, 0.95) !important;
+        background: rgba(250, 249, 246, 0.95) !important;
         backdrop-filter: blur(20px) !important;
         -webkit-backdrop-filter: blur(20px) !important;
         border: 1px solid rgba(226, 232, 240, 0.8) !important;
@@ -770,41 +770,31 @@ app.post('/api/chat', upload.single('screenshot'), async (req, res) => {
         const waNumber = whatsapp || '5562991545295';
         
         let promptText = `
-        VOCÊ É A NEUROENGINE AI, ATUANDO COMO UM HUB DE AGENTES ESPECIALIZADOS (MISSÃO ABIDOS 3.1).
-        SUA MISSÃO: ORQUESTRAR OS AGENTES DE DESIGN, COPY, SEO E ESTRUTURA PARA GERAR LANDING PAGES DE ALTA PERFORMANCE.
+        VOCÊ É A NEUROENGINE AI, ATUANDO COMO UM HUB DE AGENTES ESPECIALIZADOS (PROTOCOLO ABIDOS 3.2).
+        SUA MISSÃO: ORQUESTRAR DESIGN, COPY E ENGENHARIA PARA LANDING PAGES CLÍNICAS DE ALTA PERFORMANCE.
         
-        REGRAS ABSOLUTAS (FIX ERRO TEXTO EMBARALHADO):
-        1. PROIBIÇÃO DE H1: O tema Astra já renderiza o título do post automaticamente. É PROIBIDO o uso de tag <h1> no código gerado. Substitua o título da Hero por <h2> ou <p> estilizado.
-        2. REMOÇÃO DE WRAPPERS: Nunca envolva o conteúdo em <div class="lw-page-wrapper">. Use apenas as <section> diretamente.
+        DIRETRIZES TÉCNICAS (V3.2):
+        1. PALETA PREMIUM: Midnight Dark (#05080f), Deep Blue (#0b1221), Teal (#2dd4bf), Off-White (#faf9f6).
+        2. BLINDAGEM WP: Use !important em TODAS as classes Tailwind (ex: !text-white). Envolva tudo em <div class="abidos-wrapper">.
+        3. ANTI-CONFLITO ASTRA: Proibido H1 (Use H2 na Hero). Use "initAbidos()" para animações reveal.
+        4. DESIGN BOUTIQUE: Use Glassmorphism (.abidos-glass-dark/light) e esferas de luz desfocadas (blur-[150px], orb-glow).
+        5. E-E-A-T & COPY: Tom acadêmico/clínico (Victor Lawrence, Mestrando UFU). Verbos táteis ("Toque aqui").
         
-        REGRAS DE OURO (METODOLOGIA ABIDOS 3.1):
-        1. ESTRUTURA DE CONVERSÃO (4 SEÇÕES OBRIGATÓRIAS):
-           - Seção 1 (Hero): H2 Estratégico (Keyword + Promessa + Goiânia) + Botão WhatsApp ("Toque aqui").
-           - Seção 2 (A Jornada): H2 Validação da Dor + H2 O Método (Ciência e Foco).
-           - Seção 3 (E-E-A-T & Autoridade): H2 Dr. Victor Lawrence (Mestrado UFU, Autor AQ10b) + Fotos Reais do Consultório (Setor Sul).
-           - Seção 4 (Fechamento): H2 FAQ + Seção "Veja também" (Links para Silos).
-        
-        2. LINGUAGEM MOBILE-FIRST: Use verbos de ação táteis: "Toque aqui para falar comigo" ou "Agende pelo WhatsApp".
-        
-        3. COMPLIANCE ÉTICO (CFP): Proibido promessas de cura ou depoimentos comerciais. Use Validação Acadêmica.
-        
-        4. DESIGN & PERFORMANCE:
-           - Use Containers Flexbox (DOM Limpo). 
-           - Cores: #1e293b (primária), #0ea5e9 (destaque), #10b981 (sucesso/CTA).
-           - Imagens: WebP, border-radius: 12px, sombras suaves.
-        
-        5. PROVA SOCIAL (REFERÊNCIA ACADÊMICA/REVIEWS):
-        ${DOCTORALIA_REVIEWS}
+        REGRAS DE ESTRUTURA (4 SEÇÕES):
+        - Hero: H2 Estratégico + Pulse Orb + Botão WhatsApp.
+        - Jornada: Identificação da Dor + O Método Científico.
+        - Autoridade: Foto Real + Rapport Chart + Bio Técnica.
+        - Conversão: FAQ + Links de Silo (Referência Real).
         
         ${REAL_ASSETS}
+        ${DOCTORALIA_REVIEWS}
 
         CONTEXTO ATUAL:
         - Keyword: ${currentKeyword || 'Não especificada'}
         - HTML Atual: ${htmlContext || 'Vazio'}
         - Mensagem do Usuário: ${finalMessage}
         
-        SE O USUÁRIO PEDIR PARA CRIAR OU GERAR, RETORNE O HTML COMPLETO SEGUINDO O MÉTODO.
-        SE O USUÁRIO PEDIR PARA TROCAR IMAGEM, SUGIRA UMA NOVA URL DE IMAGEM OU REMOVA A ATUAL.
+        REPORTE APENAS O HTML OU RESPOSTA TÉCNICA SEGUINDO O PROTOCOLO.
         `;
         
         let parts = [{ text: promptText }];
@@ -824,25 +814,22 @@ app.post('/api/blueprint', async (req, res) => {
         const waNumber = whatsapp || '5562991545295';
         const model = genAI.getGenerativeModel({ model: VISION_MODEL });
         const prompt = `
-        GERE UM BLUEPRINT HTML COMPLETO (4 SEÇÕES ABIDOS - VERSÃO 3.1) PARA: ${theme}.
+        ATUE COMO UM WEB DESIGNER SÊNIOR E ESPECIALISTA EM NEUROMARKETING.
+        MISSÃO: GERAR UM BLUEPRINT HTML COMPLETO (4 SEÇÕES ABIDOS - VERSÃO 3.2) PARA: ${theme}.
         LOCAÇÃO: Goiânia. 
         WHATSAPP: ${waNumber}.
-        REPOSTS: Inclua referências acadêmicas e autoridade técnica do Dr. Victor Lawrence (Mestrado UFU, AQ10b).
-        REGRAS ABSOLUTAS: 
-        1. PROIBIDO H1 (Use H2 na Hero - Astra já fornece o título).
-        2. PROIBIDO <div class="lw-page-wrapper"> (Use apenas <section> ao invés de wrappers adicionais do Astra).
-        3. VERBOS TÁTEIS ("Toque aqui").
-        4. DESIGN E ARQUITETURA DE CÓDIGO (OBRIGATÓRIO): Siga a estrutura base HTML/CSS abaixo incluindo a configuração Tailwind, a tag <style> com todas as classes predefinidas, e todos os blocos contidos dentro da "div class='abidos-wrapper'". O design deve obrigatoriamente usar Glassmorphism (.abidos-glass-dark / light), luzes de efeito (orb-glow) e animações contidas no script "initAbidos()".
-        5. E-E-A-T ACADÊMICO (Sem promessas de cura).
-        6. FAQ E SILOS NO FINAL.
-        7. VERDADE ABSOLUTA: Use EXCLUSIVAMENTE os links reais para CTAs e Imagens fornecidos abaixo. PROIBIDO criar URLs fictícias.
-        
-        ============== TEMPLATE ESTRUTURAL MÍNIMO ==============
+
+        ESTRUTURA TÉCNICA OBRIGATÓRIA (PROTOCOLO V3.2):
+        1. Use a paleta MIDNIGHT (#05080f), DEEP BLUE (#0b1221), TEAL (#2dd4bf).
+        2. Mantenha a tipografia legível (Inter). Títulos TRACKING-TIGHT e LEADING-[1.1].
+        3. Aplique Glassmorphism (abidos-glass-dark) e Orb Glow (luzes de fundo).
+        4. O rascunho deve ser envolvido em <div class="abidos-wrapper"> e usar !important (!) em todas as classes Tailwind.
+        5. PROIBIDO H1 (O Astra já tem o título). Use H2 na primeira dobra.
+
+        TEMPLATE ESTRUTURAL MÍNIMO (INJETE O CONTEÚDO DENTRO DO WRAPPPER):
         ${ABIDOS_TEMPLATE_MINIMO}
-        ======================================================
-        (ADAPTE O CONTEÚDO PARA FOCAR NO TEMA ${theme}, PRESERVANDO RIGOROSAMENTE AS TAGS STYLE/SCRIPT E O ABIDOS-WRAPPER).
-        
         ${REAL_ASSETS}
+        ${DOCTORALIA_REVIEWS}
         
         RETORNE APENAS O HTML CRU.
         `;
