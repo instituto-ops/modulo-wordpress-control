@@ -881,66 +881,77 @@
                 </div>
             </section>
 
-            <!-- Section: Neuro-Training Studio (DNA extraction) -->
+            <!-- Section: Neuro-Training Studio (Chatbot & DNA extraction) -->
             <section id="neuro-training" class="content-section">
                 <style>
-                    #neuro-training .training-grid { display: grid; grid-template-columns: 1.2fr 0.8fr; gap: 30px; }
-                    .voice-pulse { display: flex; align-items: center; gap: 8px; height: 100px; }
-                    .pulse-bar { width: 4px; background: #6366f1; border-radius: 10px; transition: height 0.1s ease; }
-                    .pulse-bar.animate { animation: pulseAnim 0.8s infinite ease-in-out; }
-                    @keyframes pulseAnim { 0%, 100% { height: 10px; } 50% { height: 60px; } }
-                    @media (max-width: 1200px) { #neuro-training .training-grid { grid-template-columns: 1fr; } }
+                    #neuro-training .training-grid { display: grid; grid-template-columns: 1.2fr 0.8fr; gap: 30px; height: calc(100vh - 160px); }
+                    
+                    /* Chat Window */
+                    .chat-window { display: flex; flex-direction: column; height: 100%; position: relative; }
+                    .chat-messages { flex: 1; overflow-y: auto; padding: 20px; display: flex; flex-direction: column; gap: 15px; }
+                    .msg { max-width: 80%; padding: 12px 16px; border-radius: 18px; font-size: 14px; line-height: 1.5; }
+                    .msg.ai { background: #f1f5f9; color: #334155; align-self: flex-start; border-bottom-left-radius: 4px; }
+                    .msg.user { background: #6366f1; color: white; align-self: flex-end; border-bottom-right-radius: 4px; }
+                    
+                    /* Input Pill Bar */
+                    .chat-input-bar { background: #ffffff; border: 1px solid #e2e8f0; border-radius: 9999px; padding: 8px 12px; display: flex; align-items: center; gap: 10px; box-shadow: 0 4px 12px rgba(0,0,0,0.05); margin-top: 15px; }
+                    .chat-input-bar input { flex: 1; border: none; outline: none; font-size: 14px; color: #334155; }
+                    .input-btn { width: 36px; height: 36px; border-radius: 50%; display: flex; align-items: center; justify-content: center; background: none; border: none; cursor: pointer; color: #64748b; transition: all 0.2s; }
+                    .input-btn:hover { background: #f8fafc; color: #334155; }
+                    .voice-toggle-btn { background: #1e293b; color: white; border-radius: 50%; width: 44px; height: 44px; display: flex; align-items: center; justify-content: center; box-shadow: 0 4px 6px -1px rgba(0,0,0,0.1); }
+                    .voice-toggle-btn:hover { background: #0f172a; transform: scale(1.05); }
+
+                    /* Voice Mode Overlay */
+                    #voice-mode-overlay { display: none; flex-direction: column; align-items: center; justify-content: center; background: #ffffff; border-radius: 20px; position: absolute; inset: 0; z-index: 10; animation: fadeIn 0.3s ease; }
+                    .pulse-ring { width: 120px; height: 120px; border-radius: 50%; background: #6366f133; display: flex; align-items: center; justify-content: center; position: relative; }
+                    .pulse-ring::before { content: ""; position: absolute; width: 100%; height: 100%; border-radius: 50%; background: #6366f1; opacity: 0.1; animation: pulseRing 1.5s infinite ease-out; }
+                    @keyframes pulseRing { 0% { transform: scale(0.8); opacity: 0.5; } 100% { transform: scale(1.5); opacity: 0; } }
+
+                    @media (max-width: 1200px) { #neuro-training .training-grid { grid-template-columns: 1fr; height: auto; } }
                 </style>
                 <div class="training-grid">
-                    <!-- Painel Esquerdo: Sessão de Extração de DNA -->
-                    <div class="card" style="border-top: 5px solid #6366f1; display: flex; flex-direction: column; align-items: center; justify-content: center; min-height: 500px;">
-                        <h2 style="margin: 0 0 10px 0; font-size: 12px; font-weight: 900; color: #6366f1; text-transform: uppercase; letter-spacing: 2px;">Clonagem de Prosódia & Raciocínio</h2>
-                        <p style="color: #64748b; font-size: 13px; margin-bottom: 40px; text-align: center; max-width: 450px;">O foco é na sua <b>forma de falar e escrever</b>. Explique como você pensa, como conversa e como responde aos pacientes para eu aprender seu DNA.</p>
-
-                        <div class="voice-pulse" id="voice-visualizer">
-                            <div class="pulse-bar h-10"></div>
-                            <div class="pulse-bar h-16"></div>
-                            <div class="pulse-bar h-10"></div>
-                            <div class="pulse-bar h-16"></div>
-                            <div class="pulse-bar h-10"></div>
+                    <!-- Painel Esquerdo: Chatbot Conversacional -->
+                    <div class="card chat-window">
+                        <div style="border-bottom: 1px solid #f1f5f9; padding-bottom: 12px; margin-bottom: 5px;">
+                            <h2 style="margin: 0; font-size: 12px; font-weight: 900; color: #6366f1; text-transform: uppercase;">Aprendiz de Abidos</h2>
                         </div>
                         
-                        <div style="margin-top: 50px; display: flex; flex-direction: column; gap: 20px; width: 100%; max-width: 350px;">
-                            <button id="btn-start-voice" class="btn btn-primary" style="height: 60px; border-radius: 9999px; font-weight: 900; background: #6366f1; box-shadow: 0 10px 15px -3px rgba(99, 102, 241, 0.3);">INICIAR ENTREVISTA</button>
-                            
-                            <hr style="border-top: 1px solid #e2e8f0; width: 100%;">
-                            
-                            <div style="display: flex; gap: 10px;">
-                                <button class="btn btn-secondary" style="flex: 1; font-size: 11px;" onclick="document.getElementById('nt-file-input').click()">📁 SUBIR LASTRO (UFU)</button>
-                                <input type="file" id="nt-file-input" style="display: none;" onchange="window.neuroTraining.handleFileUpload(event)">
-                            </div>
+                        <div id="nt-chat-messages" class="chat-messages">
+                            <div class="msg ai">Olá Dr. Victor. Sou seu Aprendiz de Abidos. Vamos conversar sobre como você pensa e responde aos seus pacientes para que eu possa aprender seu DNA clínico?</div>
                         </div>
 
-                        <div id="nt-extraction-status" style="margin-top: 30px; font-size: 12px; color: #94a3b8;">
-                            Aguardando sinal...
+                        <!-- Voice Mode Overlay (Hidden by default) -->
+                        <div id="voice-mode-overlay">
+                            <div class="pulse-ring">
+                                <div id="voice-mode-mic" style="width: 60px; height: 60px; background: #6366f1; border-radius: 50%; display: flex; align-items: center; justify-content: center; color: white; z-index: 2;">
+                                    <span style="font-size: 24px;">🎙️</span>
+                                </div>
+                            </div>
+                            <p style="margin-top: 30px; font-weight: 700; color: #334155;">Ouvindo sua Prosódia...</p>
+                            <button class="btn btn-secondary" style="margin-top: 20px; border-radius: 999px; padding: 10px 30px;" onclick="window.neuroTraining.toggleMode('text')">VOLTAR PARA CHAT</button>
+                        </div>
+
+                        <!-- Chat Input Pill -->
+                        <div class="chat-input-bar">
+                            <button class="input-btn" title="Subir Lastro" onclick="document.getElementById('nt-file-input').click()">
+                                <span style="font-size: 20px;">+</span>
+                            </button>
+                            <input type="text" id="nt-chat-input" placeholder="Explique um conceito ou padrão de resposta..." onkeydown="if(event.key==='Enter') window.neuroTraining.sendMessage()">
+                            <button class="input-btn" title="Voz para Texto" id="btn-mic-stt">
+                                <span style="font-size: 18px;">🎙️</span>
+                            </button>
+                            <button class="voice-toggle-btn" title="Modo Conversa por Áudio" onclick="window.neuroTraining.toggleMode('voice')">
+                                <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 2a3 3 0 0 0-3 3v7a3 3 0 0 0 6 0V5a3 3 0 0 0-3-3Z"/><path d="M19 10v2a7 7 0 0 1-14 0v-2"/><line x1="12" y1="19" x2="12" y2="22"/></svg>
+                            </button>
+                            <input type="file" id="nt-file-input" style="display: none;" onchange="window.neuroTraining.handleFileUpload(event)">
                         </div>
                     </div>
 
-                    <!-- Painel Direito: Memória de Estilo (DNA Rules) -->
-                    <div class="card" style="background: #fafafa; border: 1px solid #e2e8f0; border-top: 5px solid #2dd4bf; display: flex; flex-direction: column;">
-                        <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px;">
-                            <h3 style="margin: 0; font-size: 15px; font-weight: 800; color: #0d9488; text-transform: uppercase;">🧬 Memória de Estilo</h3>
-                            <span id="memory-last-update" style="font-size: 10px; color: #94a3b8; font-weight: bold;">--:--</span>
-                        </div>
-                        
-                        <div id="rules-feed" style="display: flex; flex-direction: column; gap: 12px; flex: 1; overflow-y: auto; padding-right: 5px;">
-                            <p style="color: #64748b; font-size: 13px; text-align: center; margin-top: 40px;">Buscando regras aprendidas...</p>
-                        </div>
-
-                        <!-- Biblioteca de Insights (Histórico) -->
-                        <div id="neuro-insights-library" style="margin-top: 20px; padding-top: 20px; border-top: 1px dotted #cbd5e1; display: none;">
-                            <h4 style="font-size: 11px; font-weight: bold; color: #64748b; margin-bottom: 10px; display: flex; justify-content: space-between;">
-                                BIBLIOTECA DE INSIGHTS
-                                <button id="btn-toggle-history" style="background: none; border: none; color: #6366f1; cursor: pointer; font-size: 10px;" onclick="window.neuroTraining.toggleHistory()">Ver Tudo</button>
-                            </h4>
-                            <div id="neuro-insights-history-list" style="max-height: 250px; overflow: hidden; transition: max-height 0.3s ease;">
-                                <!-- Histórico injetado via JS -->
-                            </div>
+                    <!-- Painel Direito: Memória de Estilo -->
+                    <div class="card" style="background: #fafafa; border-top: 5px solid #2dd4bf; display: flex; flex-direction: column;">
+                        <h3 style="margin: 0 0 20px 0; font-size: 15px; font-weight: 800; color: #0d9488; text-transform: uppercase;">🧬 Memória de Estilo</h3>
+                        <div id="rules-feed" style="display: flex; flex-direction: column; gap: 10px; flex: 1; overflow-y: auto;">
+                            <!-- Regras injetadas -->
                         </div>
                     </div>
                 </div>

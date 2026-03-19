@@ -1315,6 +1315,60 @@ Retorne APENAS um JSON com:
     }
 });
 
+app.post('/api/neuro-training/chat', async (req, res) => {
+    try {
+        const { message } = req.body;
+        if (!message) throw new Error("Mensagem vazia.");
+
+        console.log("🧠 [DNA CHAT] Aprendiz entrevistando Dr. Victor...");
+
+        const model = genAI.getGenerativeModel({ model: VISION_MODEL });
+        
+        const chatPrompt = `
+        VOCÊ É O 'APRENDIZ DE ABIDOS' (SISTEMA DE CLONAGEM COGNITIVA E LINGUÍSTICA).
+        MISSÃO: Entrevistar o Dr. Victor Lawrence para extrair o DNA de escrita e de raciocínio dele.
+        
+        MENSAGEM DO DR. VICTOR: "${message}"
+        
+        TAREFAS:
+        1. Responda como um aprendiz curioso e profissional. Mantenha o diálogo fluindo.
+        2. Se você detectar um padrão de escrita, uma regra ética ou uma forma única de responder, extraia essa regra.
+        3. Anonimize dados sensíveis caso ele cite algum caso (use [PACIENTE]).
+        
+        RETORNE UM JSON:
+        { 
+          "reply": "Sua resposta conversacional aqui incentivando ele a explicar mais...",
+          "insights": [{"categoria": "Estilo|Voz|Raciocínio|Vocabulário", "regra": "Descrição curta da regra se detectada, senão deixe array vazio"}]
+        }
+        `;
+
+        const result = await model.generateContent(chatPrompt);
+        const responseText = result.response.text().replace(/```json|```/g, '').trim();
+        const extracted = JSON.parse(responseText);
+
+        // Fail-safe anonimização e salvamento se houver insights
+        if (extracted.insights && extracted.insights.length > 0) {
+            const stylePath = path.join(__dirname, 'estilo_victor.json');
+            let current = getVictorStyle();
+            
+            const uniqueNew = extracted.insights.map(i => ({
+                categoria: i.categoria,
+                regra: cleanClinicalData(i.regra)
+            }));
+
+            current.style_rules = [...current.style_rules, ...uniqueNew].slice(-80);
+            current.last_update = new Date().toISOString();
+            fs.writeFileSync(stylePath, JSON.stringify(current, null, 2));
+        }
+
+        res.json({ reply: cleanClinicalData(extracted.reply), insights: extracted.insights });
+
+    } catch (e) {
+        console.error("❌ [CHAT ERROR]", e.message);
+        res.status(500).json({ error: e.message });
+    }
+});
+
 app.listen(port, () => {
     console.log(`\n🚀 AntiGravity CMS: Mission Control Ativo!`);
     console.log(`📡 Frontend & API rodando em http://localhost:${port}`);

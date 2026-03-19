@@ -2,25 +2,89 @@ window.neuroTraining = {
     mediaRecorder: null,
     audioChunks: [],
     isRecording: false,
-    visualizerInterval: null,
+    currentMode: 'text', // 'text' ou 'voice'
 
     async init() {
-        console.log("🧠 Neuro-Training: Voice-to-Logic Engine Ready.");
-        this.setupListeners();
+        console.log("🧠 Neuro-Training: Chatbot Mode initialized.");
         await this.loadMemory();
+        this.setupSTT();
     },
 
-    setupListeners() {
-        const btn = document.getElementById('btn-start-voice');
-        if (btn) btn.addEventListener('click', () => this.toggleRecording());
+    setupSTT() {
+        const btn = document.getElementById('btn-mic-stt');
+        const input = document.getElementById('nt-chat-input');
+        if (!btn || !input) return;
+
+        const SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition;
+        if (!SpeechRecognition) return btn.style.display = 'none';
+
+        const recognition = new SpeechRecognition();
+        recognition.lang = 'pt-BR';
+        recognition.continuous = false;
+
+        btn.onclick = () => {
+            recognition.start();
+            btn.style.color = "#ef4444";
+        };
+
+        recognition.onresult = (event) => {
+            const transcript = event.results[0][0].transcript;
+            input.value += (input.value ? ' ' : '') + transcript;
+            btn.style.color = "#64748b";
+        };
+
+        recognition.onerror = () => { btn.style.color = "#64748b"; };
+        recognition.onend = () => { btn.style.color = "#64748b"; };
     },
 
-    async toggleRecording() {
-        if (this.isRecording) {
-            this.stopRecording();
+    toggleMode(mode) {
+        const overlay = document.getElementById('voice-mode-overlay');
+        if (mode === 'voice') {
+            overlay.style.display = 'flex';
+            this.currentMode = 'voice';
+            this.startRecording();
         } else {
-            await this.startRecording();
+            overlay.style.display = 'none';
+            this.currentMode = 'text';
+            if (this.isRecording) this.stopRecording();
         }
+    },
+
+    async sendMessage() {
+        const input = document.getElementById('nt-chat-input');
+        const text = input.value.trim();
+        if (!text) return;
+
+        this.addMessage('user', text);
+        input.value = '';
+
+        try {
+            const response = await fetch('/api/neuro-training/chat', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ message: text })
+            });
+
+            const data = await response.json();
+            if (data.reply) {
+                this.addMessage('ai', data.reply);
+                if (data.insights && data.insights.length > 0) {
+                    await this.loadMemory();
+                }
+            }
+        } catch (err) {
+            console.error(err);
+            this.addMessage('ai', "⚠️ Erro ao processar mensagem. Verifique a conexão.");
+        }
+    },
+
+    addMessage(role, text) {
+        const chat = document.getElementById('nt-chat-messages');
+        const div = document.createElement('div');
+        div.className = `msg ${role}`;
+        div.innerText = text;
+        chat.appendChild(div);
+        chat.scrollTop = chat.scrollHeight;
     },
 
     async startRecording() {
@@ -30,27 +94,22 @@ window.neuroTraining = {
             this.audioChunks = [];
             this.isRecording = true;
 
-            const btn = document.getElementById('btn-start-voice');
-            btn.innerText = "🛑 PARAR ENTREVISTA";
-            btn.style.background = "#ef4444";
-            btn.classList.add('animate-pulse');
-
-            this.startVisualizer();
+            const micIcon = document.getElementById('voice-mode-mic');
+            if (micIcon) micIcon.style.background = "#ef4444";
 
             this.mediaRecorder.ondataavailable = (event) => {
-                if (event.data.size > 0) {
-                    this.audioChunks.push(event.data);
-                }
+                if (event.data.size > 0) this.audioChunks.push(event.data);
             };
 
             this.mediaRecorder.onstop = async () => {
-                await this.processAudio();
+                if (this.currentMode === 'voice') await this.processVoiceSession();
             };
 
             this.mediaRecorder.start();
         } catch (err) {
-            console.error("Erro ao acessar microfone:", err);
-            alert("Erro ao acessar microfone. Verifique as permissões.");
+            console.error(err);
+            alert("Erro ao acessar microfone.");
+            this.toggleMode('text');
         }
     },
 
@@ -58,35 +117,12 @@ window.neuroTraining = {
         if (this.mediaRecorder && this.isRecording) {
             this.mediaRecorder.stop();
             this.isRecording = false;
-            this.stopVisualizer();
-
-            const btn = document.getElementById('btn-start-voice');
-            btn.innerText = "INICIAR ENTREVISTA";
-            btn.style.background = "#6366f1";
-            btn.classList.remove('animate-pulse');
+            const micIcon = document.getElementById('voice-mode-mic');
+            if (micIcon) micIcon.style.background = "#6366f1";
         }
     },
 
-    startVisualizer() {
-        const bars = document.querySelectorAll('.pulse-bar');
-        this.visualizerInterval = setInterval(() => {
-            bars.forEach(bar => {
-                const height = Math.floor(Math.random() * 60) + 10;
-                bar.style.height = `${height}px`;
-            });
-        }, 100);
-    },
-
-    stopVisualizer() {
-        clearInterval(this.visualizerInterval);
-        const bars = document.querySelectorAll('.pulse-bar');
-        bars.forEach(bar => bar.style.height = '10px');
-    },
-
-    async processAudio() {
-        const status = document.getElementById('nt-extraction-status');
-        status.innerHTML = "⏳ Transcrevendo e extraindo DNA clínico...";
-
+    async processVoiceSession() {
         const audioBlob = new Blob(this.audioChunks, { type: 'audio/webm' });
         const formData = new FormData();
         formData.append('audio', audioBlob);
@@ -99,14 +135,12 @@ window.neuroTraining = {
 
             const data = await response.json();
             if (data.success) {
-                status.innerHTML = "✅ DNA Extraído com sucesso!";
-                await this.loadMemory(); // Refresh rules list
-            } else {
-                status.innerHTML = `❌ Erro: ${data.error}`;
+                this.addMessage('ai', "🎙️ Entendi seus padrões. DNA clínico atualizado.");
+                this.addMessage('ai', data.summary);
+                await this.loadMemory();
             }
         } catch (err) {
             console.error(err);
-            status.innerHTML = "❌ Falha na conexão com Mission Control.";
         }
     },
 
@@ -115,14 +149,8 @@ window.neuroTraining = {
             const response = await fetch('/api/neuro-training/memory');
             const data = await response.json();
             this.renderRules(data.style_rules || []);
-            this.renderHistory(data.insights_history || []);
-            
-            const updateSpan = document.getElementById('memory-last-update');
-            if (updateSpan && data.last_update) {
-                updateSpan.innerText = new Date(data.last_update).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
-            }
         } catch (err) {
-            console.error("Falha ao carregar memória:", err);
+            console.error(err);
         }
     },
 
@@ -130,71 +158,19 @@ window.neuroTraining = {
         const feed = document.getElementById('rules-feed');
         if (!feed) return;
 
-        if (rules.length === 0) {
-            feed.innerHTML = '<p style="color: #64748b; font-size: 13px; text-align: center; margin-top: 40px;">Buscando regras aprendidas...</p>';
-            return;
-        }
-
-        feed.innerHTML = rules.map((r, i) => `
-            <div class="card" style="background: white; border: 1px solid #e2e8f0; border-left: 4px solid #2dd4bf; padding: 15px; margin-bottom: 5px; animation: slideIn 0.3s ease;">
-                <p style="text-transform: uppercase; font-size: 9px; font-weight: 900; color: #0d9488; margin-bottom: 5px; letter-spacing: 1px;">${r.categoria || 'EXTRAÇÃO'}</p>
-                <p style="font-size: 13px; color: #334155; line-height: 1.5; margin: 0;">${r.regra || r}</p>
+        feed.innerHTML = rules.map(r => `
+            <div class="card" style="background: white; border: 1px solid #e2e8f0; border-left: 4px solid #2dd4bf; padding: 12px; margin-bottom: 5px; animation: slideIn 0.3s ease;">
+                <p style="text-transform: uppercase; font-size: 8px; font-weight: 900; color: #0d9488; margin-bottom: 3px;">${r.categoria || 'DNA'}</p>
+                <p style="font-size: 12px; color: #334155; line-height: 1.4; margin: 0;">${r.regra || r}</p>
             </div>
         `).join('');
-    },
-
-    renderHistory(history) {
-        const library = document.getElementById('neuro-insights-library');
-        const list = document.getElementById('neuro-insights-history-list');
-        if (!library || !list) return;
-
-        if (history.length > 0) {
-            library.style.display = 'block';
-            list.innerHTML = history.map(h => `
-                <div style="padding: 10px; border-bottom: 1px solid #f1f5f9;">
-                    <p style="font-size: 12px; color: #64748b; line-height: 1.4; margin: 0;">${h.text}</p>
-                </div>
-            `).join('');
-        }
-    },
-
-    toggleHistory() {
-        const list = document.getElementById('neuro-insights-history-list');
-        const btn = document.getElementById('btn-toggle-history');
-        if (list.style.maxHeight === 'none') {
-            list.style.maxHeight = '250px';
-            btn.innerText = 'Ver Tudo';
-        } else {
-            list.style.maxHeight = 'none';
-            btn.innerText = 'Recolher';
-        }
     },
 
     async handleFileUpload(event) {
         const file = event.target.files[0];
         if (!file) return;
-
-        const status = document.getElementById('nt-extraction-status');
-        status.innerHTML = `⏳ Processando documento técnico: ${file.name}...`;
-
-        const formData = new FormData();
-        formData.append('file', file);
-
-        try {
-            const response = await fetch('/api/neuro-training/parse', {
-                method: 'POST',
-                body: formData
-            });
-
-            const data = await response.json();
-            if (data.success) {
-                status.innerHTML = `✅ Lastro extraído de <b>${file.name}</b>. Analisando DNA...`;
-                // Aqui poderíamos chamar uma API de ingestão de documento se necessário
-            }
-        } catch (e) {
-            console.error(e);
-            status.innerHTML = "❌ Erro ao processar documento.";
-        }
+        this.addMessage('user', `📁 Enviando documento: ${file.name}`);
+        // Implementar lógica de upload se necessário
     }
 };
 
