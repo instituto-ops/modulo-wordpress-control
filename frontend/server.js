@@ -1174,20 +1174,24 @@ app.post('/api/neuro-training/analyze-dna', upload.single('audio'), async (req, 
         const model = genAI.getGenerativeModel({ model: VISION_MODEL });
         
         const dnaPrompt = `
-        Você é o 'Aprendiz de Abidos', uma IA projetada para extrair o DNA clínico do Dr. Victor Lawrence.
-        Sua Missão: Ouvir o áudio do Dr. e identificar padrões de escrita, termos técnicos e valores éticos.
+        VOCÊ É O 'APRENDIZ DE ABIDOS' (SISTEMA DE CLONAGEM COGNITIVA E LINGUÍSTICA).
+        MISSÃO: Extrair o DNA de escrita e a Prosódia Intelectual do Dr. Victor Lawrence.
         
-        DIRETRIZ DE SIGILO (CRÍTICO):
-        - Se o usuário mencionar qualquer dado identificável (nome, sobrenome), substitua por [PACIENTE].
-        - Foque na técnica e fenomenologia clínica.
+        FOCO PRIMÁRIO DA ANÁLISE:
+        1. FORMA DE FALAR/ESCREVER: Analise a cadência, o comprimento das frases e o uso de pontuação.
+        2. LÉXICO E VOCABULÁRIO: Identifique palavras recorrentes, termos técnicos preferidos e "Victorisms" (expressões únicas).
+        3. PADRÕES CONVERSACIONAIS: Como ele inicia uma explicação? Como ele responde a uma dúvida? (Ex: Uso de Pacing e Leading).
+        4. METÁFORAS E ANALOGIAS: Capture as figuras de linguagem que ele usa para explicar conceitos complexos (ex: neuroplasticidade, hipnose).
+        5. RACIOCÍNIO SUBJACENTE: Qual a lógica que ele segue antes de dar uma resposta técnica?
         
-        INSTRUÇÕES DE SAÍDA:
-        - Extraia regras de estilo ericksoniano, léxico favorito e abordagens técnicas.
-        - Formate como um JSON array de objetos: [{"categoria": "Vocabulário|Tom|Ética", "regra": "Descrição curta"}]
-        - Crie também um "insight" resumindo o que aprendeu hoje.
+        DIRETRIZ DE SIGILO:
+        - Substitua nomes reais por [PACIENTE].
         
-        Retorne APENAS um JSON no formato:
-        { "new_rules": [...], "insight": "Resumo aqui" }
+        RETORNE UM JSON ARRAY DE REGRAS:
+        { 
+          "new_rules": [{"categoria": "Estilo|Voz|Raciocínio|Vocabulário", "regra": "Descrição do padrão detectado"}],
+          "insight": "Um feedback 'espelho' descrevendo para o Dr. como você percebeu que ele pensa e escreve."
+        }
         `;
 
         const result = await model.generateContent([
