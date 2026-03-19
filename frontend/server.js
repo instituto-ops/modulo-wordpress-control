@@ -1428,6 +1428,14 @@ app.post('/api/neuro-training/upload', upload.single('file'), async (req, res) =
     }
 });
 
+app.get('/api/neuro-training/memory', (req, res) => {
+    try {
+        res.json(getVictorStyle());
+    } catch (e) {
+        res.status(500).json({ error: e.message });
+    }
+});
+
 app.listen(port, () => {
     console.log(`\n🚀 AntiGravity CMS: Mission Control Ativo!`);
     console.log(`📡 Frontend & API rodando em http://localhost:${port}`);
