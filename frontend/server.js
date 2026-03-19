@@ -40,6 +40,34 @@ const getVictorStyle = () => {
     return { style_rules: [] };
 };
 
+// ==============================================================================
+// 📋 UTILITÁRIO DE ANONIMIZAÇÃO CLÍNICA (BLINDAGEM ÉTICA)
+// ==============================================================================
+function cleanClinicalData(text) {
+    if (!text) return "";
+    let cleaned = text;
+
+    // 1. Padrões de Identidade (CPF/CNPJ, Telefones, Emails)
+    const patterns = {
+        identificadores: /\b(\d{3}\.\d{3}\.\d{3}-\d{2}|\d{2}\.\d{3}\.\d{3}\/\d{4}-\d{2})\b/g,
+        telefones: /\b(\(?\d{2}\)?\s?\d{4,5}-?\d{4})\b/g,
+        emails: /\b[A-Za-z0-9._%+-]+@[A-Za-z0-9.-]+\.[A-Z|a-z]{2,}\b/g,
+    };
+
+    cleaned = cleaned.replace(patterns.identificadores, "[ID_REMOVIDO]");
+    cleaned = cleaned.replace(patterns.telefones, "[CONTATO_REMOVIDO]");
+    cleaned = cleaned.replace(patterns.emails, "[EMAIL_REMOVIDO]");
+
+    // 2. Substituição Contextual de Nomes (Pacing -> [PACIENTE])
+    const frasesChave = ["paciente", "cliente", "atendi o", "atendi a", "nome dele é", "nome dela é"];
+    frasesChave.forEach(frase => {
+        const regex = new RegExp(`(${frase})\\s+([A-Z][a-z]+)`, "gi");
+        cleaned = cleaned.replace(regex, "$1 [PACIENTE_ANONIMIZADO]");
+    });
+
+    return cleaned;
+}
+
 
 // Configurações WordPress do .env
 const WP_URL = (process.env.WP_URL || 'https://hipnolawrence.com/').replace(/\/$/, '');
@@ -1131,9 +1159,76 @@ app.post('/api/audit', async (req, res) => {
     } catch (e) { res.status(500).json({ error: e.message }); }
 });
 
-// 🚀 [FASE 5] ENDPOINTS NEURO-TRAINING
+// 🚀 [FASE 5] ENDPOINTS NEURO-TRAINING (DNA CLONE & STYLE MEMORY)
 app.get('/api/neuro-training/memory', (req, res) => {
     res.json(getVictorStyle());
+});
+
+app.post('/api/neuro-training/analyze-dna', upload.single('audio'), async (req, res) => {
+    try {
+        if (!req.file) throw new Error("Aúdio não recebido.");
+        const audioBuffer = req.file.buffer;
+
+        console.log("🧠 [DNA] Extraindo estilo clínico do Dr. Victor Lawrence...");
+
+        const model = genAI.getGenerativeModel({ model: VISION_MODEL });
+        
+        const dnaPrompt = `
+        Você é o 'Aprendiz de Abidos', uma IA projetada para extrair o DNA clínico do Dr. Victor Lawrence.
+        Sua Missão: Ouvir o áudio do Dr. e identificar padrões de escrita, termos técnicos e valores éticos.
+        
+        DIRETRIZ DE SIGILO (CRÍTICO):
+        - Se o usuário mencionar qualquer dado identificável (nome, sobrenome), substitua por [PACIENTE].
+        - Foque na técnica e fenomenologia clínica.
+        
+        INSTRUÇÕES DE SAÍDA:
+        - Extraia regras de estilo ericksoniano, léxico favorito e abordagens técnicas.
+        - Formate como um JSON array de objetos: [{"categoria": "Vocabulário|Tom|Ética", "regra": "Descrição curta"}]
+        - Crie também um "insight" resumindo o que aprendeu hoje.
+        
+        Retorne APENAS um JSON no formato:
+        { "new_rules": [...], "insight": "Resumo aqui" }
+        `;
+
+        const result = await model.generateContent([
+            { text: dnaPrompt },
+            { inlineData: { data: audioBuffer.toString('base64'), mimeType: 'audio/webm' } }
+        ]);
+
+        const responseText = result.response.text().replace(/```json|```/g, '').trim();
+        const extracted = JSON.parse(responseText);
+
+        // 1. Anonimização Adicional no Texto (Fail-safe)
+        extracted.new_rules = extracted.new_rules.map(r => ({
+            categoria: r.categoria,
+            regra: cleanClinicalData(r.regra)
+        }));
+        extracted.insight = cleanClinicalData(extracted.insight);
+
+        // 2. Persistência no estilo_victor.json
+        const stylePath = path.join(__dirname, 'estilo_victor.json');
+        let current = getVictorStyle();
+
+        // Evitar duplicatas em 'regra'
+        const existingRules = current.style_rules.map(r => typeof r === 'string' ? r : r.regra);
+        const uniqueNew = extracted.new_rules.filter(nr => !existingRules.includes(nr.regra));
+
+        current.style_rules = [...current.style_rules, ...uniqueNew].slice(-80); 
+        current.last_update = new Date().toISOString();
+        current.last_insight = extracted.insight;
+
+        if (!current.insights_history) current.insights_history = [];
+        current.insights_history.unshift({ text: extracted.insight, date: current.last_update });
+        current.insights_history = current.insights_history.slice(0, 50);
+
+        fs.writeFileSync(stylePath, JSON.stringify(current, null, 2));
+
+        res.json({ success: true, insights: extracted.new_rules, summary: extracted.insight });
+
+    } catch (e) {
+        console.error("❌ [DNA ERROR]", e.message);
+        res.status(500).json({ error: e.message });
+    }
 });
 
 app.post('/api/neuro-training/extract', async (req, res) => {

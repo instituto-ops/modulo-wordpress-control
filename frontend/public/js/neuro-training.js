@@ -1,126 +1,181 @@
 window.neuroTraining = {
+    mediaRecorder: null,
+    audioChunks: [],
+    isRecording: false,
+    visualizerInterval: null,
+
     async init() {
-        console.log("🧠 Neuro-Training Studio Inicializado.");
+        console.log("🧠 Neuro-Training: Voice-to-Logic Engine Ready.");
+        this.setupListeners();
         await this.loadMemory();
+    },
+
+    setupListeners() {
+        const btn = document.getElementById('btn-start-voice');
+        if (btn) btn.addEventListener('click', () => this.toggleRecording());
+    },
+
+    async toggleRecording() {
+        if (this.isRecording) {
+            this.stopRecording();
+        } else {
+            await this.startRecording();
+        }
+    },
+
+    async startRecording() {
+        try {
+            const stream = await navigator.mediaDevices.getUserMedia({ audio: true });
+            this.mediaRecorder = new MediaRecorder(stream);
+            this.audioChunks = [];
+            this.isRecording = true;
+
+            const btn = document.getElementById('btn-start-voice');
+            btn.innerText = "🛑 PARAR ENTREVISTA";
+            btn.style.background = "#ef4444";
+            btn.classList.add('animate-pulse');
+
+            this.startVisualizer();
+
+            this.mediaRecorder.ondataavailable = (event) => {
+                if (event.data.size > 0) {
+                    this.audioChunks.push(event.data);
+                }
+            };
+
+            this.mediaRecorder.onstop = async () => {
+                await this.processAudio();
+            };
+
+            this.mediaRecorder.start();
+        } catch (err) {
+            console.error("Erro ao acessar microfone:", err);
+            alert("Erro ao acessar microfone. Verifique as permissões.");
+        }
+    },
+
+    stopRecording() {
+        if (this.mediaRecorder && this.isRecording) {
+            this.mediaRecorder.stop();
+            this.isRecording = false;
+            this.stopVisualizer();
+
+            const btn = document.getElementById('btn-start-voice');
+            btn.innerText = "INICIAR ENTREVISTA";
+            btn.style.background = "#6366f1";
+            btn.classList.remove('animate-pulse');
+        }
+    },
+
+    startVisualizer() {
+        const bars = document.querySelectorAll('.pulse-bar');
+        this.visualizerInterval = setInterval(() => {
+            bars.forEach(bar => {
+                const height = Math.floor(Math.random() * 60) + 10;
+                bar.style.height = `${height}px`;
+            });
+        }, 100);
+    },
+
+    stopVisualizer() {
+        clearInterval(this.visualizerInterval);
+        const bars = document.querySelectorAll('.pulse-bar');
+        bars.forEach(bar => bar.style.height = '10px');
+    },
+
+    async processAudio() {
+        const status = document.getElementById('nt-extraction-status');
+        status.innerHTML = "⏳ Transcrevendo e extraindo DNA clínico...";
+
+        const audioBlob = new Blob(this.audioChunks, { type: 'audio/webm' });
+        const formData = new FormData();
+        formData.append('audio', audioBlob);
+
+        try {
+            const response = await fetch('/api/neuro-training/analyze-dna', {
+                method: 'POST',
+                body: formData
+            });
+
+            const data = await response.json();
+            if (data.success) {
+                status.innerHTML = "✅ DNA Extraído com sucesso!";
+                await this.loadMemory(); // Refresh rules list
+            } else {
+                status.innerHTML = `❌ Erro: ${data.error}`;
+            }
+        } catch (err) {
+            console.error(err);
+            status.innerHTML = "❌ Falha na conexão com Mission Control.";
+        }
     },
 
     async loadMemory() {
         try {
             const response = await fetch('/api/neuro-training/memory');
-            if (!response.ok) throw new Error(`Status ${response.status}`);
             const data = await response.json();
-            this.renderMemory(data);
-        } catch (e) {
-            console.error("Erro ao carregar memória:", e);
-            const list = document.getElementById('neuro-style-memory-list');
-            if (list) {
-                list.innerHTML = `
-                    <div style="padding: 20px; text-align: center; color: #f87171;">
-                        <p style="font-weight: bold; margin-bottom: 5px;">⚠️ Erro de Conexão (Mission Control)</p>
-                        <p style="font-size: 11px; opacity: 0.7;">Não foi possível recuperar a Memória Dr. Victor. Tente recarregar.</p>
-                    </div>
-                `;
+            this.renderRules(data.style_rules || []);
+            this.renderHistory(data.insights_history || []);
+            
+            const updateSpan = document.getElementById('memory-last-update');
+            if (updateSpan && data.last_update) {
+                updateSpan.innerText = new Date(data.last_update).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
             }
+        } catch (err) {
+            console.error("Falha ao carregar memória:", err);
         }
     },
 
-    renderMemory(data) {
-        const rules = data.style_rules || [];
-        const lastUpdate = data.last_update || '--';
-        const lastInsight = data.last_insight || '';
-        const history = data.insights_history || [];
-        
-        const list = document.getElementById('neuro-style-memory-list');
-        const timestamp = document.getElementById('memory-last-update');
-        const insightBox = document.getElementById('neuro-training-insight-box');
-        const libraryBox = document.getElementById('neuro-insights-library');
-
-        if (timestamp) timestamp.innerText = lastUpdate !== '--' ? new Date(lastUpdate).toLocaleString() : '--';
-        
-        if (insightBox) {
-            if (lastInsight) {
-                insightBox.innerHTML = `
-                    <div style="background: #0c4a6e; border: 1px solid #0ea5e9; padding: 15px; border-radius: 8px; margin-bottom: 20px; animation: slideIn 0.5s ease; position: relative;">
-                        <div style="display: flex; align-items: center; gap: 8px; color: #38bdf8; font-weight: bold; font-size: 11px; margin-bottom: 8px;">
-                            <span>💡 ÚLTIMO INSIGHT ESTRATÉGICO</span>
-                        </div>
-                        <p style="color: #e0f2fe; font-size: 13px; line-height: 1.6; margin: 0;">${lastInsight}</p>
-                    </div>
-                `;
-            } else {
-                insightBox.innerHTML = '';
-            }
-        }
-
-        // Renderiza biblioteca de histórico
-        if (libraryBox && history.length > 0) {
-            libraryBox.style.display = 'block';
-            this.renderHistory(history);
-        }
-
-        if (!list) return;
+    renderRules(rules) {
+        const feed = document.getElementById('rules-feed');
+        if (!feed) return;
 
         if (rules.length === 0) {
-            list.innerHTML = '<p style="color: #64748b; font-size: 13px; text-align: center; margin-top: 40px;">Nenhuma regra extraída ainda.</p>';
+            feed.innerHTML = '<p style="color: #64748b; font-size: 13px; text-align: center; margin-top: 40px;">Buscando regras aprendidas...</p>';
             return;
         }
 
-        list.innerHTML = rules.map((rule, index) => this.renderRule(rule, index)).join('');
-    },
-
-    renderHistory(history) {
-        const histList = document.getElementById('neuro-insights-history-list');
-        if (!histList) return;
-
-        histList.innerHTML = history.map((h, i) => `
-            <div style="padding: 10px; border-bottom: 1px solid #1e293b; last-child { border: none };">
-                <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 5px;">
-                    <span style="color: #64748b; font-size: 10px; font-weight: bold;">${new Date(h.date).toLocaleDateString()}</span>
-                    <span style="background: #334155; color: #94a3b8; padding: 2px 6px; border-radius: 4px; font-size: 9px;">INSIGHT #${history.length - i}</span>
-                </div>
-                <p style="color: #94a3b8; font-size: 12px; line-height: 1.4; margin: 0;">${h.text}</p>
+        feed.innerHTML = rules.map((r, i) => `
+            <div class="card" style="background: white; border: 1px solid #e2e8f0; border-left: 4px solid #2dd4bf; padding: 15px; margin-bottom: 5px; animation: slideIn 0.3s ease;">
+                <p style="text-transform: uppercase; font-size: 9px; font-weight: 900; color: #0d9488; margin-bottom: 5px; letter-spacing: 1px;">${r.categoria || 'EXTRAÇÃO'}</p>
+                <p style="font-size: 13px; color: #334155; line-height: 1.5; margin: 0;">${r.regra || r}</p>
             </div>
         `).join('');
     },
 
-    toggleHistory() {
-        const histList = document.getElementById('neuro-insights-history-list');
-        const btn = document.getElementById('btn-toggle-history');
-        if (histList.style.maxHeight === 'none') {
-            histList.style.maxHeight = '250px';
-            btn.innerText = 'Ver Tudo';
-        } else {
-            histList.style.maxHeight = 'none';
-            btn.innerText = 'Recolher';
+    renderHistory(history) {
+        const library = document.getElementById('neuro-insights-library');
+        const list = document.getElementById('neuro-insights-history-list');
+        if (!library || !list) return;
+
+        if (history.length > 0) {
+            library.style.display = 'block';
+            list.innerHTML = history.map(h => `
+                <div style="padding: 10px; border-bottom: 1px solid #f1f5f9;">
+                    <p style="font-size: 12px; color: #64748b; line-height: 1.4; margin: 0;">${h.text}</p>
+                </div>
+            `).join('');
         }
     },
 
-    renderRule(rule, index) {
-        const isObject = typeof rule === 'object' && rule !== null;
-        const name = isObject ? (rule.name || `Regra #${index + 1}`) : `Regra #${index + 1}`;
-        const content = isObject ? rule.description : rule;
-        const examples = isObject && rule.example_from_transcript ? rule.example_from_transcript : [];
-
-        return `
-            <div style="background: #1e293b; padding: 15px; border-radius: 8px; border-left: 3px solid #38bdf8; font-size: 13px; line-height: 1.5; box-shadow: 0 4px 6px -1px rgba(0,0,0,0.1);">
-                <div style="color: #38bdf8; font-weight: bold; font-size: 10px; margin-bottom: 6px; text-transform: uppercase; letter-spacing: 1px;">${name}</div>
-                <div style="color: #e2e8f0; font-weight: 500;">${content}</div>
-                ${examples.length > 0 ? `
-                    <div style="margin-top: 10px; padding-top: 10px; border-top: 1px solid #334155;">
-                        <div style="color: #94a3b8; font-size: 10px; font-weight: bold; margin-bottom: 5px;">EXEMPLO REAL:</div>
-                        ${examples.map(ex => `<div style="color: #94a3b8; font-style: italic; font-size: 11px; margin-bottom: 4px;">"${ex}"</div>`).join('')}
-                    </div>
-                ` : ''}
-            </div>
-        `;
+    toggleHistory() {
+        const list = document.getElementById('neuro-insights-history-list');
+        const btn = document.getElementById('btn-toggle-history');
+        if (list.style.maxHeight === 'none') {
+            list.style.maxHeight = '250px';
+            btn.innerText = 'Ver Tudo';
+        } else {
+            list.style.maxHeight = 'none';
+            btn.innerText = 'Recolher';
+        }
     },
 
     async handleFileUpload(event) {
         const file = event.target.files[0];
         if (!file) return;
 
-        const status = document.getElementById('upload-status');
-        status.innerHTML = `<span style="color: #6366f1;">⏳ Processando: ${file.name}...</span>`;
+        const status = document.getElementById('nt-extraction-status');
+        status.innerHTML = `⏳ Processando documento técnico: ${file.name}...`;
 
         const formData = new FormData();
         formData.append('file', file);
@@ -133,66 +188,16 @@ window.neuroTraining = {
 
             const data = await response.json();
             if (data.success) {
-                document.getElementById('neuro-training-sample').value = data.text;
-                status.innerHTML = `<span style="color: #10b981;">✅ ${file.name} processado com sucesso!</span>`;
-                
-                // Auto-trigger analysis if large content
-                if (data.text.length > 500) {
-                    console.log("Auto-trigger extraction for document...");
-                }
-            } else {
-                status.innerHTML = `<span style="color: #ef4444;">❌ Erro: ${data.error}</span>`;
+                status.innerHTML = `✅ Lastro extraído de <b>${file.name}</b>. Analisando DNA...`;
+                // Aqui poderíamos chamar uma API de ingestão de documento se necessário
             }
         } catch (e) {
             console.error(e);
-            status.innerHTML = `<span style="color: #ef4444;">❌ Erro de conexão ao processar documento.</span>`;
-        }
-    },
-
-    async extractStyle() {
-        const sample = document.getElementById('neuro-training-sample').value;
-        const baseline = document.getElementById('neuro-training-ai-baseline').value;
-        const btn = document.getElementById('btn-extract-style');
-
-        if (!sample.trim()) return alert("Por favor, insira uma amostra de voz ou correção.");
-
-        btn.innerHTML = '⚙️ Analisando Padrões...';
-        btn.disabled = true;
-
-        try {
-            const response = await fetch('/api/neuro-training/extract', {
-                method: 'POST',
-                headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify({ sample, currentAiOutput: baseline })
-            });
-
-            const data = await response.json();
-            if (data.success) {
-                alert("🚀 Estilo Victor Lawrence atualizado com sucesso!");
-                this.renderMemory({
-                    style_rules: data.updated_rules,
-                    last_update: new Date().toISOString(),
-                    last_insight: data.insight
-                });
-                document.getElementById('neuro-training-sample').value = '';
-                document.getElementById('neuro-training-ai-baseline').value = '';
-            } else {
-                alert("Erro: " + data.error);
-            }
-        } catch (e) {
-            console.error(e);
-            alert("Erro na extração.");
-        } finally {
-            btn.innerHTML = '⚡ EXTRAIR E SALVAR PADRÕES DE ESTILO';
-            btn.disabled = false;
+            status.innerHTML = "❌ Erro ao processar documento.";
         }
     }
 };
 
-// Auto-init
 document.addEventListener('DOMContentLoaded', () => {
-    // Check if we are in a context where dashboard logic is loaded
-    if (window.app) {
-        window.neuroTraining.init();
-    }
+    if (window.neuroTraining) window.neuroTraining.init();
 });
