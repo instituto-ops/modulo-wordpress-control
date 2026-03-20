@@ -273,6 +273,26 @@ app.post('/api/wp-upload-media', upload.single('file'), async (req, res) => {
     try {
         if (!req.file) throw new Error("Nenhum arquivo enviado.");
 
+        const allowedMimeTypes = [
+            'image/jpeg', 'image/png', 'image/gif', 'image/webp', 'image/svg+xml',
+            'application/pdf',
+            'application/msword',
+            'application/vnd.openxmlformats-officedocument.wordprocessingml.document',
+            'application/vnd.ms-excel',
+            'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet',
+            'video/mp4', 'video/mpeg', 'video/quicktime',
+            'audio/mpeg', 'audio/wav', 'audio/ogg'
+        ];
+
+        if (!allowedMimeTypes.includes(req.file.mimetype)) {
+            return res.status(400).json({ error: "Tipo de arquivo não permitido por segurança." });
+        }
+
+        const allowedExtensions = /\.(jpg|jpeg|png|gif|webp|svg|pdf|doc|docx|xls|xlsx|mp4|mpeg|mov|mp3|wav|ogg)$/i;
+        if (!allowedExtensions.test(req.file.originalname)) {
+            return res.status(400).json({ error: "Extensão de arquivo não permitida por segurança." });
+        }
+
         const formData = new (require('form-data'))();
         formData.append('file', req.file.buffer, {
             filename: req.file.originalname,
