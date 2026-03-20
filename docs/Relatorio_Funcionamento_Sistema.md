@@ -193,7 +193,7 @@ const modelPro = genAI.getGenerativeModel({
 (Nota técnica de Abidos: Eu optei pelas versões estáveis 2.5 em vez das versões preview da 3.1 para garantir que a trava do JSON Mode não sofra com instabilidades de modelos beta. O 2.5 Flash é um monstro na leitura de áudio).
 
 
-Relatório Mestre do Sistema "Antigravity / Mission Control" (Protocolo Abidos v3.2).
+Relatório Mestre do Sistema "NeuroEngine" (Protocolo Abidos v3.2).
 
 Este documento sintetiza toda a engenharia, arquitetura, processos de inteligência artificial, diretrizes clínicas e regras de SEO evoluídas ao longo do nosso planejamento. Ele serve como o Manual Definitivo de funcionamento do seu Gêmeo Digital Clínico.
 
