@@ -1166,143 +1166,55 @@ app.post('/api/audit', async (req, res) => {
 });
 
 // 🚀 [FASE 5] ENDPOINTS NEURO-TRAINING (DNA CLONE & STYLE MEMORY)
+function extractJSON(text) {
+    try {
+        const match = text.match(/\{[\s\S]*\}/);
+        return match ? JSON.parse(match[0]) : null;
+    } catch { return null; }
+}
+
 app.get('/api/neuro-training/memory', (req, res) => {
-    res.json(getVictorStyle());
+    try {
+        res.json(getVictorStyle());
+    } catch (e) {
+        res.status(500).json({ error: e.message });
+    }
 });
 
 app.post('/api/neuro-training/analyze-dna', upload.single('audio'), async (req, res) => {
     try {
         if (!req.file) throw new Error("Aúdio não recebido.");
         const audioBuffer = req.file.buffer;
-
-        console.log("🧠 [DNA] Extraindo estilo clínico do Dr. Victor Lawrence...");
-
         const model = genAI.getGenerativeModel({ model: VISION_MODEL });
         
-        const dnaPrompt = `
-        VOCÊ É O 'APRENDIZ DE ABIDOS' (SISTEMA DE CLONAGEM COGNITIVA).
-        ANALISE O ÁUDIO DO DR. VICTOR PARA EXTRAIR O DNA DE ESCRITA E ATENDIMENTO.
-        
-        SÁIDA REQUERIDA (JSON APENAS):
-        { 
-          "new_rules": [{"sintese": "Frase curta de 3-5 palavras sintetizando a ideia", "regra": "Descrição do padrão clínico"}],
-          "insight": "Feedback qualitativo para o Dr. Victor."
-        }
-        
-        OBS: Anonimize nomes de pacientes em [PACIENTE].
-        `;
+        const dnaPrompt = `VOCÊ É O 'APRENDIZ DE ABIDOS'. Analise este áudio clínico. EXTRAIA DNA CLÍNICO.
+        RETORNE JSON APENAS: { "new_rules": [{"sintese": "Título 3-5 palavras", "regra": "Descrição"}], "insight": "Feedback" }`;
 
         const result = await model.generateContent([
             { text: dnaPrompt },
             { inlineData: { data: audioBuffer.toString('base64'), mimeType: 'audio/webm' } }
         ]);
 
-        const responseText = result.response.text().replace(/```json|```/g, '').trim();
-        const extracted = JSON.parse(responseText);
+        const extracted = extractJSON(result.response.text());
+        if (!extracted) throw new Error("Falha na síntese de DNA via IA.");
 
-        // 1. Anonimização e Sintese
         const stylePath = path.join(__dirname, 'estilo_victor.json');
         let current = getVictorStyle();
-
         const uniqueNew = extracted.new_rules.map(r => ({
-            sintese: r.sintese || "Padrão Detectado",
+            sintese: r.sintese || "Padrão de Voz",
             regra: cleanClinicalData(r.regra)
         }));
 
-        current.style_rules = [...current.style_rules, ...uniqueNew].slice(-80); 
+        current.style_rules = [...current.style_rules, ...uniqueNew].slice(-80);
         current.last_update = new Date().toISOString();
         current.last_insight = cleanClinicalData(extracted.insight);
-
         if (!current.insights_history) current.insights_history = [];
-        current.insights_history.unshift({ text: extracted.insight, date: current.last_update });
-        current.insights_history = current.insights_history.slice(0, 50);
+        current.insights_history.unshift({ text: current.last_insight, date: current.last_update });
 
         fs.writeFileSync(stylePath, JSON.stringify(current, null, 2));
-
-        res.json({ success: true, insights: extracted.new_rules, summary: extracted.insight });
-
+        res.json({ success: true, insights: uniqueNew, summary: current.last_insight });
     } catch (e) {
-        console.error("❌ [DNA ERROR]", e.message);
-        res.status(500).json({ error: e.message });
-    }
-});
-
-app.post('/api/neuro-training/extract', async (req, res) => {
-    try {
-        const { sample, currentAiOutput } = req.body;
-        if (!sample) return res.status(400).json({ error: "Amostra necessária." });
-
-        const model = genAI.getGenerativeModel({ model: VISION_MODEL });
-        const isTranscript = sample.toLowerCase().includes('terapeuta') || sample.toLowerCase().includes('paciente') || sample.length > 1000;
-        
-        const prompt = isTranscript ? 
-`Você está a receber uma transcrição em bruto de uma sessão clínica real do Dr. Victor Lawrence. O seu único objetivo é clonar o cérebro e a voz do terapeuta.
-
-Aja como um Analista Linguístico e faça o seguinte:
-1. Identifique as falas do Terapeuta (geralmente aquele que faz as perguntas abertas e as induções hipnóticas).
-2. Extraia 3 regras de escrita ou 'Rapport' que demonstrem como ele usa a 'Comunicação Indireta Ericksoniana'.
-3. Crie um pequeno feedback personalizado (insight) sobre o que percebeu no padrão de linguagem do Victor e como isso ajuda a converter e acolher pacientes.
-4. Formate essas extrações como regras de Copywriting.
-
-[TRANSCRIÇÃO]:
-"${sample}"
-
-Retorne APENAS um JSON com:
-{
-  "new_rules": ["regra 1", "regra 2", "regra 3"],
-  "insight": "Seu feedback sobre a linguagem aqui..."
-}` : 
-`Atue como Especialista em Reverse Prompt Engineering. Analise a diferença entre o que a IA gerou e o que o Victor falou/escreveu.
-
-[IA GENERATED]: "${currentAiOutput || 'Indisponível'}"
-[VICTOR CORRECTION/SAMPLE]: "${sample}"
-
-TAREFA:
-1. Identifique o desvio de tom (ex: 'A IA foi técnica demais, o Victor foi mais humano').
-2. Extraia a regra de escrita (ex: 'Sempre use analogias tecnológicas para explicar o cérebro').
-3. Crie um pequeno feedback (insight) sobre como essa correção melhora o material.
-
-Retorne APENAS um JSON com:
-{
-  "new_rules": ["regra 1", "regra 2"],
-  "insight": "Seu feedback aqui..."
-}`;
-
-        const response = await model.generateContent(prompt);
-        const text = response.response.text().replace(/```json|```/g, '').trim();
-        const extracted = JSON.parse(text);
-
-        // Atualiza estilo_victor.json
-        const stylePath = path.join(__dirname, 'estilo_victor.json');
-        let current = { style_rules: [] };
-        if (fs.existsSync(stylePath)) {
-            current = JSON.parse(fs.readFileSync(stylePath, 'utf8'));
-        }
-
-        current.style_rules = [...new Set([...current.style_rules, ...extracted.new_rules])].slice(-60); 
-        current.last_update = new Date().toISOString();
-        
-        // Mantém histórico de insights
-        if (!current.insights_history) current.insights_history = [];
-        const newInsight = {
-            text: extracted.insight || "Novas regras de estilo integradas com sucesso.",
-            date: current.last_update
-        };
-        current.insights_history.unshift(newInsight);
-        current.insights_history = current.insights_history.slice(0, 50); // Mantém os 50 últimos
-        
-        current.last_insight = newInsight.text;
-        
-        fs.writeFileSync(stylePath, JSON.stringify(current, null, 2));
-
-        res.json({ 
-            success: true, 
-            updated_rules: current.style_rules,
-            insight_history: current.insights_history
-        });
-
-    } catch (e) {
-        console.error("❌ [NEURO-TRAINING ERROR]", e.message);
+        console.error("❌ [DNA ERROR]", e);
         res.status(500).json({ error: e.message });
     }
 });
@@ -1310,128 +1222,70 @@ Retorne APENAS um JSON com:
 app.post('/api/neuro-training/chat', async (req, res) => {
     try {
         const { message } = req.body;
-        if (!message) throw new Error("Mensagem vazia.");
-
-        console.log("🧠 [DNA CHAT] Aprendiz entrevistando Dr. Victor...");
-
         const model = genAI.getGenerativeModel({ model: VISION_MODEL });
-        
-        const chatPrompt = `
-        VOCÊ É O 'APRENDIZ DE ABIDOS'. ENTREVISTE O DR. VICTOR LAWRENCE PARA EXTRAIR O DNA CLÍNICO DELE.
-        DR. VICTOR DIZ: "${message}"
-        
-        MISSÃO:
-        1. Responda como um aprendiz profissional e curioso.
-        2. Se detectar um padrão de escrita, voz ou atendimento, extraia-o.
-        3. CRIE UMA "SÍNTESE" (TÍTULO DE 3-5 PALAVRAS) que resuma a ideia central da regra.
-        
-        RETORNE UM JSON:
-        { 
-          "reply": "Resposta para manter a conversa fluindo...",
-          "insights": [{"sintese": "Título sintetizado", "regra": "Descrição completa"}]
-        }
-        `;
+        const chatPrompt = `APRENDIZ DE ABIDOS. Dr. Victor diz: "${message.replace(/"/g, "'")}". 
+        Extraia DNA em JSON: { "sintese": "3-5 palavras", "regra": "Descrição" }. Responda em "reply".`;
 
         const result = await model.generateContent(chatPrompt);
-        const responseText = result.response.text().replace(/```json|```/g, '').trim();
-        const extracted = JSON.parse(responseText);
+        const extracted = extractJSON(result.response.text());
+        if (!extracted) throw new Error("IA falhou na entrevista conversacional.");
 
         if (extracted.insights && extracted.insights.length > 0) {
             const stylePath = path.join(__dirname, 'estilo_victor.json');
             let current = getVictorStyle();
-            
             const uniqueNew = extracted.insights.map(i => ({
-                sintese: i.sintese || "Insight Conversacional",
+                sintese: i.sintese || "Insight Clínico",
                 regra: cleanClinicalData(i.regra)
             }));
-
             current.style_rules = [...current.style_rules, ...uniqueNew].slice(-80);
-            current.last_update = new Date().toISOString();
             fs.writeFileSync(stylePath, JSON.stringify(current, null, 2));
         }
-
         res.json({ reply: cleanClinicalData(extracted.reply), insights: extracted.insights });
-
     } catch (e) {
-        console.error("❌ [CHAT ERROR]", e.message);
+        console.error("❌ [CHAT ERROR]", e);
         res.status(500).json({ error: e.message });
     }
 });
 
 app.post('/api/neuro-training/upload', upload.single('file'), async (req, res) => {
     try {
-        if (!req.file) throw new Error("Documento não recebido.");
-        
+        if (!req.file) throw new Error("Arquivo não recebido.");
         let text = "";
-        const buffer = req.file.buffer;
-
-        // 1. Extração de Texto baseado no Tipo
         if (req.file.mimetype === 'application/pdf') {
-            const data = await pdf(buffer);
+            const data = await pdf(req.file.buffer);
             text = data.text;
         } else if (req.file.mimetype === 'application/vnd.openxmlformats-officedocument.wordprocessingml.document') {
-            const result = await mammoth.extractRawText({ buffer: buffer });
+            const result = await mammoth.extractRawText({ buffer: req.file.buffer });
             text = result.value;
         } else {
-            text = buffer.toString('utf-8');
+            text = req.file.buffer.toString('utf-8');
         }
 
-        console.log(`🧠 [LASTRO] Analisando documento: ${req.file.originalname}`);
-
-        // 2. Análise com Gemini (Sintetizando DNA)
         const model = genAI.getGenerativeModel({ model: VISION_MODEL });
-        
-        const docPrompt = `
-        VOCÊ É O 'APRENDIZ DE ABIDOS'. ANALISE ESTE DOCUMENTO DO DR. VICTOR LAWRENCE.
-        
-        MISSÃO:
-        - Extraia regras de como ele pensa, atende e escreve.
-        - CRIE UMA "SÍNTESE" (TÍTULO DE 3-5 PALAVRAS) que seja o título da ideia central de cada regra.
-        
-        CONTEÚDO DO DOCUMENTO:
-        "${text.substring(0, 15000)}"
-        
-        RETORNE UM JSON:
-        { 
-          "new_rules": [{"sintese": "Título curto sintetizado", "regra": "Descrição completa"}],
-          "feedback_analysis": "Seu feedback qualitativo para o Dr. Victor."
-        }
-        `;
+        const docPrompt = `Análise de Lastro Doc. Texto: "${text.substring(0, 8000).replace(/"/g, "'")}".
+        Extraia DNA em JSON: { "new_rules": [{"sintese": "3-5 palavras", "regra": "Descrição"}], "feedback_analysis": "Feedback" }`;
 
         const result = await model.generateContent(docPrompt);
-        const responseText = result.response.text().replace(/```json|```/g, '').trim();
-        const extracted = JSON.parse(responseText);
+        const extracted = extractJSON(result.response.text());
+        if (!extracted) throw new Error("IA falhou na análise de lastro.");
 
-        // 3. Persistência
         const stylePath = path.join(__dirname, 'estilo_victor.json');
         let current = getVictorStyle();
-
         const uniqueNew = extracted.new_rules.map(i => ({
-            sintese: i.sintese || "Lastro Documental",
+            sintese: i.sintese || "Lastro Acadêmico",
             regra: cleanClinicalData(i.regra)
         }));
 
         const cleanFeedback = cleanClinicalData(extracted.feedback_analysis);
         current.style_rules = [...current.style_rules, ...uniqueNew].slice(-80);
         current.last_update = new Date().toISOString();
-        current.last_insight = cleanFeedback;
-
         if (!current.insights_history) current.insights_history = [];
         current.insights_history.unshift({ text: cleanFeedback, date: current.last_update });
 
         fs.writeFileSync(stylePath, JSON.stringify(current, null, 2));
-        res.json({ success: true, insights: extracted.new_rules, summary: cleanFeedback });
-
+        res.json({ success: true, insights: uniqueNew, summary: cleanFeedback });
     } catch (e) {
-        console.error("❌ [UPLOAD ERROR]", e.message);
-        res.status(500).json({ error: e.message });
-    }
-});
-
-app.get('/api/neuro-training/memory', (req, res) => {
-    try {
-        res.json(getVictorStyle());
-    } catch (e) {
+        console.error("❌ [UPLOAD ERROR]", e);
         res.status(500).json({ error: e.message });
     }
 });
