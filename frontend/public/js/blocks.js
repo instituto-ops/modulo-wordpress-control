@@ -20,7 +20,7 @@ window.AbidosBlocks = {
     ctx: {
         name: "Victor Lawrence Bernardes Santana",
         crp:  "09/012681",
-        wa:   "https://wa.me/5562982171845?text=Ol%C3%A1%2C%20gostaria%20de%20agendar%20uma%20consulta",
+        wa:   "https://wa.me/5562991545295?text=Ol%C3%A1%2C%20gostaria%20de%20agendar%20uma%20consulta",
         site: "https://www.hipnolawrence.com",
     },
 

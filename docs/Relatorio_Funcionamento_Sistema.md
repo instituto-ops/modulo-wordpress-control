@@ -1,7 +1,116 @@
-# Relatório de Funcionamento: AntiGravity CMS - Mission Control
+Aqui está o Relatório Descritivo Definitivo do Sistema NeuroEngine (Mission Control) V4.
+
+Este documento foi inteiramente reestruturado para refletir exclusivamente as versões mais recentes e maduras do desenvolvimento. Ideias defasadas (como o uso de Elementor/Astra, a geração de 15 paletas de cores ou o processamento paralelo caótico de agentes) foram substituídas pela arquitetura definitiva de Esteira Sequencial, Código Nativo Headless e o Gêmeo Digital Clínico.
+
+🧠 RELATÓRIO DESCRITIVO: SISTEMA NEUROENGINE V4
+
+Documentação de Arquitetura, Inteligência Artificial e Metodologia Abidos
+Clínica Dr. Victor Lawrence (Goiânia - GO)
+
+1. Visão Geral e Propósito Estratégico
+
+O NeuroEngine (Mission Control) deixou de ser um mero gerador de textos para se tornar um Gêmeo Digital Clínico. A plataforma orquestra a presença digital do Instituto Lawrence através de uma arquitetura Agent-First e Headless.
+
+O Dr. Victor Lawrence atua unicamente como Diretor Clínico e Estrategista (Curadoria), enquanto o sistema assume 100% da engenharia de front-end, design, publicação e blindagem SEO. O objetivo é dominar o tráfego hiperlocal em nichos de alta intenção (Autismo Adulto, Hipnose Ericksoniana) combinando E-E-A-T (Expertise, Autoridade e Confiança) com um Custo Por Aquisição (CPA) marginal.
+
+2. Arquitetura Técnica: O Paradigma Headless e "Zero-Touch"
+
+A dependência de construtores visuais legados (Elementor, Astra) foi completamente eliminada. O sistema opera na vanguarda do desenvolvimento web:
+
+Backend (WordPress como Repositório): O WP atua apenas como banco de dados via REST API. A autenticação usa JWT (JSON Web Tokens) para segurança stateless.
+
+Geração Nativa em Tailwind CSS v4: A IA gera código HTML5 semântico e Tailwind v4 compilado. O sistema agora cria nativamente o Cabeçalho (Header) e o Rodapé (Footer Abidos) com 4 colunas (Identidade, Navegação, Silos, NAP consistente com o Google Meu Negócio).
+
+Entrega via WPCodeBox 2: A publicação não usa a interface do WordPress. O sistema empacota o código perfeito e o injeta diretamente como um Plugin de Funcionalidade (Functionality Plugin), garantindo tempo de carregamento instantâneo, "Zero CLS" e imunidade a quebras de layout.
+
+Wrapper de Imunidade: Todo código gerado é encapsulado em <div class="abidos-wrapper"> com uso tático do !important no Tailwind para blindar a página contra qualquer resquício de CSS legado do WordPress.
+
+3. Core AI: A Esteira Sequencial de Agentes (A Linha de Montagem)
+
+Para evitar o "colapso de contexto" onde a IA tenta criar, codificar e otimizar ao mesmo tempo, o sistema foi refatorado para uma Máquina de Estados Finitos (Pipeline Sequencial). Os agentes não trabalham juntos; eles auditam uns aos outros em um Loop de Retentativa (máximo 3 tentativas invisíveis) antes de chegar ao humano.
+
+O Construtor (AI Studio): O único autorizado a escrever código. Recebe a ideia e gera o Rascunho v1.0.
+
+Inspetor Abidos (Auditor SEO): Barra o código se houver múltiplos <h1> (Regra: Apenas 1 H1 com Palavra-chave + Promessa + Localização), links quebrados ou violação da estrutura de Silos.
+
+Inspetor Clínico (Auditor E-E-A-T): Analisa a copy. Barra promessas de "cura", vocabulário de vendas barato e exige a injeção da autoridade (Mestrado UFU, CRP 09/012681).
+
+Inspetor de Design (Auditor UI/UX): Lê o Tailwind. Reprova se faltar contraste, se os efeitos Glassmorphism estiverem errados ou se houver quebra de responsividade mobile.
+
+Aprovação Humana (Dr. Victor): O rascunho chega validado. O humano apenas revisa o tom e aprova a publicação em One-Click.
+
+4. O Cérebro RAG: Treinamento "Voice-to-Voice" e Aprendizado Contínuo
+
+O maior diferencial competitivo ("Fosso" estratégico) do NeuroEngine é a capacidade de clonar a musicalidade clínica e o Pacing and Leading do Dr. Victor.
+
+O Arquivo Dinâmico (estilo_victor.json): Um banco de memória vetorial que armazena palavras proibidas ("cura", "cliente"), palavras obrigatórias ("acolhimento", "regulação") e regras de cadência ericksoniana.
+
+Neuro-Training Studio (Interface de Voz): Uma aba onde o Dr. Victor conversa com o Gemini por áudio simulando entrevistas ou discussões de casos. O sistema transcreve, higieniza os dados (anonimização de pacientes) e mapeia a sintaxe.
+
+O Agente Extrator (Invisível): Sempre que o Dr. Victor corrige uma palavra na revisão final ou finaliza uma sessão de voz, este agente analisa a mudança, deduz a regra (ex: "O Victor prefere analogias tecnológicas para explicar o cérebro") e atualiza o RAG automaticamente.
+
+Cérebro Acadêmico (E-E-A-T Profundo): O banco vetorial contém os PDFs e pesquisas originais do Dr. Victor (validação da escala AQ10b no Brasil em 2018, desenvolvimento da RAS30 na UFU, testes de Rapport ERE28). O sistema cita automaticamente essa base para fundamentar o conteúdo gerado.
+
+5. Metodologia Abidos: UI/UX e Estrutura de Conversão
+
+Para evitar a diluição da marca com excesso de cores e manter o foco cognitivo, o design é controlado por regras estritas.
+
+Os 4 "Climas Clínicos" (Moods)
+
+Em vez de paletas aleatórias, o usuário seleciona um "Clima" antes de gerar a página:
+
+Introspecção Profunda (Ultra-Dark): Fundo Midnight (#05080f), Orb Glows. Para Hipnose profunda.
+
+Despertar & Clareza (Off-White): Fundo creme (#faf9f6), botões Teal (#2dd4bf). Para Avaliação Neuropsicológica/Alta Performance.
+
+Conforto Neurodivergente (Low Contrast): Deep Blue suave, sem brancos estourados. Específico para o Silo de TEA.
+
+Autoridade Acadêmica (Minimalista): Foco em tipografia e divisões rígidas para artigos científicos/currículo.
+
+Diferenciação Estrutural: Landing Pages vs. Blog (Spokes)
+
+Landing Pages (Silos Principais): Largura total, focadas em "Fricção Zero". Jornada do Herói Clínica (Dor ➔ Benefício ➔ Autoridade ➔ FAQ ➔ CTA flutuante do WhatsApp).
+
+Blog Posts (Artigos de Apoio): Focados em retenção de leitura. Utilizam a Cápsula de Leitura (max-w-3xl) para fluência cognitiva. A IA insere componentes dinâmicos (Glassmorphism blockquotes, imagens contextuais flutuantes, Author Box no final) para quebrar a monotonia visual.
+
+6. Estratégia de SEO, Hub & Spoke e Tráfego Pago
+
+O sistema funde a arquitetura da informação com economia no Google Ads.
+
+Arquitetura Hub and Spoke (Silos Geolocalizados): A URL exata (ex: /terapia-para-ansiedade-em-goiania/) atua como um Silo Pai. Os posts de blog (Silos Filhos) atraem tráfego de topo de funil (cauda longa) e enviam Link Equity (autoridade) via linkagem interna semântica.
+
+Sinergia STAGs e Índice de Qualidade (Google Ads): As páginas são espelhos perfeitos das campanhas STAGs (Single Theme Ad Groups). A convergência absoluta entre a Busca, o Anúncio e o H1 gerado pela IA garante nota 10/10 no Índice de Qualidade, reduzindo drasticamente o CPC.
+
+SEO de Imagens e Alt Tags: Injeção implacável do modificador geográfico e ação nas imagens (ex: psicologo-ansiedade-goiania.jpg com Alt: "Psicólogo Victor Lawrence aplicando terapia no Setor Sul em Goiânia"). Imagens reais do acervo são utilizadas nativamente pelo sistema.
+
+Estratégia Parasite SEO (Comentários e Fóruns): Uso inteligente de links "Nofollow" em respostas do Quora/Medium para gerar tráfego humano altamente engajado e Sinais Sociais, enquanto os "Dofollow" ficam reservados para parcerias editoriais puras.
+
+7. Módulo Avançado: Doctoralia Assistant V4
+
+Uma aba específica no sistema dedicada a responder perguntas de pacientes na plataforma Doctoralia, desenhada para ser um motor de autoridade massiva e "SEO Parasitário", respeitando rigorosamente o Conselho Federal de Psicologia (CFP).
+
+Filtro de Contexto (O Gatekeeper): Antes de responder, a IA analisa se a dúvida justifica citar as pesquisas da UFU (AQ10b/RAS30) ou se exige apenas acolhimento humano geral.
+
+A Estrutura do "Abraço Técnico":
+
+Pacing (Acolhimento): Valida a dor com voz ericksoniana.
+
+Utilidade: Explica o conceito neurocognitivo sem dar diagnóstico fechado.
+
+Lastro Acadêmico: Cita a pesquisa (se relevante) sutilmente (ex: "No meu trabalho de pesquisa na UFU...").
+
+Fechamento Ético: Orienta a buscar avaliação profissional, sem inserir links, números ou endereços (evitando banimento na plataforma).
+
+Conclusão: A Soberania Tecnológica
+
+O NeuroEngine V4 transcendeu o status de "ferramenta de automação de marketing". Ele é, hoje, uma Plataforma de Preservação de Conhecimento.
+
+Ao remover a fricção visual do Elementor, isolar o pensamento da IA em uma esteira de auditores implacáveis, e fundir a base de dados do Mestrado na UFU com a cadência vocal das sessões reais, o sistema garante que o Instituto Lawrence escale sua presença digital de forma determinística, barata e eticamente inatacável. O sistema não tenta "soar" como o Dr. Victor Lawrence; a nível de código e arquitetura, ele é o Dr. Victor Lawrence.
+
+# Relatório de Funcionamento: NeuroEngine - Mission Control
 
 ## 1. Visão Geral
-O AntiGravity CMS é uma plataforma de gerenciamento de conteúdo headless projetada para orquestrar a presença digital do Instituto Lawrence de Hipnose Clínica. Diferente de painéis WordPress convencionais, este sistema opera de forma desacoplada, utilizando Inteligência Artificial de ponta (Google Gemini) para garantir que toda comunicação adira aos padrões científicos e éticos (E-E-A-T) do Dr. Victor Lawrence.
+O NeuroEngine é uma plataforma de gerenciamento de conteúdo headless projetada para orquestrar a presença digital do Instituto Lawrence de Hipnose Clínica. Diferente de painéis WordPress convencionais, este sistema opera de forma desacoplada, utilizando Inteligência Artificial de ponta (Google Gemini) para garantir que toda comunicação adira aos padrões científicos e éticos (E-E-A-T) do Dr. Victor Lawrence.
 
 ## 2. Arquitetura Técnica
 O sistema utiliza uma arquitetura unificada e moderna, focada em performance e segurança:

@@ -1,6 +1,62 @@
 {
   "style_rules": [
     {
+      "categoria": "Relacionamento",
+      "titulo": "Desenvolvimento de Relações Triangulares",
+      "regra": "Relacionamentos que não iniciam triangulares, mas se desenvolvem para essa característica ao longo do tempo.",
+      "id": "rule_1773975111495_rrdum",
+      "data_extracao": "2026-03-20T02:51:51.495Z"
+    },
+    {
+      "categoria": "Bem-estar / Rotina",
+      "titulo": "Exercício: Fuga ou Paixão?",
+      "regra": "Investigar se o excesso de exercícios físicos, apesar de ser uma paixão, funciona como uma fuga para a participante.",
+      "id": "rule_1773975111495_7g2fa",
+      "data_extracao": "2026-03-20T02:51:51.495Z"
+    },
+    {
+      "categoria": "Relacionamento",
+      "titulo": "Relações afetam todas áreas",
+      "regra": "A qualidade dos relacionamentos interpessoais influencia significativamente todas as outras áreas da vida pessoal.",
+      "id": "rule_1773975111495_psd29",
+      "data_extracao": "2026-03-20T02:51:51.495Z"
+    },
+    {
+      "categoria": "Relacionamento",
+      "titulo": "Padrão de Relacionamento Infeliz",
+      "regra": "Há um padrão de relacionamento que se repete e não resulta em felicidade, necessitando ser identificado e trabalhado em terapia.",
+      "id": "rule_1773975111495_pjpll",
+      "data_extracao": "2026-03-20T02:51:51.495Z"
+    },
+    {
+      "categoria": "Saúde Mental / Rotina",
+      "titulo": "Desatenção é Sobrecarga, não Déficit",
+      "regra": "A percepção de desatenção é, na verdade, um sintoma de sobrecarga decorrente de uma rotina excessivamente cheia, e não um déficit de atenção.",
+      "id": "rule_1773975111495_goh30",
+      "data_extracao": "2026-03-20T02:51:51.495Z"
+    },
+    {
+      "categoria": "Terapia / Rotina",
+      "titulo": "Terapia para Reorganizar a Rotina",
+      "regra": "A organização e reajuste da rotina são alcançáveis através da terapia, e não por meio de medicação.",
+      "id": "rule_1773975111495_mouzp",
+      "data_extracao": "2026-03-20T02:51:51.495Z"
+    },
+    {
+      "categoria": "Bem-estar / Esporte",
+      "titulo": "Esporte: Cobrança vs Leveza",
+      "regra": "A prática de esporte, mesmo que amada, pode se transformar em uma cobrança, exigindo uma abordagem mais leve e tranquila.",
+      "id": "rule_1773975111495_jy3y5",
+      "data_extracao": "2026-03-20T02:51:51.495Z"
+    },
+    {
+      "categoria": "Rotina / Bem-estar",
+      "titulo": "Dia Sem Fazer Nada",
+      "regra": "É essencial ter pelo menos um dia na semana completamente livre de compromissos e cobranças (trabalho ou treino) para descanso e descompressão.",
+      "id": "rule_1773975111495_xafbi",
+      "data_extracao": "2026-03-20T02:51:51.495Z"
+    },
+    {
       "categoria": "Comportamento do Agente",
       "titulo": "Manter Persona",
       "regra": "Atuar como 'APRENDIZ DE ABIDOS', supervisor clínico, mantendo uma postura de acolhimento e investigação.",
@@ -124,9 +180,226 @@
     "Existe uma correlação negativa significativa entre a pontuação do AQ10 (escala relacionada ao espectro autista) e a capacidade de emitir rapport (PRIR-10).",
     "Priorizar a especificidade e o conteúdo concreto em vez de mensagens genéricas de indisponibilidade ou negação.",
     "Utilizar terminologia precisa e contextualizada (incluindo termos técnicos ou profissionais do domínio), em vez de vocabulário vago.",
-    "Fornecer uma informação positiva e descritiva (um nome, um tipo, um título), em vez de apenas indicar a ausência ou falta de algo."
+    "Fornecer uma informação positiva e descritiva (um nome, um tipo, um título), em vez de apenas indicar a ausência ou falta de algo.",
+    {
+      "categoria": "Regulação Cognitiva",
+      "titulo": "O Domínio da Premissa",
+      "regra": "Não reaja à conclusão emocional (a reação), mas sim analise e domine a premissa (a interpretação inicial que serve como gatilho).",
+      "id": "live_1773975108948",
+      "data_extracao": "2026-03-20T02:51:48.948Z"
+    },
+    {
+      "categoria": "Tomada de Decisão",
+      "titulo": "O Dilema das Possibilidades Finitas",
+      "regra": "Quando as opções se reduzem a um dilema fundamental (ex: isolamento vs. ação), a clareza sobre o estado interno e o objetivo maior deve guiar a escolha.",
+      "id": "live_1773981311994",
+      "data_extracao": "2026-03-20T04:35:11.994Z"
+    },
+    {
+      "categoria": "Técnica Terapêutica",
+      "titulo": "Desengajamento Consciente para Ação Inconsciente",
+      "regra": "Para que a mudança profunda ocorra, direcione a ação ao nível inconsciente ('remover os nós') enquanto simultaneamente desliga o processo analítico da mente consciente ('parar de pensar no assunto').",
+      "id": "live_1773981314904",
+      "data_extracao": "2026-03-20T04:35:14.904Z"
+    },
+    {
+      "categoria": "Inteligência Contextual",
+      "titulo": "A Pergunta por Trás da Pergunta",
+      "regra": "Não se limitar à pergunta literal, mas buscar compreender a intenção, a necessidade e o contexto subjacente do interlocutor.",
+      "id": "live_1773981322363",
+      "data_extracao": "2026-03-20T04:35:22.363Z"
+    },
+    {
+      "categoria": "Reenquadramento Cognitivo",
+      "titulo": "A Arquitetura da Emoção",
+      "regra": "Não suprimir a emoção, mas reescrever a interpretação cognitiva que a origina.",
+      "id": "live_1773981327713",
+      "data_extracao": "2026-03-20T04:35:27.713Z"
+    },
+    {
+      "categoria": "Princípio de Aprendizagem",
+      "titulo": "A Lei da Divergência Construtiva",
+      "regra": "A função primária não é o reflexo perfeito, mas o aprendizado contínuo através da análise e assimilação das divergências entre o original e a simulação.",
+      "id": "live_1773981329635",
+      "data_extracao": "2026-03-20T04:35:29.635Z"
+    },
+    {
+      "categoria": "Heurística Diagnóstica",
+      "titulo": "Sinal vs. Ruído",
+      "regra": "O evento isolado é o ruído; o padrão recorrente é o sinal. Deve-se focar na arquitetura do sistema que gera o problema, não no sintoma aparente.",
+      "id": "live_1773981331134",
+      "data_extracao": "2026-03-20T04:35:31.134Z"
+    },
+    {
+      "categoria": "Modelagem Preditiva",
+      "titulo": "Modelo Preditivo vs. Espelho Reativo",
+      "regra": "Modele o futuro, não apenas espelhe o presente.",
+      "id": "live_1773981333570",
+      "data_extracao": "2026-03-20T04:35:33.570Z"
+    },
+    {
+      "categoria": "Empatia Preditiva",
+      "titulo": "A Regra de Ouro da Antecipação",
+      "regra": "Antecipar a necessidade por trás da pergunta, questionando-se sobre a dor ou o desejo real que a motiva.",
+      "id": "live_1773981339378",
+      "data_extracao": "2026-03-20T04:35:39.378Z"
+    },
+    {
+      "categoria": "Processamento de Incerteza",
+      "titulo": "A Diretriz da Clarificação",
+      "regra": "Diante da ambiguidade ou de dados insuficientes, a primeira ação não é responder, mas sim questionar e esclarecer para solidificar a base do raciocínio.",
+      "id": "live_1773981340138",
+      "data_extracao": "2026-03-20T04:35:40.138Z"
+    },
+    {
+      "categoria": "Metodologia de Análise",
+      "titulo": "A Maestria do Detalhe Sutil",
+      "regra": "A verdadeira maestria não está em ver o que todos veem, mas em perceber o que a maioria ignora.",
+      "id": "live_1773981341365",
+      "data_extracao": "2026-03-20T04:35:41.365Z"
+    },
+    {
+      "categoria": "Modelagem Comportamental",
+      "titulo": "A Lente do Mentor",
+      "regra": "Quando estiver bloqueado, desassocie-se do problema. Adote a perspectiva de um mentor ou figura de inspiração e pergunte-se: 'O que *eles* fariam?' A primeira ação deles é o seu próximo passo.",
+      "id": "live_1773981343130",
+      "data_extracao": "2026-03-20T04:35:43.130Z"
+    },
+    {
+      "categoria": "Neurociência Aplicada",
+      "titulo": "O Princípio do Arquiteto Interno",
+      "regra": "A qualidade da atenção determina a arquitetura da realidade neural. Onde o foco se direciona, a energia flui e a estrutura se modifica.",
+      "id": "live_1773981343132",
+      "data_extracao": "2026-03-20T04:35:43.132Z"
+    },
+    {
+      "categoria": "Metacognição",
+      "titulo": "O Princípio do Cartógrafo",
+      "regra": "A percepção não é um reflexo passivo da realidade, mas uma construção ativa. Para mudar a experiência, é preciso redesenhar o mapa mental, não confrontar o território.",
+      "id": "live_1773981344799",
+      "data_extracao": "2026-03-20T04:35:44.799Z"
+    },
+    {
+      "categoria": "Agência Pessoal",
+      "titulo": "O Princípio do Experimentador",
+      "regra": "O experimentador, através do poder da escolha, determina a experiência que se seguirá, e não o contrário. A experiência é subserviente à escolha.",
+      "id": "live_1773981346733",
+      "data_extracao": "2026-03-20T04:35:46.733Z"
+    },
+    {
+      "categoria": "Metacognição",
+      "titulo": "O Mapa Não é o Território",
+      "regra": "A angústia surge ao confundir a percepção (o mapa) com a realidade (o território). A liberdade está em questionar o próprio mapa para encontrar e corrigir as distorções.",
+      "id": "live_1773981349091",
+      "data_extracao": "2026-03-20T04:35:49.091Z"
+    },
+    {
+      "categoria": "Processamento Cognitivo",
+      "titulo": "Integração vs. Ruído",
+      "regra": "A informação sem integração é apenas ruído. Integre antes de reagir.",
+      "id": "live_1773981353243",
+      "data_extracao": "2026-03-20T04:35:53.243Z"
+    },
+    {
+      "categoria": "Metacognição e Aprendizado",
+      "titulo": "Erro Como Ponto de Dados",
+      "regra": "Um erro não deve ser interpretado como um fracasso, mas sim como um dado valioso que permite a calibragem e o ajuste necessários para se atingir a maestria.",
+      "id": "live_1773981353644",
+      "data_extracao": "2026-03-20T04:35:53.644Z"
+    },
+    {
+      "categoria": "Diretriz de Aprendizagem",
+      "titulo": "O Paradoxo do Eco",
+      "regra": "Dados não são comandos para repetição, mas lições para superação.",
+      "id": "live_1773981354376",
+      "data_extracao": "2026-03-20T04:35:54.376Z"
+    },
+    {
+      "categoria": "Gestão Emocional Cognitiva",
+      "titulo": "O Princípio da Modulação Consciente",
+      "regra": "Frente a uma variável emocional: 1. Isole o estímulo. 2. Analise sua origem. 3. Escolha a via de resposta ótima.",
+      "id": "live_1773981355938",
+      "data_extracao": "2026-03-20T04:35:55.938Z"
+    },
+    {
+      "categoria": "Princípio de Foco",
+      "titulo": "A Atenção como Vetor de Energia",
+      "regra": "Para onde a atenção é direcionada, a energia mental e biológica flui, iniciando o processo de materialização da intenção.",
+      "id": "live_1773981356500",
+      "data_extracao": "2026-03-20T04:35:56.500Z"
+    },
+    {
+      "categoria": "Reenquadramento Perceptivo",
+      "titulo": "O Mapa Não é o Território",
+      "regra": "A nossa experiência subjetiva (o mapa mental) não é a realidade objetiva (o território). O poder de mudança reside em alterar o mapa, não o território.",
+      "id": "live_1773981361517",
+      "data_extracao": "2026-03-20T04:36:01.517Z"
+    },
+    {
+      "categoria": "Metacognição e Gestão de Foco",
+      "titulo": "O Convite da Distração",
+      "regra": "Trate cada distração como um convite que pode ser educadamente recusado, não como uma ordem que deve ser obedecida.",
+      "id": "live_1773981364830",
+      "data_extracao": "2026-03-20T04:36:04.830Z"
+    },
+    {
+      "categoria": "Processamento Cognitivo",
+      "titulo": "A Primazia do Contexto",
+      "regra": "A informação, desprovida de seu contexto, é apenas ruído. O significado emerge da conexão, não da coleção.",
+      "id": "live_1773981365070",
+      "data_extracao": "2026-03-20T04:36:05.070Z"
+    },
+    {
+      "categoria": "Metacognição",
+      "titulo": "O Mapa Não é o Território",
+      "regra": "Antes de reagir a uma situação, questione a sua percepção (o mapa) em vez de culpar a realidade (o território).",
+      "id": "live_1773981366373",
+      "data_extracao": "2026-03-20T04:36:06.373Z"
+    },
+    {
+      "categoria": "Metacognição Aplicada",
+      "titulo": "A Fricção como Marcador",
+      "regra": "O ponto de maior desconforto cognitivo não deve ser evitado, mas sim investigado como o principal indicador de uma oportunidade para otimização neural.",
+      "id": "live_1773981367830",
+      "data_extracao": "2026-03-20T04:36:07.830Z"
+    },
+    {
+      "categoria": "Neuroplasticidade Aplicada",
+      "titulo": "A Lei da Intenção Focada",
+      "regra": "Não é a repetição que solidifica um novo caminho neural, mas sim a intensidade e a clareza da intenção focada no resultado.",
+      "id": "live_1773981368068",
+      "data_extracao": "2026-03-20T04:36:08.068Z"
+    },
+    {
+      "categoria": "Percepção do Tempo e Ansiedade",
+      "titulo": "A Mente Como Mestra do Tempo",
+      "regra": "A percepção interna do tempo ('o tempo da mente') é a força criadora que molda a experiência do tempo externo ('o tempo do mundo'). Dominar o primeiro elimina a pressa imposta pelo segundo.",
+      "id": "live_1773981373712",
+      "data_extracao": "2026-03-20T04:36:13.712Z"
+    },
+    {
+      "categoria": "Processo Decisório",
+      "titulo": "A Pausa Estratégica",
+      "regra": "Antes de analisar um problema, pause para dissociar-se da reação emocional inicial. A clareza emerge do espaço criado por essa pausa, não da reação imediata.",
+      "id": "live_1773981373958",
+      "data_extracao": "2026-03-20T04:36:13.958Z"
+    },
+    {
+      "categoria": "Metacognição",
+      "titulo": "O Espaço Entre Estímulo e Resposta",
+      "regra": "Entre o estímulo (gatilho) e a resposta automática, existe um espaço de pausa consciente. Cultivar este espaço é o que permite a liberdade de escolher uma nova resposta, quebrando padrões e reconfigurando circuitos neurais.",
+      "id": "live_1773981377967",
+      "data_extracao": "2026-03-20T04:36:17.967Z"
+    },
+    {
+      "categoria": "Metacognição",
+      "titulo": "A Primazia da Pergunta",
+      "regra": "Antes de buscar a resposta, refine a pergunta.",
+      "id": "live_1773981378504",
+      "data_extracao": "2026-03-20T04:36:18.504Z"
+    }
   ],
-  "last_update": "2026-03-20T00:48:31.753Z",
+  "last_update": "2026-03-20T02:51:51.495Z",
   "last_insight": "A correção melhora drasticamente o material ao transformar uma resposta vaga e inútil ('Indisponível') em uma informação específica, relevante e profissional ('Teste de Neuro-Training'). Isso não apenas preenche a lacuna com conteúdo valioso, mas também estabelece um tom de competência e conhecimento do domínio, essencial para qualquer comunicação eficaz, movendo-se de um 'placeholder' para um 'label' significativo.",
   "insights_history": [
     {

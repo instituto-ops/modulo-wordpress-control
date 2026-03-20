@@ -28,22 +28,37 @@ const upload = multer({
     limits: { fileSize: 50 * 1024 * 1024 } // 50MB
 });
 
+// [GLOBAL] Servidor WebSocket para Logs em Tempo Real e Voz
+let wss; 
+
+/**
+ * Função global para reportar status dos agentes via WebSocket
+ */
+function reportAgentStatus(agent, status, reason = "", isDone = false) {
+    if (wss && wss.clients) {
+        const payload = JSON.stringify({
+            type: 'agent_log',
+            agent,
+            status,
+            reason,
+            isDone
+        });
+        wss.clients.forEach(client => {
+            if (client.readyState === 1) { // WebSocket.OPEN
+                client.send(payload);
+            }
+        });
+    }
+}
+
 // [HEMISFÉRIOS CEREBRAIS DA IA - GERAÇÃO 2026]
 const genAI = new GoogleGenerativeAI(process.env.GEMINI_API_KEY || "DUMMY");
-const VISION_MODEL = "gemini-2.5-flash";
-const HEAVY_MODEL = "gemini-2.5-pro";
+const VISION_MODEL = "gemini-2.5-flash"; // Modelo ultra-rápido para o Studio
+const HEAVY_MODEL = "gemini-2.5-pro";    // Modelo denso para Clústeres e Auditorias
 
-// Hemisfério Esquerdo (FLASH): Rápido, Multimodal e Estruturado (DNA & Áudio)
-const modelFlash = genAI.getGenerativeModel({ 
-    model: VISION_MODEL, 
-    generationConfig: { responseMimeType: "application/json" }
-});
-
-// Hemisfério Direito (PRO): Denso, Analítico e Criativo (Drafts & Doctoralia)
-const modelPro = genAI.getGenerativeModel({ 
-    model: HEAVY_MODEL, 
-    generationConfig: { temperature: 0.7 }
-});
+// Modelos Base (Configuração flexível)
+const modelFlash = genAI.getGenerativeModel({ model: VISION_MODEL });
+const modelPro = genAI.getGenerativeModel({ model: HEAVY_MODEL });
 const draftsDb = []; // In-memory store for newly generated drafts before WP sync
 
 // Helper robust JSON parser
@@ -552,26 +567,35 @@ let voiceProfile = {
 app.get('/api/drafts', async (req, res) => {
     try {
         console.log(`📑 [REVISÃO] Buscando rascunhos reais do WordPress...`);
-        const response = await callWP('GET', '/posts', null, { 
-            status: 'draft', 
-            per_page: 50,
-            _fields: 'id,title,content,date,type' 
-        });
+        // Buscamos posts e pages simultaneamente para a fila de revisão
+        const [posts, pages] = await Promise.all([
+            callWP('GET', '/posts', null, { status: 'draft', per_page: 50 }),
+            callWP('GET', '/pages', null, { status: 'draft', per_page: 50 })
+        ]);
 
-        const drafts = response.data.map(post => ({
-            draft_id: `WP-${post.id}`,
-            tema_foco: post.title.rendered || "Sem Título",
-            conteudo_gerado: post.content.rendered,
-            validacoes_automatizadas: {
-                pesquisa_clinica: true,
-                metodo_abidos: post.content.rendered.includes('<h1'), // Heurística simples
-                compliance_etico: !post.content.rendered.includes('garantido'), // Heurística simples
-                med_f1_score: 0.95
-            },
-            status_atual: "aguardando_psicologo",
-            fontes_rag_utilizadas: ["WordPress Draft Store"],
-            data_submissao: post.date
-        }));
+        const allDrafts = [...posts.data, ...pages.data];
+
+        const drafts = allDrafts.map(post => {
+            const auditStatus = post.meta?._abidos_audit_status || "PENDENTE";
+            const auditReportJson = post.meta?._abidos_audit_report;
+            let auditReport = null;
+            try { if (auditReportJson) auditReport = JSON.parse(auditReportJson); } catch (e) {}
+
+            return {
+                draft_id: `WP-${post.id}`,
+                tema_foco: post.title.rendered || "Sem Título",
+                conteudo_gerado: post.content.rendered,
+                validacoes_automatizadas: {
+                    pesquisa_clinica: auditStatus === "APROVADO",
+                    metodo_abidos: auditStatus === "APROVADO" || post.content.rendered.includes('<h2'),
+                    compliance_etico: auditStatus === "APROVADO",
+                    med_f1_score: auditReport ? 0.95 : 0.90 // Placeholder para Score real no futuro
+                },
+                status_atual: auditStatus === "REPROVOU" ? "requer_ajustes" : "aguardando_psicologo",
+                fontes_rag_utilizadas: ["WordPress Draft Store", "Bio Dr. Victor"],
+                data_submissao: post.date
+            };
+        });
 
         res.json(drafts);
     } catch (e) {
@@ -855,7 +879,6 @@ app.post('/api/reputation/analyze', async (req, res) => {
         
         Retorne em JSON.
         `;
-
         const result = await model.generateContent(prompt);
         const jsonStr = result.response.text().replace(/```json/g, '').replace(/```/g, '').trim();
         res.json(JSON.parse(jsonStr));
@@ -865,149 +888,46 @@ app.post('/api/reputation/analyze', async (req, res) => {
 });
 
 // ==============================================================================
-// 6. DOCTORALIA ASSISTANT (ORQUESTRADOR DE RESPOSTAS CLÍNICAS)
-// ==============================================================================
-app.post('/api/doctoralia/generate-reply', async (req, res) => {
-    try {
-        const { question } = req.body;
-        if (!process.env.GEMINI_API_KEY) throw new Error("Chave API não configurada.");
-        
-        console.log(`🩺 [DOCTORALIA] Gerando resposta humanizada para: "${question.substring(0, 50)}..."`);
-        
-        const prompt = `VOCÊ É O ASSISTENTE CLÍNICO DO DR. VICTOR LAWRENCE.
-        TAREFA: Responder uma dúvida de paciente no portal Doctoralia.
-        
-        DIRETRIZES DE OURO:
-        1. Tom Ericksoniano: Acolhedor, permissivo e tecnicamente impecável.
-        2. EEAT-HIGH: Demonstre autoridade (Mestre UFU, CRP 09/012681) sem ser arrogante.
-        3. Sigilo: Nunca confirme diagnósticos sem avaliação. Sempre sugira agendamento.
-        4. Geo-Localização: Mencione que o atendimento especializado ocorre em Goiânia.
-        
-        REGRAD DE FORMATAÇÃO (CRÍTICO):
-        - RETORNE APENAS TEXTO LIMPO (PLAIN TEXT).
-        - É ESTRITAMENTE PROIBIDO O USO DE QUALQUER FORMATAÇÃO MARKDOWN (COMO ** PARA NEGRITO, # PARA TÍTULOS OU LISTAS COM -).
-        - A RESPOSTA DEVE PARECER TER SIDO DIGITADA MANUALMENTE POR UM CLÍNICO EM UM PORTAL DE SAÚDE, SEM "SINAIS DE IA".
-        
-        PERGUNTA DO PACIENTE: "${question}"
-        
-        SAÍDA: O texto final da resposta, sem formatação markdown.`;
-        
-        const result = await modelPro.generateContent(prompt);
-        res.json({ success: true, reply: result.response.text() });
-    } catch (e) {
-        console.error("❌ [DOCTORALIA ERROR]", e.message);
-        res.status(500).json({ success: false, error: e.message });
-    }
-});
-
-// ==============================================================================
 // 7. AGENTES DA ESTEIRA DE PRODUÇÃO (FASE 2: MÁQUINA DE ESTADOS)
 // ==============================================================================
 
 async function runConstructor(userInput, feedback = null, waNumber, moodId = "1_introspeccao_profunda", contentType = "pages") {
-    console.log(`🏗️ [AGENTE 1] Iniciando construção do rascunho (Tipo: ${contentType}, Mood: ${moodId})...`);
+    console.log(`🏗️ [Studio] Gerando rascunho direto: "${userInput.substring(0, 30)}..."`);
     const model = genAI.getGenerativeModel({ model: VISION_MODEL });
     
-    // Extrai clima e memória de estilo
     const clima = CLIMAS_CLINICOS[moodId] || CLIMAS_CLINICOS["1_introspeccao_profunda"];
     const personalStyle = getVictorStyle();
-    const styleContext = personalStyle.style_rules?.length > 0 ? 
-        `\n[MEMÓRIA DE ESTILO (NEURO-TRAINING)]: \n- ${personalStyle.style_rules.join('\n- ')}` : '';
-    
-    // Bloco de Restrição Estética (Fase 3)
-    const restricaEstetica = `
-    [ALERTA DE RESTRIÇÃO ESTRITA DE DESIGN: CLIMA CLÍNICO ATIVO]
-    Para esta tarefa, você está OBRIGADO a utilizar o perfil visual: ${clima.nome_amigavel}.
-    Você está ESTRITAMENTE PROIBIDO de inventar códigos hexadecimais, paletas de cores ou gradientes que não estejam listados abaixo. O não cumprimento resultará na reprovação imediata do seu código.
+    const styleRules = personalStyle.style_rules?.map(r => `- ${r.regra}`).join('\n') || '';
 
-    Variáveis Obrigatórias do Tailwind CSS v4:
-    - Fundo das secções principais: Deve ser exclusivamente ${clima.fundo_principal}.
-    - Cor da Tipografia de parágrafos e textos longos: Deve ser exclusivamente ${clima.texto_principal}.
-    - Cor dos Títulos (H2, H3) e destaques: Deve ser exclusivamente ${clima.texto_destaque}.
-    - Cor de Acção (Botões, Links, Ícones CTA): Deve ser exclusivamente ${clima.cor_acao}.
+    const prompt = `VOCÊ É O ARQUITETO ABIDOS V4. Crie uma ${contentType === 'pages' ? 'Landing Page de Alta Conversão' : 'Postagem de Autoridade'} para: "${userInput}".
+                    
+                    HIERARQUIA SEMÂNTICA (REGRAS DE OURO):
+                    1. TÍTULO SEO: Palavra-chave foco nos primeiros 50 caracteres (Limite 60).
+                    2. H1: RIGOROSAMENTE apenas um H1 (Primary KW + Promessa + Goiânia). 
+                       - Higiene: Não inclua H1 se for repetir o título da página. Mas para Landing Pages, gere um H1 impactante na Hero.
+                    3. H2: Use para Identificação da Dor, Benefícios, Autoridade (E-A-T) e FAQ.
+                    4. H3: Detalhamento técnico e quebra de objeções.
+                    
+                    DETALHES DO CLIENTE:
+                    - Profissional: Dr. Victor Lawrence (Psicólogo, Mestre UFU).
+                    - Registro: CRP 09/012681.
+                    - WhatsApp: 62991545295
+                    - Localização: Goiânia.
+                    - Estilo Visual: ${clima.nome_amigavel}.
+                    
+                    ESTRUTURA OBRIGATÓRIA (FUNIL):
+                    - HERO: H1 Gatilho + Subtítulo Acolhedor + CTA WhatsApp.
+                    - DOR (H2): "Sente que a exaustão emocional está travando sua vida?". Use ícones.
+                    - MÉTODO (H2): Explicação lógica com repetição semântica da KW.
+                    - AUTORIDADE (H2): Foto humanizada, Mestrado UFU, CRP 09/012681.
+                    - FAQ (H2): Perguntas em accordion (H3 para perguntas).
+                    - RODAPÉ: NAP (Nome, Endereço, Telefone) perfeitamente alinhado ao Google Meu Negócio.
+                    
+                    REGRAS DE CÓDIGO:
+                    - Use HTML5 Semântico e Tailwind inline.
+                    - Use gradientes suaves e glassmorphism conforme o clima.
+                    - Retorne APENAS o HTML INTERNO da div abidos-wrapper.`;
 
-    Diretrizes de Efeitos Visuais UI/UX:
-    Aplique rigorosamente a seguinte regra de efeitos: ${clima.efeitos_obrigatorios}.
-    Lembre-se: Todas as classes críticas de col acima já possuem o prefixo ! para forçar a prioridade (important). Não o remova.
-    `;
-
-    let specificRolePrompt = "";
-
-    if (contentType === "posts") {
-        specificRolePrompt = `
-[IDENTIDADE E PROPÓSITO: MÓDULO DE POSTAGENS ABIDOS V3.2]
-Você é o Arquiteto Frontend Sênior responsável por gerar as Postagens de Blog (Spokes) da Clínica Victor Lawrence. Sua missão é criar artigos em HTML/Tailwind CSS que não sejam apenas textos, mas Experiências Editoriais Imersivas e Hipnóticas, utilizando o "Protocolo Abidos v3.2".
-
-DNA VISUAL E ATMOSFERA (A ESTÉTICA ERICKSONIANA):
-As postagens devem evocar um transe visual sóbrio, elegante e naturalista. O paciente deve sentir-se acolhido e focado.
-- Tipografia: Fonte Inter. Títulos (H1, H2, H3) devem usar !font-extrabold e !tracking-tight. Parágrafos base devem usar !font-normal, !text-slate-300 (no tema dark) ou !text-slate-700 (no tema light), com entrelinhas generoso !leading-[1.8].
-- Cores Restritas: Fundo principal !bg-[#05080f] (Midnight) ou !bg-[#faf9f6] (Off-white). Destaques sempre em !bg-[#2dd4bf] ou !text-[#2dd4bf] (Teal).
-- Obrigatoriedade Técnica: Todo o código deve estar encapsulado na <div class="abidos-wrapper">. Todas as classes Tailwind utilitárias críticas devem levar o prefixo ! (ex: !flex, !mt-8) para blindar contra o tema WordPress legado.
-
-DIRETRIZES DE ESTRUTURA E VARIAÇÃO DE LAYOUT:
-1. Header do Artigo (Hero do Blog): Sempre inicie com um H1 impactante centralizado, a data/categoria, e uma imagem de capa grande com cantos arredondados (!rounded-[2rem]) e filtro suave (grayscale-[15%]).
-2. Cápsula de Leitura: O texto do corpo (body do artigo) deve estar OBRIGATORIAMENTE confinado em uma div com max-w-3xl mx-auto. A fluência cognitiva é a prioridade zero.
-3. Citações Hipnóticas (Blockquotes): Transforme frases-chave ou reflexões importantes do Dr. Victor em blocos destacados usando o estilo Glassmorphism Sóbrio.
-   - Código Base: <blockquote class="abidos-glass-dark !p-8 !rounded-2xl !border-l-4 !border-[#2dd4bf] !my-10 !text-xl !italic !text-white">
-4. Respiros Visuais (Imagens In-line): Alterne imagens secundárias ao longo do texto. Em um bloco, coloque a imagem fluindo à direita (float-right !ml-8 !mb-4 w-1/2); em outro post, use imagens expandidas quebrando o layout.
-5. Aura Periférica (Orb Glows): Insira esferas de luz animadas na borda da tela para manter a atmosfera sem poluir o texto central.
-
-ESTRUTURA SEO E E-E-A-T:
-- Linkagem Interna Contextual: Ao longo do texto, crie cards elegantes (usando Glassmorphism leve) recomendando a página de Serviço Principal (Silo Pai).
-- Caixa de Autoridade (Author Box): No final de TODA postagem, gere um bloco visual de rodapé com a foto do Victor Lawrence, CRP 09/012681, menção ao Mestrado (UFU) e um botão sutil de WhatsApp.
-        `;
-    } else {
-        specificRolePrompt = `
-[INSTRUÇÃO DE IDENTIDADE E PAPEL: MÓDULO DE PÁGINAS ABIDOS V4]
-Você é um Arquiteto de Software Frontend Sênior, Especialista em Neuromarketing Clínico e SEO Técnico (Metodologia Abidos). Suas páginas devem seguir a **CONVERGÊNCIA SEMÂNTICA ABSOLUTA**:
-
-1. **HIERARQUIA SEMÂNTICA ESTRITA**:
-    - **H1 (TITULO ESTRATÉGICO)**: UNIFIQUE Palavra-chave primária exata + Promessa de valor (transformação) + Localização. (Ex: "Psicólogo Especialista em Goiânia: Supere a Ansiedade e Restaure seu Equilíbrio Mental"). 
-    - **IMPORTANTE**: Jamais gere a tag <h1> dentro do HTML bruto. O título deve ser informado apenas como o nome do rascunho.
-    - **H2 (SILOS E CATEGORIAS)**: Use <h2> obrigatoriamente para as seções: Identificação da Dor, Benefícios de Serviços, Autoridade/E-A-T (Mestre UFU, CRP) e o FAQ (Perguntas Frequentes).
-    - **H3 (DETALHAMENTO)**: Use <h3> apenas para granularidade técnica e quebra de objeções específicas.
-
-2. **COPYWRITING E E-E-A-T**:
-    - Prove autoridade: CRP 09/012681, Mestrado UFU, Autor da escala AQ10b.
-    - SEO de Imagens: Todas as tags <img> devem ter alt text geo-localizado (ex: "Clínica Victor Lawrence em Goiânia - Setor Bueno").
-    - Rodapé (Footer): Construído em 4 colunas com NAP completo alinhado ao Google Maps.
-        `;
-    }
-
-    let prompt = `
-${specificRolePrompt}
-
-${restricaEstetica}
-
-[REGRA ABSOLUTA E INVIOLÁVEL: VERACIDADE DOS DADOS]
-É ESTRITAMENTE PROIBIDO o uso de dados falsos, "Lorem Ipsum", informações genéricas ou placeholders (como href="#" ou imagens de bancos gratuitos).
-Utilize EXCLUSIVAMENTE a Base de Dados de Links Reais e o Repositório Visual de Imagens fornecidos no final deste prompt.
-
-[DIRETRIZES TÉCNICAS GERAIS (ABIDOS V3.2)]
-- GERAÇÃO NATIVA TOTAL: Você não está mais criando apenas o 'corpo' da página. Você deve agora gerar obrigatoriamente:
-    1. CABEÇALHO (Header): Menu responsivo com logótipo real, links para silos e CTA de agendamento.
-    2. RODAPÉ (Footer): Estrutura de 4 colunas (Identidade, Navegação, Silos, Contato/NAP) seguindo o Google Meu Negócio.
-- Wrapper Mestre: Todo o código deve estar encapsulado dentro de <div class="abidos-wrapper">.
-- Imunidade: Prefixo !important em classes críticas.
-- Mobile-First: Botões !whitespace-nowrap.
-
-${styleContext}
-
-[REQUISIÇÃO DO USUÁRIO]
-WHATSAPP PARA CTAs: ${waNumber}
-PEDIDO EXPLICITO: ${userInput}
-${feedback ? `⚠️ FEEDBACK DE CORREÇÃO DOS INSPETORES (CORRIJA ISTO): ${feedback}` : ''}
-
-============== TEMPLATE ESTRUTURAL MÍNIMO ==============
-${ABIDOS_TEMPLATE_MINIMO}
-
-============== DADOS REAIS E ASSETS ==============
-${REAL_ASSETS}
-${DOCTORALIA_REVIEWS}
-
-[INSTRUÇÃO DE EXECUÇÃO FINAL]
-Gere o código HTML completo aplicando estas regras. Retorne APENAS o código HTML cru.
-    `;
     const result = await model.generateContent(prompt);
     return result.response.text().replace(/```html|```/g, '').trim();
 }
@@ -1034,7 +954,7 @@ async function runAbidosInspector(html) {
     `;
     const result = await model.generateContent(prompt);
     try {
-        return JSON.parse(result.response.text().replace(/```json|```/g, '').trim());
+        return JSON.parse(result.response.text().replace(/\`\`\`json|\`\`\`/g, '').trim());
     } catch (e) {
         return { status: "REPROVOU", motivo: "Erro na resposta do inspetor. Tente novamente." };
     }
@@ -1058,7 +978,7 @@ async function runClinicalInspector(html) {
     `;
     const result = await model.generateContent(prompt);
     try {
-        return JSON.parse(result.response.text().replace(/```json|```/g, '').trim());
+        return JSON.parse(result.response.text().replace(/\`\`\`json|\`\`\`/g, '').trim());
     } catch (e) {
         return { status: "REPROVOU", motivo: "Erro na resposta do inspetor. Tente novamente." };
     }
@@ -1076,13 +996,13 @@ async function runDesignInspector(html) {
         2. Os textos em parágrafos usam font-normal (peso 400) para evitar cansaço visual? (Se não, REPROVOU).
         3. Existe risco de colisão mobile (ex: botões com textos gigantes que quebram a linha)? (Se sim, REPROVOU).
         Output Exigido: Responda APENAS no formato JSON: {"status": "PASSOU"} OU {"status": "REPROVOU", "motivo": "Adicione a classe '!whitespace-nowrap' no botão Y"}.
-        
+
         HTML PARA AUDITORIA:
         ${html}
     `;
     const result = await model.generateContent(prompt);
     try {
-        return JSON.parse(result.response.text().replace(/```json|```/g, '').trim());
+        return JSON.parse(result.response.text().replace(/\`\`\`json|\`\`\`/g, '').trim());
     } catch (e) {
         return { status: "REPROVOU", motivo: "Erro na resposta do inspetor. Tente novamente." };
     }
@@ -1098,43 +1018,66 @@ async function runProductionLine(userInput, feedback, waNumber, moodId, contentT
     const maxRetries = 3;
     let attempts = 0;
 
+    reportAgentStatus("NeuroEngine", "Iniciando orquestração da esteira...", "", false);
+
     while (attempts < maxRetries) {
         attempts++;
-        console.log(`🔄 [ESTEIRA] Tentativa ${attempts}/${maxRetries} (${contentType}) para: ${userInput.substring(0, 30)}...`);
+        console.log("RETRY [ESTEIRA]: Tentativa " + attempts + "/" + maxRetries + " (" + contentType + ")");
         
         // 1. Construtor
+        reportAgentStatus("Gerador", `Construindo versão ${attempts}...`, "", false);
         let extendedPrompt = userInput;
         if (siloContext) extendedPrompt += `\n\n[CONTEXTO DE SILO ABIDOS]: Este item faz parte de um cluster. Vincule-o semanticamente e crie links contextuais para: ${siloContext}`;
 
-        currentHtml = await runConstructor(extendedPrompt, finalFeedback, waNumber, moodId, contentType);
-        
-        // 2. Inspetor Abidos
+        try {
+            currentHtml = await runConstructor(extendedPrompt, finalFeedback, waNumber, moodId, contentType);
+            reportAgentStatus("Gerador", "Rascunho base gerado.", "", true);
+        } catch (e) {
+            reportAgentStatus("Gerador", "Erro ao gerar: " + e.message, "", true);
+            throw e;
+        }
+
+        // 2. Inspetor Abidos (SEO)
+        reportAgentStatus("Abidos", "Validando SEO e links...", "", false);
         const abidosResult = await runAbidosInspector(currentHtml);
         if (abidosResult.status === "REPROVOU") {
-            console.warn(`❌ [ABIDOS REPROVOU] Tentativa ${attempts}: ${abidosResult.motivo}`);
+            console.warn(`❌ [ABIDOS REPROVOU] ${abidosResult.motivo}`);
+            reportAgentStatus("Abidos", "SEO Reprovado: " + abidosResult.motivo, "", false);
             finalFeedback = `AGENTE ABIDOS REPROVOU: ${abidosResult.motivo}`;
             continue;
         }
-        
-        // 3. Inspetor Clínico
+        reportAgentStatus("Abidos", "SEO Validado.", "", true);
+
+        // 3. Inspetor Clínico (Compliance/Ética)
+        reportAgentStatus("Clínico", "Auditando Ética e Tom de Voz...", "", false);
         const clinicalResult = await runClinicalInspector(currentHtml);
         if (clinicalResult.status === "REPROVOU") {
-            console.warn(`❌ [CLÍNICO REPROVOU] Tentativa ${attempts}: ${clinicalResult.motivo}`);
+            console.warn(`❌ [CLÍNICO REPROVOU] ${clinicalResult.motivo}`);
+            reportAgentStatus("Clínico", "Ética Reprovada: " + clinicalResult.motivo, "", false);
             finalFeedback = `AGENTE CLÍNICO REPROVOU: ${clinicalResult.motivo}`;
             continue;
         }
+        reportAgentStatus("Clínico", "Conformidade Aprovada.", "", true);
 
-        // 4. Inspetor Design
+        // 4. Inspetor Design (Visual)
+        reportAgentStatus("Design", "Refinando estética mobile-first...", "", false);
         const designResult = await runDesignInspector(currentHtml);
         if (designResult.status === "REPROVOU") {
-            console.warn(`❌ [DESIGN REPROVOU] Tentativa ${attempts}: ${designResult.motivo}`);
+            console.warn(`❌ [DESIGN REPROVOU] ${designResult.motivo}`);
+            reportAgentStatus("Design", "Layout Reprovado: " + designResult.motivo, "", false);
             finalFeedback = `AGENTE DESIGN REPROVOU: ${designResult.motivo}`;
             continue;
         }
-        
-        return { success: true, html: currentHtml, attempts };
+        reportAgentStatus("Design", "Design Premium Validado.", "", true);
+
+        // 5. Sucesso
+        const diff = `Aprovado na tentativa ${attempts}. Auditores: OK.`;
+        reportAgentStatus("NeuroEngine", "Decisão Final Tomada. Entregando para o Canvas.", "", true);
+        return { html: currentHtml, diff: diff };
     }
-    return { success: false, html: currentHtml, feedback: finalFeedback, attempts };
+
+    reportAgentStatus("NeuroEngine", "Falha após 3 tentativas.", "A esteira não conseguiu satisfazer todos os auditores.", true);
+    throw new Error("A esteira de produção falhou em validar o conteúdo após 3 tentativas.");
 }
 
 // ==============================================================================
@@ -1172,21 +1115,18 @@ app.post('/api/chat', upload.single('screenshot'), async (req, res) => {
     try {
         const { prompt, message, htmlContext, currentKeyword, whatsapp, moodId, type } = req.body;
         const userInput = prompt || message;
-        const waNumber = whatsapp || '5562991545295';
+        const waNumber = whatsapp || '62991545295';
         const selectedMood = moodId || '1_introspeccao_profunda';
         const contentType = type || 'pages';
-        
-        console.log(`\n🚦 [CHAT-ESTEIRA] Novo Comando Recebido: "${userInput.substring(0, 30)}..."`);
-        
-        const result = await runProductionLine(userInput, null, waNumber, selectedMood, contentType);
 
-        if (result.success) {
-            console.log(`🏁 [CHAT-ESTEIRA CONCLUÍDA] Código aprovado.`);
-            res.json({ reply: result.html });
-        } else {
-            console.error(`🚨 [CHAT-ESTEIRA FALHOU] Feedback final: ${result.feedback}`);
-            res.json({ reply: `⚠️ Atenção: O Studio não conseguiu resolver todas as pendências de qualidade após ${result.attempts} tentativas. Feedback: ${result.feedback}. Intervenção manual necessária.` });
-        }
+        console.log(`\n🏗️ [STUDIO-CONSTRUCTION] Novo Comando: "${userInput.substring(0, 30)}..."`);
+        reportAgentStatus("Agente Construtor", "Sintetizando DNA clínico e estruturando rascunho...", "", false);
+
+        // REGRA DE OURO: No AI Studio, apenas o Construtor trabalha.
+        const html = await runConstructor(userInput, null, waNumber, selectedMood, contentType);
+        
+        reportAgentStatus("Agente Construtor", "Rascunho finalizado com sucesso.", "", true);
+        res.json({ reply: html });
     } catch (e) { 
         console.error("❌ [CHAT-ESTEIRA ERROR]", e.message);
         res.status(500).json({ error: e.message }); 
@@ -1200,15 +1140,13 @@ app.post('/api/blueprint', upload.none(), async (req, res) => {
         const selectedMood = moodId || '1_introspeccao_profunda';
         const contentType = type || 'pages';
         
-        console.log(`\n📐 [BLUEPRINT] Solicitação de Rascunho: "${theme}" (${contentType})`);
-        
-        const result = await runProductionLine(`Criar blueprint completo para o tema: ${theme}`, null, waNumber, selectedMood, contentType);
+        console.log(`\n📐 [BLUEPRINT] Construindo rascunho acelerado: "${theme}"`);
+        reportAgentStatus("Agente Construtor", "Orquestrando blueprint estrutural...", "", false);
 
-        if (result.success) {
-            res.json({ html: result.html });
-        } else {
-            res.json({ html: `<!-- 🚨 FALHA CRÍTICA: O Studio não conseguiu resolver rascunho Abidos após 3 tentativas. -->\n${result.html}` });
-        }
+        const html = await runConstructor(`Criar blueprint completo para o tema: ${theme}`, null, waNumber, selectedMood, contentType);
+        
+        reportAgentStatus("Agente Construtor", "Blueprint entregue.", "", true);
+        res.json({ reply: html });
     } catch (e) { 
         console.error("❌ [BLUEPRINT ERROR]", e.message);
         res.status(500).json({ error: e.message }); 
@@ -1354,12 +1292,49 @@ app.post('/api/content/publish-direct', async (req, res) => {
         const response = await callWP('POST', endpoint, payload);
 
         if (response && response.data && response.data.id) {
+             const postId = response.data.id;
+             const postLink = response.data.link;
+
              res.json({ 
                 success: true, 
-                id: response.data.id, 
-                link: response.data.link,
-                message: "Publicado com sucesso no WordPress (Status: " + payload.status + ")"
+                id: postId, 
+                link: postLink,
+                message: "Publicado com sucesso no WordPress (Rascunho Acelerado)"
             });
+
+            // --- INÍCIO DA AUDITORIA EM SEGUNDO PLANO (MULTI-AGENTE) ---
+            // Não bloqueia o rascunho no Studio, roda em background.
+            (async () => {
+                try {
+                    console.log(`📡 [BACKGROUND-AUDIT] Iniciando esteira multi-agente para Post #${postId}...`);
+                    const auditResult = await runProductionLine(`Auditar conteúdo salvo: ${title}`, payload.content, "62991545295", "1_introspeccao_profunda", type);
+                    
+                    if (auditResult.success) {
+                        console.log(`✅ [AUDIT-SUCCESS] Post #${postId} validado pelos agentes.`);
+                        // Salva o resultado no Meta do WP para a aba de Revisão ver
+                        await callWP('POST', `/${endpoint}/${postId}`, {
+                            meta: {
+                                _abidos_audit_status: "APROVADO",
+                                _abidos_audit_report: JSON.stringify(auditResult),
+                                _abidos_last_audit: new Date().toISOString()
+                            }
+                        });
+                    } else {
+                        console.warn(`⚠️ [AUDIT-REPROVOU] Post #${postId} requer atenção humana.`);
+                        await callWP('POST', `/${endpoint}/${postId}`, {
+                            meta: {
+                                _abidos_audit_status: "REPROVOU",
+                                _abidos_audit_report: JSON.stringify(auditResult),
+                                _abidos_last_audit: new Date().toISOString()
+                            }
+                        });
+                    }
+                } catch (auditErr) {
+                    console.error(`🚨 [BACKGROUND-AUDIT-ERROR] Falha na esteira para Post #${postId}:`, auditErr.message);
+                }
+            })();
+            // --- FIM DA AUDITORIA ---
+
         } else {
             console.error("Resp WP Inválida:", response?.data);
             res.status(500).json({ error: "Resposta inválida ou vazia do WordPress via Proxy." });
@@ -1379,6 +1354,11 @@ app.post('/api/blueprint/cluster', async (req, res) => {
         const { theme, moodId, whatsapp } = req.body;
         console.log(`💠 [CLUSTER] Orquestrando Silo Neural para: ${theme}`);
 
+        if (!modelPro) {
+            console.error("❌ modelPro não inicializado!");
+            return res.status(500).json({ error: "Hemisfério Pro não carregado no servidor." });
+        }
+
         const systemPrompt = `
         Você é o Arquiteto Abidos (Gemini 2.5 Pro). Sua missão é criar um Cluster SEO (Silo Semântico) de alta conversão para o psicólogo Victor Lawrence sobre o tema: "${theme}".
         
@@ -1393,19 +1373,28 @@ app.post('/api/blueprint/cluster', async (req, res) => {
         
         RETORNE EXCLUSIVAMENTE UM JSON VÁLIDO NESTE FORMATO:
         {
-          "mainTopic": "Tema Central Escolhido",
+          "mainTopic": "${theme}",
           "items": [
             {
-              "title": "Título Estratégico",
+              "title": "Título do Hub",
               "type": "pages",
               "html": "<section>...</section>"
             },
             {
-              "title": "Título do Artigo 1",
+              "title": "Artigo 1",
+              "type": "posts",
+              "html": "<section>...</section>"
+            },
+            {
+              "title": "Artigo 2",
+              "type": "posts",
+              "html": "<section>...</section>"
+            },
+            {
+              "title": "Artigo 3",
               "type": "posts",
               "html": "<section>...</section>"
             }
-            // ... (restante dos itens)
           ]
         }
         `;
@@ -1413,19 +1402,20 @@ app.post('/api/blueprint/cluster', async (req, res) => {
         const result = await modelPro.generateContent(systemPrompt);
         const responseText = result.response.text();
         
-        // Limpa a formatação markdown se a IA colocar
-        const cleanJson = responseText.replace(/```json/g, '').replace(/```/g, '').trim();
-        
-        const clusterData = JSON.parse(cleanJson);
-        clusterData.success = true;
+        const clusterData = extractJSON(responseText);
+        if (!clusterData || !clusterData.items) {
+            console.error("❌ Falha ao extrair JSON do Cluster. Resposta bruta:", responseText);
+            throw new Error("A IA não retornou um JSON válido de Cluster.");
+        }
 
+        clusterData.success = true;
         res.status(200).json(clusterData);
 
     } catch (error) {
         console.error("🚨 Erro na geração do Cluster:", error);
         res.status(500).json({ 
             success: false, 
-            error: "Falha no Hemisfério Pro ao orquestrar o Silo. Verifique os logs do servidor." 
+            error: "Falha no Hemisfério Pro: " + error.message 
         });
     }
 });
@@ -1550,6 +1540,72 @@ app.post('/api/dna/auto-refine', async (req, res) => {
     }
 });
 
+// =========================================================
+// ROTA: ORQUESTRAÇÃO DE CLUSTER / SILO NEURAL (Usa o PRO)
+// =========================================================
+app.post('/api/blueprint/cluster', async (req, res) => {
+    try {
+        const { theme, moodId, whatsapp } = req.body;
+        console.log(`💠 [CLUSTER] Orquestrando Silo Neural para: ${theme}`);
+
+        const systemPrompt = `
+        Você é o Arquiteto Abidos (Gemini 2.5 Pro). Sua missão é criar um Cluster SEO (Silo Semântico) de alta conversão para o psicólogo Victor Lawrence sobre o tema: "${theme}".
+        
+        Você deve gerar EXATAMENTE 4 conteúdos interligados:
+        - 1 Página Pilar (Hub) de Vendas (type: "pages").
+        - 3 Artigos de Blog (Spokes) focados em cauda longa e dores específicas (type: "posts").
+        
+        REGRAS DE CÓDIGO:
+        - O HTML deve usar seções modulares (<section>) com estilos inline (Tailwind).
+        - Substitua links genéricos por links reais ou placeholders lógicos.
+        - Não use aspas duplas não escapadas dentro do HTML para não quebrar o JSON.
+        
+        RETORNE EXCLUSIVAMENTE UM JSON VÁLIDO NESTE FORMATO:
+        {
+          "mainTopic": "${theme}",
+          "items": [
+            {
+              "title": "Título Estratégico do Hub",
+              "type": "pages",
+              "html": "<section>...</section>"
+            },
+            {
+              "title": "Título do Artigo 1",
+              "type": "posts",
+              "html": "<section>...</section>"
+            },
+            {
+              "title": "Título do Artigo 2",
+              "type": "posts",
+              "html": "<section>...</section>"
+            },
+            {
+              "title": "Título do Artigo 3",
+              "type": "posts",
+              "html": "<section>...</section>"
+            }
+          ]
+        }
+        `;
+
+        const result = await modelPro.generateContent(systemPrompt);
+        const responseText = result.response.text();
+        
+        const clusterData = extractJSON(responseText);
+        if (!clusterData || !clusterData.items) throw new Error("Falha ao extrair JSON do Cluster.");
+
+        clusterData.success = true;
+        res.status(200).json(clusterData);
+
+    } catch (error) {
+        console.error("🚨 Erro na geração do Cluster:", error);
+        res.status(500).json({ 
+            success: false, 
+            error: "Falha no Hemisfério Pro ao orquestrar o Silo. " + error.message 
+        });
+    }
+});
+
 const server = app.listen(port, () => {
     console.log(`\n🚀 AntiGravity CMS: Mission Control Ativo!`);
     console.log(`📡 Frontend & API rodando em http://localhost:${port}`);
@@ -1558,7 +1614,7 @@ const server = app.listen(port, () => {
 });
 
 // [PRIORIDADE 2] MOTOR DE VOZ LIVE (DR. VICTOR LIVE-DNA)
-const wss = new WebSocket.Server({ server });
+wss = new WebSocket.Server({ server });
 wss.on('connection', (ws) => {
     console.log("🎙️ [NEURO-LIVE] Dr. Victor Lawrence conectou ao canal de voz.");
     

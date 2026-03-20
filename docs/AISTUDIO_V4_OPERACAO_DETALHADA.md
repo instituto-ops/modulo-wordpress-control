@@ -1,6 +1,6 @@
-# 🛰️ AntiGravity AI Studio V4: Manual de Operação Técnica (2026)
+# 🛰️ NeuroEngine: Manual de Operação Técnica (2026)
 
-Este documento descreve como o **AI Studio** (Mission Control V4) opera na prática sob a programação atual, detalhando o comportamento dos agentes, a lógica de decisão e os "superpoderes" técnicos do sistema.
+Este documento descreve como o **NeuroEngine** (Mission Control V4) opera na prática sob a programação atual, detalhando o comportamento dos agentes, a lógica de decisão e os "superpoderes" técnicos do sistema.
 
 ---
 

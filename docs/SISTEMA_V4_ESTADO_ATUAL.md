@@ -1,4 +1,4 @@
-# 🌌 AntiGravity Mission Control V4: Estado Atual do Sistema (2026)
+# 🌌 NeuroEngine: Estado Atual do Sistema (2026)
 
 Este documento detalha a arquitetura neural e estrutural do sistema após o upgrade para a **Geração Gemini 2.5**. O sistema opera em uma estrutura de "Dois Hemisférios", separando extração de dados (Flash) de criação clínica profunda (Pro).
 

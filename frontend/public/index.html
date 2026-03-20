@@ -243,38 +243,51 @@
 
             <!-- Section: AI Studio (Copilot) -->
             <section id="ai-studio" class="content-section">
-                <!-- Top Toolbar (Collapsible Header) -->
-                <div id="studio-header" class="studio-header card">
-                    <div style="display: flex; justify-content: space-between; align-items: start; margin-bottom: 12px;">
-                        <div>
-                            <h2 style="margin: 0; display: flex; align-items: center; gap: 10px; font-size: 18px;">🤖 Abidos Masterpiece Studio</h2>
-                            <p id="ai-studio-title" style="font-size: 13px; color: #64748b; margin-top: 4px;">Selecione ou crie um projeto para começar.</p>
+                <!-- Top Toolbar (Tactical Header Abidos V4) -->
+                <div id="studio-header" class="studio-header card" style="padding: 10px 20px; border-bottom: 2px solid #e2e8f0; background: #fff;">
+                    
+                    <!-- Row 1: Identity, Mission Control & Global Workflow -->
+                    <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 12px; gap: 20px;">
+                        <div style="display: flex; align-items: center; gap: 12px; flex-shrink: 0;">
+                            <img src="https://hipnolawrence.com/wp-content/uploads/2024/02/favicon.png" width="28">
+                            <h2 style="margin: 0; font-size: 16px; font-weight: 800; color: #1e293b; white-space: nowrap;">🤖 AI Studio <span style="font-weight: 400; color: #94a3b8; margin-left: 5px;">| Abidos Masterpiece</span></h2>
                         </div>
-                        <div style="display: flex; gap: 8px;">
-                            <button class="btn btn-secondary" style="background: #fdf2f8; color: #db2777; border-color: #fbcfe8;" onclick="window.chatApp.auditAbidos()">🔍 Verificar Abidos</button>
-                            <button class="btn btn-secondary" style="background: #f1f5f9; color: #475569;" onclick="window.chatApp.previewLive()">👁️ Ver no Site</button>
-                            <button class="btn btn-primary" onclick="window.chatApp.saveToWP()">💾 Salvar</button>
-                            <button class="btn" style="background: #10b981; color: white; font-weight: bold;" onclick="window.chatApp.publishWP()">🚀 PUBLICAR</button>
+
+                        <!-- [NOVO] Agent Mission Control - Integrado no Topo -->
+                        <div id="agent-logs-panel-header" style="flex: 1; height: 36px; background: #0f172a; border-radius: 6px; padding: 0 12px; display: flex; align-items: center; overflow: hidden; border: 1px solid #1e293b;">
+                            <span style="font-size: 9px; font-weight: bold; color: #64748b; margin-right: 10px; white-space: nowrap;">[MISSION CONTROL]</span>
+                            <div id="agent-log-content-header" style="font-family: monospace; font-size: 11px; color: #10b981; overflow: hidden; white-space: nowrap; text-overflow: ellipsis;">
+                                🛡️ Agente de Construção aguardando ordens clínicas...
+                            </div>
+                            <span class="blink" style="color: #ef4444; font-size: 8px; margin-left: auto; padding-left: 10px;">● LIVE</span>
+                        </div>
+
+                        <div style="display: flex; align-items: center; gap: 10px; flex-shrink: 0;">
+                            <!-- Progress Abidos -->
+                            <div style="display: flex; align-items: center; gap: 8px; background: #f8fafc; padding: 4px 10px; border-radius: 20px; border: 1px solid #e2e8f0;">
+                                <div style="width: 60px; height: 6px; background: #e2e8f0; border-radius: 10px; overflow: hidden;">
+                                    <div id="abidus-progress" style="width: 15%; height: 100%; background: #10b981;"></div>
+                                </div>
+                                <span id="abidus-percentage" style="font-size: 11px; font-weight: 900; color: #10b981;">15%</span>
+                            </div>
+                            <button class="btn btn-secondary" style="font-size: 11px; padding: 6px 10px;" onclick="window.chatApp.toggleSettings()" title="Configurações SEO">⚙️</button>
                         </div>
                     </div>
 
-                    <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 15px; background: #f8fafc; padding: 10px; border-radius: 8px; border: 1px solid #e2e8f0;">
-                        <!-- Selectors -->
-                        <div style="display: flex; gap: 8px; align-items: center;">
-                            <select id="ai-studio-type" style="width: 100px; padding: 5px; font-size: 12px;" onchange="window.chatApp.loadList()">
-                                <option value="pages">Páginas</option>
+                    <!-- Row 2: Secondary Controls (SEO Context & Actions) -->
+                    <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 12px; gap: 15px;">
+                        <div style="display: flex; gap: 8px; flex: 0.8;">
+                            <select id="ai-studio-type" style="width: 80px; padding: 5px; font-size: 11px; height: 32px;" onchange="window.chatApp.loadList()">
+                                <option value="pages">Págs</option>
                                 <option value="posts">Posts</option>
                             </select>
-                            <select id="ai-studio-item" style="flex: 1; padding: 5px; font-size: 12px;">
-                                <option value="">-- Abrir do WP --</option>
+                            <select id="ai-studio-item" style="flex: 1; padding: 5px; font-size: 11px; height: 32px;">
+                                <option value="">-- Abrir Rascunho WP --</option>
                             </select>
-                            <button class="btn btn-secondary" style="padding: 5px 10px;" onclick="window.chatApp.loadList()">🔄</button>
-                            <button class="btn btn-primary" style="background: #3b82f6; padding: 5px 12px; font-size: 12px;" onclick="window.chatApp.createNew()">➕ Novo</button>
                         </div>
 
-                        <!-- SEO Context -->
-                        <div style="display: flex; gap: 8px; align-items: center;">
-                            <select id="seo-context" style="flex: 1; padding: 5px; font-size: 12px; background: #fff1f2; border-color: #f43f5e; color: #9f1239;" onchange="window.chatApp.onSEOContextChange()">
+                        <div style="display: flex; gap: 8px; flex: 1.5;">
+                            <select id="seo-context" style="flex: 1; padding: 5px; font-size: 11px; height: 32px; background: #fff1f2; border-color: #f43f5e; color: #9f1239;" onchange="window.chatApp.onSEOContextChange()">
                                 <option value="">🏆 Contexto Ouro</option>
                                 <option value="Autismo Adulto">TEA Adulto (Avaliação)</option>
                                 <option value="Diagnóstico Tardio">Diagnóstico Tardio</option>
@@ -284,32 +297,46 @@
                                 <option value="Psicoterapia Breve">Terapia Estratégica</option>
                                 <option value="Relacionamentos e Neurodivergência">Silo: Relacionamentos</option>
                             </select>
-                            <select id="ai-studio-keyword" style="flex: 1; padding: 5px; font-size: 12px; background: #eff6ff; border-color: #3b82f6; color: #1e40af;" onchange="window.chatApp.onSEOContextChange()">
-                                <option value="">🎯 Keyword</option>
+                            <select id="ai-studio-keyword" style="flex: 1; padding: 5px; font-size: 11px; height: 32px; background: #eff6ff; border-color: #3b82f6; color: #1e40af;" onchange="window.chatApp.onSEOContextChange()">
+                                <option value="">🎯 Keyword Alvo</option>
                                 <option value="psicólogo especialista em autismo adulto goiânia">Especialista TEA Goiânia</option>
                                 <option value="avaliação de autismo em adultos valor">Avaliação TEA (Valor)</option>
                                 <option value="sintomas de autismo em mulheres adultas">TEA Feminino Sintomas</option>
                                 <option value="como saber se sou autista depois de adulto">Suspeita TEA Adulto</option>
                                 <option value="tratamento para ansiedade com hipnose goiânia">Ansiedade + Hipnose</option>
-                                <option value="hipnose ericksoniana para compulsões">Hipnose + Compulsões</option>
+                                <option value="higienização do sono psicologia">Higiene do Sono</option>
                                 <option value="psicólogo para altas habilidades e superdotação">AH/SD Adulto</option>
                                 <option value="psicoterapia breve estratégica com hipnose">Terapia Breve + Hipnose</option>
                             </select>
-                            <button class="btn btn-secondary" style="padding: 5px 10px; font-size: 12px;" onclick="window.chatApp.toggleSettings()">⚙️ SEO</button>
+                        </div>
+
+                        <div style="display: flex; gap: 6px; align-items: center;">
+                            <button class="btn" style="background: #1e293b; color: white; font-size: 11px; padding: 6px 12px; height: 32px;" onclick="window.chatApp.toggleToneTraining()">🎤 Voz</button>
+                            <button class="btn btn-secondary" style="background: #fdf2f8; color: #db2777; border-color: #fbcfe8; font-size: 11px; padding: 6px 12px; height: 32px;" onclick="window.chatApp.auditAbidos()">🔍 Verificar Abidos</button>
+                            <button class="btn btn-secondary" style="background: #f1f5f9; color: #475569; font-size: 11px; padding: 6px 12px; height: 32px;" onclick="window.chatApp.previewLive()">👁️ Preview</button>
+                            <button class="btn" style="background: #10b981; color: white; font-weight: bold; font-size: 11px; padding: 6px 15px; height: 32px; box-shadow: 0 4px 10px rgba(16, 185, 129, 0.2);" onclick="window.chatApp.saveToWP()">🚀 PUBLICAR</button>
                         </div>
                     </div>
 
-                    <div id="studio-title-edit-row" style="margin-top: 10px; display: flex; gap: 8px; align-items: center;">
-                        <input type="text" id="ai-studio-new-title" style="flex: 1; padding: 8px; font-size: 14px; border: 1px solid #cbd5e1; border-radius: 6px;" placeholder="Título estratégico...">
-                        <button id="ai-studio-suggest-btn" class="btn" style="background: #fef3c7; color: #b45309; border: 1px solid #f59e0b; padding: 8px 15px; font-weight: bold; font-size: 12px; white-space: nowrap;" onclick="window.chatApp.suggestTitle()">🪄 Sugerir Título</button>
-                        <button id="ai-studio-cluster-btn" class="btn" style="background: #eef2ff; color: #4338ca; border: 1px solid #c7d2fe; padding: 8px 15px; font-weight: bold; font-size: 12px; white-space: nowrap;" title="Gera 1 Hub + 5 Spokes (6 Rascunhos de uma vez)" onclick="window.chatApp.createCluster()">💠 Gerar Cluster</button>
+                    <!-- Row 3: Tactical Production Line (Título & Comandos de Geração) -->
+                    <div id="studio-title-edit-row" style="display: flex; gap: 8px; align-items: center; border-top: 1px solid #f1f5f9; padding-top: 10px;">
+                        <div style="position: relative; flex: 1; display: flex;">
+                            <span style="position: absolute; left: 12px; top: 50%; transform: translateY(-50%); font-size: 14px; color: #94a3b8;">🏷️</span>
+                            <input type="text" id="ai-studio-new-title" style="width: 100%; padding: 10px 10px 10px 40px; font-size: 14px; border: 1px solid #cbd5e1; border-radius: 8px; outline: none; transition: border 0.2s;" placeholder="Título estratégico do post/página...">
+                        </div>
+                        
+                        <button id="ai-studio-suggest-btn" class="btn" style="background: #fef3c7; color: #b45309; border: 1px solid #f59e0b; padding: 10px 18px; font-weight: 700; font-size: 12px; white-space: nowrap; border-radius: 8px;" onclick="window.chatApp.suggestTitle()">🪄 Sugerir Título</button>
+                        
+                        <button id="ai-studio-draft-btn" class="btn" style="background: #6366f1; color: white; padding: 10px 18px; font-weight: 700; font-size: 12px; white-space: nowrap; border-radius: 8px; box-shadow: 0 4px 6px -1px rgba(99, 102, 241, 0.2);" onclick="window.chatApp.generateDraft()">🏗️ Gerar Rascunho</button>
+                        
+                        <button id="ai-studio-cluster-btn" class="btn" style="background: #eef2ff; color: #4338ca; border: 1px solid #c7d2fe; padding: 10px 18px; font-weight: 700; font-size: 12px; white-space: nowrap; border-radius: 8px;" title="Gera 1 Hub + 5 Spokes (6 Rascunhos de uma vez)" onclick="window.chatApp.createCluster()">🕸️ Gerar Cluster</button>
                     </div>
 
-                    <!-- SEO Panel -->
+                    <!-- SEO Panel (Expanded) -->
                     <div id="ai-studio-settings-panel" style="display: none; border-top: 1px dashed #e2e8f0; margin-top: 10px; padding-top: 10px;">
                         <div style="display: grid; grid-template-columns: 1fr 2fr 2fr; gap: 10px;">
-                            <div class="form-group"><label style="font-size: 11px;">Slug</label><input type="text" id="seo-slug" style="font-size: 12px;"></div>
-                            <div class="form-group"><label style="font-size: 11px;">Title Tag</label><input type="text" id="seo-title-tag" style="font-size: 12px;"></div>
+                            <div class="form-group"><label style="font-size: 11px;">Slug</label><input type="text" id="seo-slug" style="font-size: 12px; height: 30px;"></div>
+                            <div class="form-group"><label style="font-size: 11px;">Title Tag</label><input type="text" id="seo-title-tag" style="font-size: 12px; height: 30px;"></div>
                             <div class="form-group"><label style="font-size: 11px;">Meta Desc</label><textarea id="seo-meta-desc" style="font-size: 12px; height: 35px;"></textarea></div>
                         </div>
                     </div>
@@ -322,25 +349,29 @@
                         <button class="toggle-btn" onclick="window.chatApp.toggleHeaderAI()" title="Esconder Topo">🔼</button>
                         <button class="toggle-btn" onclick="window.chatApp.toggleSidebarAI()" title="Esconder Assistente">▶️</button>
                         <hr>
-                        <button class="toggle-btn" onclick="window.chatApp.showBlockInserterMenu(event.clientX, event.clientY)" title="Adicionar Novo Bloco (Clique)">➕</button>
+                        <button class="toggle-btn" onclick="window.chatApp.showBlockInserterMenu(event.clientX, event.clientY)" title="Adicionar Bloco Abidos">𓂀</button>
                         <hr>
                         <button class="toggle-btn" onclick="window.chatApp.undoHistory()" title="Desfazer (Ctrl+Z)">↩️</button>
                         <button class="toggle-btn" onclick="window.chatApp.redoHistory()" title="Refazer (Ctrl+Y)">↪️</button>
                         <button class="toggle-btn" onclick="window.chatApp.deleteSelected()" title="Deletar Selecionado" style="color:#ef4444;">🗑️</button>
                         <hr>
-                        <button class="toggle-btn" onclick="window.chatApp.showGlobalStyleMenu(event.clientX, event.clientY)" title="Alterar Estilo / Cores">🎨 Estilo</button>
+                        <button class="toggle-btn" onclick="window.chatApp.showGlobalStyleMenu(event.clientX, event.clientY)" title="Estilo / Clima Clínico">🎨</button>
                         <hr>
                         <button class="toggle-btn" onclick="document.getElementById('live-preview').className='preview-canvas desktop'" title="Desktop">💻</button>
                         <button class="toggle-btn" onclick="document.getElementById('live-preview').className='preview-canvas mobile'" title="Mobile">📱</button>
                     </div>
 
                     <!-- Left: Canvas -->
-                    <div id="studio-canvas" class="studio-canvas" style="background: #f1f5f9; position: relative;">
-                        <div id="live-preview" class="preview-canvas desktop" style="display: flex; flex-direction: column; min-height: 100%; background: white; box-shadow: 0 10px 25px rgba(0,0,0,0.05); border-radius: 4px; border: 1px solid #e2e8f0; padding: 0; margin: 0 auto; max-width: 1000px; transition: all 0.3s ease;">
+                    <div id="studio-canvas" class="studio-canvas" style="background: #f1f5f9; position: relative; scroll-behavior: smooth;">
+                        <div id="live-preview" class="preview-canvas desktop" contenteditable="true" style="display: block; min-height: 100%; background: white; box-shadow: 0 10px 25px rgba(0,0,0,0.05); border-radius: 4px; border: 1px solid #e2e8f0; padding: 0; margin: 0 auto; max-width: 1000px; transition: all 0.3s ease;">
                             <div id="canvas-placeholder" style="display: flex; flex-direction: column; align-items: center; justify-content: center; height: 100%; min-height: 600px; color: #cbd5e1; user-select: none;">
-                                <div style="font-size: 60px; margin-bottom: 20px; opacity: 0.5;">📄</div>
-                                <h2 style="font-size: 20px; font-weight: 700; color: #94a3b8;">Mapa em Branco</h2>
-                                <p style="font-size: 14px; color: #94a3b8; max-width: 300px; text-align: center;">Comande a IA no chat lateral para começar a construir sua estratégia Abidos v4.</p>
+                                <div style="font-size: 60px; margin-bottom: 20px; opacity: 0.5;">🗺️</div>
+                                <h2 style="font-size: 22px; font-weight: 800; color: #64748b;">Mapa em Branco</h2>
+                                <p style="font-size: 14px; color: #94a3b8; max-width: 400px; text-align: center; line-height: 1.6;">
+                                    Este é o seu canvas clínico. <br>
+                                    1. <b>Manual:</b> Escolha um contexto acima e insira blocos pelo ícone 𓂀 no menu flutuante. <br>
+                                    2. <b>Autônomo:</b> Defina um título e clique em <b>Gerar Rascunho</b> para a IA construir tudo.
+                                </p>
                             </div>
                         </div>
 
@@ -391,9 +422,14 @@
                                 <button onclick="window.chatApp.insertAbidosBlock('ambiente')" style="background:#0f172a; color:#6ee7b7; border:1px solid #334155; border-radius:4px; padding:4px; font-size:10px; cursor:pointer; width:100%; text-align:left;">🏡 Ambiente</button>
                                 <button onclick="window.chatApp.insertAbidosBlock('social')" style="background:#0f172a; color:#fb923c; border:1px solid #334155; border-radius:4px; padding:4px; font-size:10px; cursor:pointer; width:100%; text-align:left;">⭐ Pr. Social</button>
 
+                                <!-- 4. Retenção -->
+                                <p style="font-size: 8px; color: #10b981; margin: 6px 0 2px 0; white-space: nowrap;">④ RETENÇÃO</p>
+                                <button onclick="window.chatApp.insertAbidosBlock('faq')" style="background:#0f172a; color:#10b981; border:1px solid #334155; border-radius:4px; padding:4px; font-size:10px; cursor:pointer; width:100%; text-align:left;">❓ FAQ Accordion</button>
+                                <button onclick="window.chatApp.insertAbidosBlock('footer')" style="background:#0f172a; color:#94a3b8; border:1px solid #334155; border-radius:4px; padding:4px; font-size:10px; cursor:pointer; width:100%; text-align:left;">📝 Rodapé NAP</button>
+
                                 <!-- 5. Mídia -->
-                                <p style="font-size: 8px; color: #10b981; margin: 6px 0 2px 0; white-space: nowrap;">⑤ MÍDIA</p>
-                                <button onclick="window.chatApp.openMediaPicker()" style="background:#0f172a; color:#10b981; border:1px solid #334155; border-radius:4px; padding:4px; font-size:10px; cursor:pointer; width:100%; text-align:left;">🖼️ Inserir Imagem WP</button>
+                                <p style="font-size: 8px; color: #ec4899; margin: 6px 0 2px 0; white-space: nowrap;">⑤ MÍDIA</p>
+                                <button onclick="window.chatApp.openMediaPicker()" style="background:#0f172a; color:#ec4899; border:1px solid #334155; border-radius:4px; padding:4px; font-size:10px; cursor:pointer; width:100%; text-align:left;">🖼️ Inserir Imagem WP</button>
                                 <button onclick="window.chatApp.insertAbidosBlock('linkagem')" style="background:#0f172a; color:#c084fc; border:1px solid #334155; border-radius:4px; padding:4px; font-size:10px; cursor:pointer; width:100%; text-align:left;">🔗 Linkagem</button>
                             </div>
                         </div>
@@ -414,8 +450,7 @@
                                     </div>
                                 </div>
                                 <div style="display: flex; gap: 5px;">
-                                    <button class="btn" style="flex: 1; font-size: 10px; background: #1e293b; color: white; padding: 5px;" onclick="window.chatApp.toggleToneTraining()">🎤 Tom de Voz</button>
-                                    <button class="btn" style="flex: 1; font-size: 10px; background: #10b981; color: white; padding: 5px;" onclick="window.chatApp.publishDirectly()">🌐 PUBLICAR</button>
+                                    <button class="btn" style="flex: 1; font-size: 10px; background: #10b981; color: white; padding: 5px;" onclick="window.chatApp.publishDirectly()">🌐 PUBLICAR AGORA NO WP</button>
                                 </div>
                             </div>
 
@@ -978,5 +1013,20 @@
     <script src="js/goal-system.js"></script>
     <script src="js/neuro-training.js"></script>
     <script src="js/doctoralia.js"></script>
+    <!-- [MODAL] Media Picker Abidos -->
+    <div id="media-picker-modal" style="display:none; position:fixed; top:0; left:0; width:100%; height:100%; background:rgba(0,0,0,0.8); z-index:20000; align-items:center; justify-content:center; backdrop-filter:blur(8px);">
+        <div style="background:white; width:90%; max-width:800px; height:80%; border-radius:16px; display:flex; flex-direction:column; overflow:hidden; box-shadow:0 30px 60px rgba(0,0,0,0.5);">
+            <div style="padding:20px; border-bottom:1px solid #e2e8f0; display:flex; justify-content:space-between; align-items:center;">
+                <h3 style="margin:0; font-size:18px; color:#1e293b; font-weight:800;">🖼️ Repositório Visual Abidos</h3>
+                <button onclick="document.getElementById('media-picker-modal').style.display='none'" style="background:none; border:none; font-size:24px; cursor:pointer; color:#94a3b8;">&times;</button>
+            </div>
+            <div id="media-grid" style="flex:1; padding:20px; overflow-y:auto; display:grid; grid-template-columns:repeat(auto-fill, minmax(150px, 1fr)); gap:15px;">
+                <!-- Imagens serão injetadas aqui -->
+            </div>
+            <div style="padding:15px; border-top:1px solid #e2e8f0; text-align:right;">
+                <button class="btn btn-secondary" onclick="document.getElementById('media-picker-modal').style.display='none'">Fechar</button>
+            </div>
+        </div>
+    </div>
 </body>
 </html>

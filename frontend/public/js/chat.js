@@ -25,11 +25,45 @@ window.chatApp = {
     currentKeyword: '', // Store current keyword for AI sync
     lastGeneratedHtml: null, // [AUTO-DNA] Versão original gerada pela IA para comparação
 
-    init() {
+    connectSocket() {
+        const protocol = window.location.protocol === 'https:' ? 'wss:' : 'ws:';
+        this.socket = new WebSocket(`${protocol}//${window.location.host}`);
+        
+        this.socket.onopen = () => console.log("📡 Conectado ao Fluxo de Log Real-time.");
+        this.socket.onmessage = (event) => {
+            try {
+                const data = JSON.parse(event.data);
+                if (data.type === 'agent_log') {
+                    // REGRA DE OURO: No Studio, mostramos apenas logs da fase de CONSTRUÇÃO.
+                    const studioAgents = ["Agente Construtor", "NeuroEngine", "Gerador", "Constructor"];
+                    if (studioAgents.includes(data.agent)) {
+                        const statusText = data.status + (data.reason ? ` (${data.reason})` : '');
+                        this.addAgentLog(data.agent, statusText, data.isDone);
+                    }
+                }
+            } catch (e) {
+                console.error("Erro no processamento do log socket", e);
+            }
+        };
+        
+        this.socket.onclose = () => {
+            console.warn("⚠️ Conexão de log perdida. Tentando reconectar em 5s...");
+            setTimeout(() => this.connectSocket(), 5000);
+        };
+    },
+
+    bindEvents() {
         this.setupEventListeners();
         this.setupInspector();
         this.setupKeyboardShortcuts();
         console.log("🧠 NeuroEngine Copilot Initialized");
+    },
+
+    init() {
+        console.log("🤖 ChatApp (Abidos V4) Initialized.");
+        this.addMessage("NeuroEngine AI online. Como posso ajudar com sua estratégia Abidos hoje?");
+        this.bindEvents();
+        this.connectSocket(); // Conecta ao Mission Control para logs reais
     },
 
     // --- HISTORY (Undo / Redo) ---
@@ -527,37 +561,42 @@ window.chatApp = {
     },
 
     // ── MEDIA PICKER ─────────────────────────────────────────────────────────
-    async openMediaPicker() {
+    async openMediaPicker(callback) {
         const modal = document.getElementById('media-picker-modal');
-        const grid  = document.getElementById('media-picker-grid');
+        const grid  = document.getElementById('media-grid'); // Changed from media-grid to media-picker-grid
         if (!modal || !grid) return;
 
         modal.style.display = 'flex';
         grid.innerHTML = '<p style="grid-column:1/4;text-align:center;color:#64748b;padding:20px;">⏳ Carregando biblioteca...</p>';
 
-        try {
-            const media = await wpAPI.fetchMedia(24);
-            grid.innerHTML = '';
-            if (!media || media.length === 0) {
-                grid.innerHTML = '<p style="grid-column:1/4;text-align:center;color:#94a3b8;">Nenhuma imagem encontrada na biblioteca.</p>';
-                return;
-            }
-            media.forEach(m => {
-                const img = document.createElement('img');
-                img.src = m.source_url;
-                img.title = m.alt_text || m.slug;
-                img.style.cssText = 'width:100%;height:80px;object-fit:cover;cursor:pointer;border-radius:6px;border:2px solid transparent;transition:border-color .15s,transform .15s;';
-                img.onmouseover = () => { img.style.borderColor = '#6366f1'; img.style.transform = 'scale(1.04)'; };
-                img.onmouseout  = () => { img.style.borderColor = 'transparent'; img.style.transform = ''; };
-                img.onclick = () => {
-                    this.insertImageAtCanvas(m.source_url, m.alt_text || '');
-                    modal.style.display = 'none';
-                };
-                grid.appendChild(img);
-            });
-        } catch (e) {
-            grid.innerHTML = `<p style="grid-column:1/4;text-align:center;color:#ef4444;">❌ Erro: ${e.message}</p>`;
+        // Use visualAssets if available, otherwise fetch from WP
+        const mediaToDisplay = this.visualAssets && this.visualAssets.length > 0
+            ? this.visualAssets.map(url => ({ source_url: url, alt_text: 'Imagem do repositório' }))
+            : await wpAPI.fetchMedia(24);
+        
+        grid.innerHTML = '';
+        if (!mediaToDisplay || mediaToDisplay.length === 0) {
+            grid.innerHTML = '<p style="grid-column:1/4;text-align:center;color:#94a3b8;">Nenhuma imagem encontrada na biblioteca.</p>';
+            return;
         }
+        mediaToDisplay.forEach(m => {
+            const img = document.createElement('img');
+            img.src = m.source_url;
+            img.title = m.alt_text || m.slug;
+            img.style.cssText = 'width:100%;height:80px;object-fit:cover;cursor:pointer;border-radius:6px;border:2px solid transparent;transition:border-color .15s,transform .15s;';
+            img.onmouseover = () => { img.style.borderColor = '#6366f1'; img.style.transform = 'scale(1.04)'; };
+            img.onmouseout  = () => { img.style.borderColor = 'transparent'; img.style.transform = ''; };
+            img.onclick = () => {
+                if (callback) callback(m.source_url);
+                else this.insertImageAtCanvas(m.source_url, m.alt_text || '');
+                modal.style.display = 'none';
+            };
+            grid.appendChild(img);
+        });
+    },
+
+    closeMediaPicker() {
+        document.getElementById('media-picker-modal').style.display = 'none';
     },
 
     insertImageAtCanvas(url, alt) {
@@ -665,6 +704,43 @@ window.chatApp = {
         
         this.hideCustomCommandBox();
         await this.executeMicroCommand(instruction);
+    },
+
+    visualAssets: [
+        "https://hipnolawrence.com/wp-content/uploads/2026/03/Facetune_23-05-2023-21-43-27.jpg",
+        "https://hipnolawrence.com/wp-content/uploads/2026/03/IMG_4469.jpg",
+        "https://hipnolawrence.com/wp-content/uploads/2026/03/IMG_4511.jpg",
+        "https://hipnolawrence.com/wp-content/uploads/2026/03/IMG_5605.jpg",
+        "https://hipnolawrence.com/wp-content/uploads/2026/02/IMG_0876.jpg",
+        "https://hipnolawrence.com/wp-content/uploads/2026/03/IMG_4875.jpg",
+        "https://hipnolawrence.com/wp-content/uploads/2026/03/IMG_2046.jpg",
+        "https://hipnolawrence.com/wp-content/uploads/2026/03/5b6b7fbf-d665-4d68-96b0-aa8d28890ac.jpg",
+        "https://hipnolawrence.com/wp-content/uploads/2026/03/palestra-IFG2.jpeg",
+        "https://hipnolawrence.com/wp-content/uploads/2026/03/11148819_865048126899579_5754455918839697297_o.jpg",
+        "https://hipnolawrence.com/wp-content/uploads/2026/03/defesa-TCC.jpg",
+        "https://hipnolawrence.com/wp-content/uploads/2026/02/IMG_0298-scaled.jpeg",
+        "https://hipnolawrence.com/wp-content/uploads/2026/02/IMG_0312-scaled.jpeg",
+        "https://hipnolawrence.com/wp-content/uploads/2026/02/IMG_0359-scaled.jpeg",
+        "https://hipnolawrence.com/wp-content/uploads/2026/03/98593981-F8A7-4F8E-86A4-BBF2C04F704C.jpg"
+    ],
+
+    // Novo: Escuta do Canvas para Troca de Imagem
+    initCanvasEvents() {
+        const preview = document.getElementById('live-preview');
+        if (!preview) return;
+
+        preview.addEventListener('click', (e) => {
+            if (e.target.tagName === 'IMG') {
+                e.preventDefault();
+                e.stopPropagation();
+                // Oferece troca de imagem
+                this.addMessage("📸 **Modo Edição de Imagem Ativado.** Selecione a nova foto no Repositório Abidos.");
+                this.openMediaPicker((url) => {
+                    e.target.src = url;
+                    this.addMessage("✅ Imagem atualizada com sucesso no rascunho.");
+                });
+            }
+        });
     },
 
     showGlobalStyleMenu(x, y, target = null) {
@@ -950,7 +1026,7 @@ window.chatApp = {
         } else if (action === "inserir_cta") {
             blockHtml = `
                 <div class="abidos-cta-block" style="text-align:center; padding: 20px; margin: 20px 0;">
-                    <a href="${this.authorityContext.socials.whatsapp}" style="background:#16a34a; color:white; padding: 12px 24px; font-weight:bold; border-radius:30px; text-decoration:none; display:inline-block;">Agendar Avaliação via WhatsApp</a>
+                    <a href="https://wa.me/${this.whatsapp}" style="background:#16a34a; color:white; padding: 12px 24px; font-weight:bold; border-radius:30px; text-decoration:none; display:inline-block;">Agendar Avaliação via WhatsApp</a>
                 </div>`;
         }
 
@@ -1025,46 +1101,40 @@ window.chatApp = {
         btnSend.disabled = false;
     },
 
-    async addAgentLog(agentName, status, isDone = false) {
-        const panel = document.getElementById('agent-logs-panel');
-        const content = document.getElementById('agent-log-content');
-        panel.style.display = 'block';
-        
-        const logId = `log-${agentName.replace(/\s+/g, '-')}`;
-        let logEl = document.getElementById(logId);
-        
-        if (!logEl) {
-            logEl = document.createElement('div');
-            logEl.id = logId;
-            content.appendChild(logEl);
+    async addAgentLog(agent, status, isDone = false) {
+        const headerLog = document.getElementById('agent-log-content-header');
+        if (headerLog) {
+            headerLog.innerHTML = `<span style="color:#94a3b8;">[${agent}]</span> ${status}`;
+            if (isDone) {
+                headerLog.style.color = '#10b981';
+                setTimeout(() => {
+                    headerLog.innerHTML = `🛡️ Agente ${agent} concluiu a missão.`;
+                }, 3000);
+            } else {
+                headerLog.style.color = '#3b82f6';
+            }
         }
         
-        logEl.innerHTML = `<span style="color: ${isDone ? '#10b981' : '#f59e0b'}">${isDone ? '●' : '○'}</span> ${agentName}: ${status}`;
-        if (isDone) logEl.style.opacity = '0.8';
-        
-        content.scrollTop = content.scrollHeight;
+        // Mantém compatibilidade com o log do chat se o usuário abrir a aba de logs
+        const logPanel = document.getElementById('agent-logs-panel');
+        if (logPanel) {
+            const entry = document.createElement('div');
+            entry.className = 'agent-log-entry';
+            entry.style.cssText = 'font-size: 11px; margin-bottom: 5px; border-bottom: 1px solid #f1f5f9; padding-bottom: 3px;';
+            entry.innerHTML = `<span style="font-weight:bold; color:#1e293b;">${agent}:</span> ${status}`;
+            logPanel.prepend(entry);
+        }
     },
 
     async runAgentChain(userMessage, currentHtml, hasScreenshot) {
         const logPanel = document.getElementById('agent-logs-panel');
-        logPanel.style.display = 'block';
-        document.getElementById('agent-log-content').innerHTML = '';
-
-        // Simulação de Pensamento de Equipes Transitórias
-        await this.addAgentLog("Agente de Pesquisa", "Sintetizando informações clínicas...");
-        await new Promise(r => setTimeout(r, 800));
+        const content = document.getElementById('agent-log-content');
         
-        await this.addAgentLog("Agente Abidos", "Validando estrutura SEO...");
-        await new Promise(r => setTimeout(r, 600));
+        if (logPanel) logPanel.style.display = 'block';
+        if (content) content.innerHTML = '';
 
-        await this.addAgentLog("Agente Crítico", "Revisando tom de voz...");
-        await new Promise(r => setTimeout(r, 700));
-
-        await this.addAgentLog("Compliance Checker", "Auditando normas CFP/LGPD...");
-        await new Promise(r => setTimeout(r, 500));
-
-        await this.addAgentLog("Design & Layout", "Refinando estética e legibilidade...");
-        await new Promise(r => setTimeout(r, 600));
+        // No Studio, apenas o CONSTRUTOR trabalha.
+        this.addAgentLog("Agente Construtor", "Sintetizando DNA clínico e estruturando rascunho...", false);
 
         const formData = new FormData();
         
@@ -1117,7 +1187,7 @@ window.chatApp = {
             formData.append('whatsapp', waInput.value);
             this.authorityContext.socials.whatsapp = waInput.value;
         } else {
-            formData.append('whatsapp', this.authorityContext.socials.whatsapp);
+            formData.append('whatsapp', this.whatsapp); // Use this.whatsapp if setting-whatsapp is empty
         }
 
         if (hasScreenshot && window.html2canvas) {
@@ -1157,16 +1227,34 @@ window.chatApp = {
 
     toggleHeaderAI() {
         const header = document.getElementById('studio-header');
-        header.classList.toggle('collapsed');
-        const btn = document.querySelector('button[title="Esconder Topo"]');
-        btn.innerText = header.classList.contains('collapsed') ? '🔽' : '🔼';
+        const btn = event.currentTarget;
+        if (header.classList.contains('collapsed')) {
+            header.classList.remove('collapsed');
+            header.style.maxHeight = '300px';
+            header.style.padding = '10px 20px';
+            header.style.opacity = '1';
+            header.style.pointerEvents = 'auto';
+            btn.innerHTML = '🔼';
+        } else {
+            header.classList.add('collapsed');
+            header.style.maxHeight = '0';
+            header.style.padding = '0';
+            header.style.opacity = '0';
+            header.style.pointerEvents = 'none';
+            btn.innerHTML = '🔽';
+        }
     },
 
     toggleSidebarAI() {
-        const sidebar = document.getElementById('studio-sidebar');
-        sidebar.classList.toggle('collapsed');
-        const btn = document.querySelector('button[title="Esconder Assistente"]');
-        btn.innerText = sidebar.classList.contains('collapsed') ? '◀️' : '▶️';
+        const sidebar = document.querySelector('.studio-sidebar');
+        const btn = event.currentTarget;
+        if (sidebar.classList.contains('collapsed')) {
+            sidebar.classList.remove('collapsed');
+            btn.innerHTML = '▶️';
+        } else {
+            sidebar.classList.add('collapsed');
+            btn.innerHTML = '◀️';
+        }
     },
 
     previewLive() {
@@ -1192,18 +1280,18 @@ window.chatApp = {
     },
 
     onSEOContextChange() {
-        const seoContext = document.getElementById('seo-context').value;
-        const keyword = document.getElementById('ai-studio-keyword').value;
-        const titleInput = document.getElementById('ai-studio-new-title');
+        const ctx = document.getElementById('seo-context').value;
+        const kw = document.getElementById('ai-studio-keyword').value;
         
-        if (seoContext || keyword) {
-            let msg = `Você selecionou um novo foco SEO.\nContexto: **${seoContext || 'Nenhum'}**\nPalavra-chave: **${keyword || 'Nenhuma'}**`;
-            this.addMessage(msg, false);
-            
-            // Sugerir automaticamente um título estratégico se o usuário ainda não tiver preenchido
-            if (titleInput && !titleInput.value) {
-                this.suggestTitle();
-            }
+        if (ctx) this.currentKeyword = kw || ctx;
+        if (kw) this.currentKeyword = kw;
+        
+        console.log(`🎯 Contexto Abidos atualizado: ${ctx} | KW: ${kw}`);
+        
+        // Se o título estiver vazio, sugere um baseado no contexto
+        const titleInput = document.getElementById('ai-studio-new-title');
+        if (titleInput && !titleInput.value) {
+            this.suggestTitle();
         }
     },
 
@@ -1374,34 +1462,82 @@ window.chatApp = {
     // --- ANALYTICS & TOOLS ---
 
     async suggestTitle() {
-        const type = document.getElementById('ai-studio-type').value;
-        const keyword = document.getElementById('ai-studio-keyword').value || "TEA em Adultos";
-        const btn = document.getElementById('ai-studio-suggest-btn');
-        const originalText = btn.innerText;
+        const kw = document.getElementById('ai-studio-keyword').value || document.getElementById('seo-context').value;
+        if (!kw) return alert("Por favor, selecione um Contexto Ouro ou Keyword primeiro.");
 
-        btn.innerText = "⏳..."; btn.disabled = true;
+        this.addAgentLog("NeuroEngine", "Raciocinando sobre títulos estratégicos...", false);
         
-        const prompt = `Atue como um Especialista em Copywriting de Conversão (Método Abidos V4).
-Sugerir EXATAMENTE UM (1) título de impacto para um(a) ${type === 'pages' ? 'Página' : 'Post'}.
-Foco: "${keyword}".
-REGRAS OBRIGATÓRIAS (PROTOCOLO ABIDOS):
-1. HIERARQUIA: Utilize a fórmula: Palavra-chave Primária Exata + Promessa de Valor/Transformação + Localização (Goiânia).
-2. TAMANHO: Garanta que a palavra-chave foco apareça NOS PRIMEIROS 50 CARACTERES.
-3. CONVERSÃO: Foque na DOR ou DESEJO do paciente.
-4. RETORNE APENAS O TEXTO DO TÍTULO SEM ASPAS.`;
+        const prompt = `Gere 1 título único e irresistível para um post/página de psicologia.
+                        METODOLOGIA: Abidos (Foco em Dor, Solução e E-E-A-T).
+                        KEYWORD ALVO: "${kw}".
+                        ESPECIALISTA: Dr. Victor Lawrence (Goiânia).
+                        RETORNE APENAS O TEXTO DO TÍTULO, sem aspas.`;
+        
+        try {
+            const title = await gemini.callAPI(prompt);
+            if (title) {
+                document.getElementById('ai-studio-new-title').value = title.replace(/"/g, '').trim();
+                this.addAgentLog("NeuroEngine", "Título sugerido com sucesso.", true);
+            }
+        } catch (e) {
+            this.addAgentLog("NeuroEngine", "Erro ao sugerir título.", true);
+        }
+    },
+
+    async generateDraft() {
+        const title = document.getElementById('ai-studio-new-title').value;
+        const kw = document.getElementById('ai-studio-keyword').value || document.getElementById('seo-context').value;
+        const type = document.getElementById('ai-studio-type').value;
+
+        if (!title) return alert("Por favor, defina um título para o rascunho.");
+
+        this.addMessage(`🏗️ **Iniciando Construção do Rascunho Abidos...**\nAlvo: **${title}**\nContexto: **${kw || 'Psicologia Clínica'}**`);
+        
+        const preview = document.getElementById('live-preview');
+        // Limpa o canvas completamente antes de gerar um novo rascunho
+        preview.innerHTML = '';
+        const placeholder = document.getElementById('canvas-placeholder');
+        if (placeholder) placeholder.remove();
+        
+        preview.innerHTML = '<div style="display:flex; flex-direction:column; justify-content:center; align-items:center; height:400px; background:white;"><div class="loader"></div><p style="margin-top:20px; font-weight:bold; color:#1e293b; font-family:sans-serif;">🔨 Agente Construtor está levantando as estruturas...</p><p style="font-size:12px; color:#64748b;">(Isso pode levar até 40 segundos conforme a profundidade clínica)</p></div>';
+
+        const prompt = `VOCÊ É O ARQUITETO ABIDOS V4. Construa um ${type === 'pages' ? 'FUNIL DE VENDAS COMPLETO' : 'ARTIGO DE BLOG EDITORIAL'} para: "${title}".
+                        
+                        PROTOCOLO ABIDOS (CRÍTICO):
+                        - H1: Título Primário Unificado (KW + Promessa + Goiânia).
+                        - H2: Identificação da Dor, Explicação Metódica, Autoridade Acadêmica (Victor Lawrence CRP 09/012681, Mestrado UFU) e FAQ.
+                        - H3: Detalhamento granular e quebra de micro-objeções.
+                        - E-E-A-T: Menção explícita ao Mestrado na UFU e clínica em Goiânia.
+                        - CTA: Botões focados em "Falar comigo" ou "Agendar Avaliação" com o WhatsApp: ${this.whatsapp}.
+                        - FORMATAÇÃO: HTML5 + Tailwind. Retorne APENAS o HTML dentro da div abidos-wrapper.`;
 
         try {
-            const suggestion = await gemini.callAPI(prompt);
-            if(suggestion) {
-                const cleanTitle = suggestion.replace(/^["']|["']$/g, '').trim();
-                const titleInput = document.getElementById('ai-studio-new-title');
-                titleInput.value = cleanTitle;
-                titleInput.style.display = 'block';
-                this.addMessage(`💡 Sugestão de Título: **"${cleanTitle}"**`);
+            const formData = new FormData();
+            formData.append('message', prompt);
+            formData.append('currentKeyword', kw);
+            
+            const response = await fetch('/api/chat', {
+                method: 'POST',
+                body: formData
+            });
+            const data = await response.json();
+
+            if (data.reply) {
+                this.saveHistory();
+                preview.innerHTML = data.reply;
+                this.lastGeneratedHtml = data.reply;
+                this.injectCopyButtons();
+                this.updateAbidusScore();
+                this.addMessage("✅ **Rascunho Concluído!** O Agente Construtor finalizou a escrita. Você já pode revisar e ajustar cada bloco.");
+                
+                // Rola para o topo do canvas
+                document.getElementById('studio-canvas').scrollTop = 0;
             }
-        } catch(e) { console.error(e); }
-        
-        btn.innerText = originalText; btn.disabled = false;
+        } catch (e) {
+            console.error(e);
+            this.addAgentLog("Construtor", "Falha crítica na construção.", true);
+            this.addMessage("❌ Erro ao gerar rascunho. Verifique sua conexão ou tente novamente.");
+        }
     },
 
     toggleChecklist() {
@@ -1830,7 +1966,7 @@ RETORNE APENAS O JSON, sem comentários.`;
         const titleInput = document.getElementById('ai-studio-new-title');
         const theme = titleInput ? titleInput.value : "TEA em Adultos";
         const moodId = document.getElementById('global-mood-selector')?.value || '1_introspeccao_profunda';
-        const waNumber = document.getElementById('setting-whatsapp')?.value || "5562991545295";
+        const waNumber = document.getElementById('setting-whatsapp')?.value || this.whatsapp; // Use this.whatsapp
         const btn = document.getElementById('ai-studio-cluster-btn');
 
         if (!theme || theme.length < 5) return alert("Por favor, digite um tema sólido ou um título estratégico para basear o Cluster.");
@@ -1856,7 +1992,7 @@ RETORNE APENAS O JSON, sem comentários.`;
             const data = await response.json(); // Agora é seguro dar parse
 
             if (data.success && data.items) {
-                let msg = `✅ **MISSION CONTROL: CLUSTER CONCLUÍDO!**\n\nForam criados 6 rascunhos estratégicos para o Silo **"${data.mainTopic}"**. Clique em cada um para carregar no canvas e revisar:\n\n<div style="background:#f8fafc; border: 1px solid #e2e8f0; border-radius: 8px; padding: 10px; margin-top: 10px;">`;
+                let msg = `✅ **MISSION CONTROL: CLUSTER CONCLUÍDO!**\n\nForam criados ${data.items.length} rascunhos estratégicos para o Silo **"${data.mainTopic}"**. Clique em cada um para carregar no canvas e revisar:\n\n<div style="background:#f8fafc; border: 1px solid #e2e8f0; border-radius: 8px; padding: 10px; margin-top: 10px;">`;
                 
                 data.items.forEach((item, idx) => {
                     const clusterKey = `clstr_${Date.now()}_${idx}`;
@@ -1905,7 +2041,91 @@ RETORNE APENAS O JSON, sem comentários.`;
         document.getElementById('ai-studio-type').value = type;
         
         this.addMessage(`📌 Item do Cluster carregado: **${title}** (${type}).\n\nPronto para revisão e publicação.`);
-        this.lastGeneratedHtml = html; // [AUTO-DNA] Marca versão base do cluster
+        this.lastGeneratedHtml = html;
+    },
+
+    // --- BLOCOS MODULARES ABIDOS ---
+    insertAbidosBlock(id) {
+        const preview = document.getElementById('live-preview');
+        const placeholder = document.getElementById('canvas-placeholder');
+        if (placeholder) {
+            placeholder.remove();
+            preview.innerHTML = "";
+        }
+
+        if (!window.AbidosBlocks) {
+            console.error("AbidosBlocks not loaded.");
+            return alert("Erro: Biblioteca de blocos não carregada.");
+        }
+
+        const kw = document.getElementById('ai-studio-keyword')?.value || "Psicologia Clínica";
+        const html = window.AbidosBlocks.get(id, kw);
+        
+        if (html) {
+            this.saveHistory();
+            preview.insertAdjacentHTML('beforeend', html);
+            this.updateAbidusScore();
+            this.addMessage(`𓂀 Bloco **${id.toUpperCase()}** inserido com sucesso.`);
+            
+            // Auto-scroll para o novo bloco
+            const lastBlock = preview.lastElementChild;
+            if (lastBlock) lastBlock.scrollIntoView({ behavior: 'smooth' });
+        }
+    },
+
+    // --- MEDIA PICKER (REPOSITÓRIO VISUAL) ---
+    async openMediaPicker(callback) {
+        const modal = document.getElementById('media-picker-modal');
+        const grid  = document.getElementById('media-grid');
+        if (!modal || !grid) return;
+
+        modal.style.display = 'flex';
+        grid.innerHTML = '<p style="grid-column:1/4;text-align:center;color:#64748b;padding:20px;">⏳ Carregando biblioteca...</p>';
+
+        // Asset mapping
+        const mediaToDisplay = this.visualAssets && this.visualAssets.length > 0
+            ? this.visualAssets.map(url => ({ source_url: url, alt_text: 'Imagem Abidos' }))
+            : (window.wpAPI ? await window.wpAPI.fetchMedia(24) : []);
+        
+        grid.innerHTML = '';
+        if (!mediaToDisplay || mediaToDisplay.length === 0) {
+            grid.innerHTML = '<p style="grid-column:1/4;text-align:center;color:#94a3b8;">Nenhuma imagem encontrada.</p>';
+            return;
+        }
+
+        mediaToDisplay.forEach(m => {
+            const container = document.createElement('div');
+            container.style.cssText = 'cursor:pointer; border:2px solid transparent; border-radius:8px; overflow:hidden; transition:all .2s;';
+            container.innerHTML = `<img src="${m.source_url}" title="${m.alt_text}" style="width:100%; height:100px; object-fit:cover; display:block;">`;
+            
+            container.onmouseover = () => container.style.borderColor = '#6366f1';
+            container.onmouseout  = () => container.style.borderColor = 'transparent';
+            
+            container.onclick = () => {
+                if (callback) callback(m.source_url);
+                else this.applyImageToCanvas(m.source_url);
+                this.closeMediaPicker();
+            };
+            grid.appendChild(container);
+        });
+    },
+
+    closeMediaPicker() {
+        const modal = document.getElementById('media-picker-modal');
+        if (modal) modal.style.display = 'none';
+    },
+
+    applyImageToCanvas(url) {
+        const imgHtml = `<div class="reveal !my-12" contenteditable="false"><img src="${url}" class="!rounded-3xl !shadow-2xl !w-full"></div>`;
+        this.saveHistory();
+        const preview = document.getElementById('live-preview');
+        const placeholder = document.getElementById('canvas-placeholder');
+        if (placeholder) {
+            placeholder.remove();
+            preview.innerHTML = "";
+        }
+        preview.insertAdjacentHTML('beforeend', imgHtml);
+        this.addMessage("🖼️ Imagem inserida.");
     }
 };
 
