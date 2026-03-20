@@ -72,14 +72,27 @@ function extractJSON(text) {
 // [FASE 5] Módulo Neuro-Training: Memória de Estilo do Dr. Victor
 const MEMORY_FILE_PATH = path.join(__dirname, 'estilo_victor.json');
 
-const getVictorStyle = () => {
+let styleCache = null;
+let lastStyleCacheTime = 0;
+const STYLE_CACHE_TTL = 5000; // 5 seconds
+
+const getVictorStyle = async () => {
     try {
-        if (fs.existsSync(MEMORY_FILE_PATH)) {
-            const data = fs.readFileSync(MEMORY_FILE_PATH, 'utf8');
-            return JSON.parse(data);
+        const now = Date.now();
+        // If cache is valid, return immediately
+        if (styleCache && (now - lastStyleCacheTime) < STYLE_CACHE_TTL) {
+            return styleCache;
         }
+
+        // Otherwise read asynchronously, unblocking the event loop
+        const data = await fs.promises.readFile(MEMORY_FILE_PATH, 'utf8');
+        styleCache = JSON.parse(data);
+        lastStyleCacheTime = now;
+        return styleCache;
     } catch (e) {
-        console.error("❌ Erro ao ler estilo_victor.json:", e);
+        if (e.code !== 'ENOENT') {
+            console.error("❌ Erro ao ler estilo_victor.json:", e);
+        }
     }
     return { style_rules: [] };
 };
@@ -90,7 +103,7 @@ const getVictorStyle = () => {
 async function salvarRegrasDeEstilo(novasRegras) {
     if (!novasRegras || novasRegras.length === 0) return;
     try {
-        let current = getVictorStyle();
+        let current = await getVictorStyle();
         if (!current.style_rules) current.style_rules = [];
 
         const regrasComMetadados = novasRegras.map(regra => ({
@@ -896,7 +909,7 @@ async function runConstructor(userInput, feedback = null, waNumber, moodId = "1_
     const model = genAI.getGenerativeModel({ model: VISION_MODEL });
     
     const clima = CLIMAS_CLINICOS[moodId] || CLIMAS_CLINICOS["1_introspeccao_profunda"];
-    const personalStyle = getVictorStyle();
+    const personalStyle = await getVictorStyle();
     const styleRules = personalStyle.style_rules?.map(r => `- ${r.regra}`).join('\n') || '';
 
     const prompt = `VOCÊ É O ARQUITETO ABIDOS V4. Crie uma ${contentType === 'pages' ? 'Landing Page de Alta Conversão' : 'Postagem de Autoridade'} para: "${userInput}".
@@ -1164,9 +1177,9 @@ app.post('/api/audit', async (req, res) => {
 });
 
 // 🚀 [FASE 5] ENDPOINTS NEURO-TRAINING (DNA CLONE & STYLE MEMORY)
-app.get('/api/neuro-training/memory', (req, res) => {
+app.get('/api/neuro-training/memory', async (req, res) => {
     try {
-        res.json(getVictorStyle());
+        res.json(await getVictorStyle());
     } catch (e) {
         res.status(500).json({ error: e.message });
     }
@@ -1428,7 +1441,7 @@ app.post('/api/neuro-training/chat', async (req, res) => {
         const { message } = req.body;
         if (!message) return res.status(400).json({ error: 'Mensagem vazia.' });
 
-        const memory = getVictorStyle();
+        const memory = await getVictorStyle();
         const dnaRules = (memory.style_rules || []).slice(-10) // Últimas 10 regras como contexto
             .map(r => `[${r.categoria}] ${r.titulo}: ${r.regra}`)
             .join('\n');
@@ -1478,7 +1491,7 @@ app.post('/api/neuro-training/chat', async (req, res) => {
 
         // Auto-salva regras extraídas no DNA
         if (parsed.regras_extraidas && parsed.regras_extraidas.length > 0) {
-            const currentMemory = getVictorStyle();
+            const currentMemory = await getVictorStyle();
             parsed.regras_extraidas.forEach(regra => {
                 regra.id = `chat_${Date.now()}_${Math.random().toString(36).substr(2,5)}`;
                 regra.data_extracao = new Date().toISOString();
@@ -1499,7 +1512,7 @@ app.post('/api/neuro-training/chat', async (req, res) => {
 app.post('/api/doctoralia/generate-reply', async (req, res) => {
     try {
         const { question } = req.body;
-        const memory = getVictorStyle();
+        const memory = await getVictorStyle();
         const dnaRules = (memory.style_rules || []).map(r => `[${r.categoria}]: ${r.titulo} -> ${r.regra}`).join('\n');
 
         const systemPrompt = `
@@ -1533,7 +1546,7 @@ app.post('/api/doctoralia/generate-reply', async (req, res) => {
 app.post('/api/studio/gerar-rascunho', async (req, res) => {
     try {
         const { tema, formato, publico } = req.body;
-        const memory = getVictorStyle();
+        const memory = await getVictorStyle();
         const dnaRules = (memory.style_rules || []).map(r => `[${r.categoria}]: ${r.titulo} -> ${r.regra}`).join('\n');
 
         const systemPrompt = `
@@ -1595,7 +1608,7 @@ app.post('/api/dna/auto-refine', async (req, res) => {
 
         if (Array.isArray(newRules) && newRules.length > 0) {
             console.log(`✨ [AUTO-DNA] Detectadas ${newRules.length} novas preferências!`);
-            const memory = getVictorStyle();
+            const memory = await getVictorStyle();
             
             newRules.forEach(rule => {
                 rule.id = `auto_${Date.now()}_${Math.random().toString(36).substr(2, 5)}`;
@@ -1726,7 +1739,7 @@ wss.on('connection', (ws) => {
             if (response) {
                 // Automação: Se houver insight, salva no DNA automaticamente para fechar o loop PRIORIDADE 3 & 2
                 if (response.insight) {
-                    const memory = getVictorStyle();
+                    const memory = await getVictorStyle();
                     response.insight.id = `live_${Date.now()}`;
                     response.insight.data_extracao = new Date().toISOString();
                     memory.style_rules.push(response.insight);
