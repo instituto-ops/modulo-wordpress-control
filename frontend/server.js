@@ -1420,6 +1420,82 @@ app.post('/api/blueprint/cluster', async (req, res) => {
     }
 });
 
+// =========================================================
+// ROTA: NEURO-TRAINING CHAT (CONVERSA CONTÍNUA DE VOZ)
+// =========================================================
+app.post('/api/neuro-training/chat', async (req, res) => {
+    try {
+        const { message } = req.body;
+        if (!message) return res.status(400).json({ error: 'Mensagem vazia.' });
+
+        const memory = getVictorStyle();
+        const dnaRules = (memory.style_rules || []).slice(-10) // Últimas 10 regras como contexto
+            .map(r => `[${r.categoria}] ${r.titulo}: ${r.regra}`)
+            .join('\n');
+
+        const systemPrompt = `
+        VOCÊ É O "APRENDIZ DE ABIDOS" — UM GÊMEO DIGITAL EM TREINAMENTO DO DR. VICTOR LAWRENCE.
+        
+        SEU PAPEL NESTA CONVERSA:
+        Você está em uma sessão de treinamento com o Dr. Victor. Ele vai falar naturalmente sobre casos clínicos, técnicas, abordagens e pensamentos. Sua missão é APRENDER e ESPELHAR o seu estilo metodológico.
+        
+        REGRAS CRÍTICAS DE EXTRAÇÃO DE DNA:
+        1. Foque APENAS na metodologia e padrões de raciocínio do Dr. Victor (o "Participante 2").
+        2. IGNORE sintomas, histórias e queixas dos pacientes (Participante 1). Eles são contexto, não DNA.
+        3. Extraia padrões como: "Ele usa a metáfora X para explicar Y", "Ele prioriza Z quando detecta W", "Seu tom é A em situações B".
+        4. Responda de forma conversacional, natural, encorajando o doutor a aprofundar o ponto.
+        
+        DNA JÁ APRENDIDO (contexto):
+        ${dnaRules || 'Nenhum padrão registrado ainda. Esta é a primeira sessão.'}
+        
+        FORMATO DA SUA RESPOSTA:
+        Responda EXCLUSIVAMENTE em JSON válido:
+        {
+          "reply": "Sua resposta conversacional aqui (sem formatação markdown, texto limpo)",
+          "regras_extraidas": [
+            {
+              "categoria": "TÉCNICA|LINGUAGEM|ABORDAGEM|ÉTICA|METÁFORA",
+              "titulo": "Nome curto do padrão detectado",
+              "regra": "Descrição da regra de DNA extraída da fala do Dr. Victor"
+            }
+          ]
+        }
+        Se não houver padrão novo claro para extrair, retorne "regras_extraidas": [].
+        `;
+
+        const result = await modelFlash.generateContent([
+            systemPrompt,
+            `FALA DO DR. VICTOR: "${message}"`
+        ]);
+
+        const responseText = result.response.text();
+        const parsed = extractJSON(responseText);
+
+        if (!parsed || !parsed.reply) {
+            // Fallback se a IA não retornou JSON
+            return res.json({ reply: responseText.replace(/```json|```/g, '').trim(), regras_extraidas: [] });
+        }
+
+        // Auto-salva regras extraídas no DNA
+        if (parsed.regras_extraidas && parsed.regras_extraidas.length > 0) {
+            const currentMemory = getVictorStyle();
+            parsed.regras_extraidas.forEach(regra => {
+                regra.id = `chat_${Date.now()}_${Math.random().toString(36).substr(2,5)}`;
+                regra.data_extracao = new Date().toISOString();
+                currentMemory.style_rules.push(regra);
+            });
+            fs.writeFileSync(MEMORY_FILE_PATH, JSON.stringify(currentMemory, null, 2));
+            console.log(`✨ [NEURO-CHAT] ${parsed.regras_extraidas.length} nova(s) regra(s) de DNA salva(s).`);
+        }
+
+        res.json(parsed);
+
+    } catch (error) {
+        console.error('❌ [NEURO-TRAINING/CHAT ERROR]', error);
+        res.status(500).json({ error: 'Falha no Aprendiz de Abidos: ' + error.message });
+    }
+});
+
 app.post('/api/doctoralia/generate-reply', async (req, res) => {
     try {
         const { question } = req.body;

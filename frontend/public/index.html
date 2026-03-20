@@ -918,12 +918,15 @@
                         <!-- Voice Mode Overlay (Hidden by default) -->
                         <div id="voice-mode-overlay">
                             <div class="pulse-ring">
-                                <div id="voice-mode-mic" style="width: 60px; height: 60px; background: #6366f1; border-radius: 50%; display: flex; align-items: center; justify-content: center; color: white; z-index: 2;">
-                                    <span style="font-size: 24px;">🎙️</span>
+                                <div id="voice-mode-mic" style="width:70px;height:70px;background:#6366f1;border-radius:50%;display:flex;align-items:center;justify-content:center;color:white;z-index:2;transition:background 0.3s ease, box-shadow 0.3s ease;">
+                                    <span id="voice-mic-icon" style="font-size:28px;">🎙️</span>
                                 </div>
                             </div>
-                            <p style="margin-top: 30px; font-weight: 700; color: #334155;">Ouvindo sua Prosódia...</p>
-                            <button class="btn btn-secondary" style="margin-top: 20px; border-radius: 999px; padding: 10px 30px;" onclick="window.neuroTraining.toggleMode('text')">VOLTAR PARA CHAT</button>
+                            <p id="voice-status-text" style="margin-top:30px;font-weight:700;color:#334155;font-size:15px;">Iniciando...</p>
+                            <div style="display:flex;gap:12px;margin-top:20px;flex-wrap:wrap;justify-content:center;">
+                                <button id="btn-mute-voice" class="btn btn-secondary" style="border-radius:999px;padding:10px 24px;font-size:13px;transition:all 0.2s;" onclick="window.neuroTraining.toggleMute()">🔇 Pausar Escuta</button>
+                                <button class="btn btn-secondary" style="border-radius:999px;padding:10px 24px;font-size:13px;" onclick="window.neuroTraining.toggleMode('text')">✖ Fechar</button>
+                            </div>
                         </div>
 
                         <!-- Chat Input Pill -->
