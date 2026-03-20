@@ -138,7 +138,7 @@ function antigravity_update_settings($request) {
     
     // Atualiza Astra Settings (preservando estrutura de array)
     if (isset($params['astra_settings']) && is_array($params['astra_settings'])) {
-        update_option('astra-settings', $params['astra_settings']);
+        update_option('astra-settings', map_deep($params['astra_settings'], 'sanitize_text_field'));
     }
 
     return rest_ensure_response(array('status' => 'success', 'message' => 'Configurações sincronizadas com AntiGravity.'));
