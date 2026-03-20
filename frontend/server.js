@@ -15,7 +15,24 @@ const port = 3000; // Unificando na porta 3000 (Frontend + API)
 
 // Configuração de CORS: Como agora operamos na mesma porta, CORS é menos crítico,
 // mas mantemos por segurança para acessos via IP ou subdomínios.
-app.use(cors());
+const allowedOrigins = process.env.ALLOWED_ORIGINS
+    ? process.env.ALLOWED_ORIGINS.split(',').map(o => o.trim())
+    : ['http://localhost:3000', 'http://127.0.0.1:3000'];
+
+const corsOptions = {
+    origin: function (origin, callback) {
+        // Permite requisições sem origin (ex: mobile apps, curl, ou o próprio servidor)
+        if (!origin) return callback(null, true);
+
+        if (allowedOrigins.indexOf(origin) !== -1 || allowedOrigins.includes('*')) {
+            callback(null, true);
+        } else {
+            callback(new Error('Not allowed by CORS'));
+        }
+    },
+    credentials: true
+};
+app.use(cors(corsOptions));
 app.use(express.json({ limit: '50mb' }));
 app.use(express.urlencoded({ limit: '50mb', extended: true }));
 
