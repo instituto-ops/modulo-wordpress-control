@@ -1371,51 +1371,62 @@ app.post('/api/content/publish-direct', async (req, res) => {
     }
 });
 
+// =========================================================
+// ROTA: ORQUESTRAÇÃO DE CLUSTER / SILO NEURAL (Usa o PRO)
+// =========================================================
 app.post('/api/blueprint/cluster', async (req, res) => {
     try {
-        const { theme, whatsapp, moodId } = req.body;
-        const waNumber = whatsapp || '5562991545295';
-        const selectedMood = moodId || '1_introspeccao_profunda';
+        const { theme, moodId, whatsapp } = req.body;
+        console.log(`💠 [CLUSTER] Orquestrando Silo Neural para: ${theme}`);
+
+        const systemPrompt = `
+        Você é o Arquiteto Abidos (Gemini 2.5 Pro). Sua missão é criar um Cluster SEO (Silo Semântico) de alta conversão para o psicólogo Victor Lawrence sobre o tema: "${theme}".
         
-        console.log(`🏗️ [CLUSTER V4] Iniciando Planejamento Silo-Hub para: "${theme}"`);
-
-        // 1. Planejamento (Flash - Estruturador)
-        const plannerPrompt = `Atue como Estrategista SEO Abidos (Psicologia Clínica/Goiânia).
-        Assunto Principal: "${theme}". 
-        Necessidade: Mão de obra de conteúdo 1-Hub + 5-Spokes.
-        RETORNE EXATAMENTE UM JSON: {
-          "hub": { "title": "O Silo Principal (Página)", "topic": "Copy focada em conversão geral sobre ${theme}", "type": "pages" },
-          "spokes": [ { "title": "Subtema 1", "topic": "Discussão específica 1", "type": "posts" }, ...x5 ]
-        }
-        As spokes devem cobrir dores, dúvidas e objeções do paciente.`;
+        Você deve gerar EXATAMENTE 4 conteúdos interligados:
+        - 1 Página Pilar (Hub) de Vendas (type: "pages").
+        - 3 Artigos de Blog (Spokes) focados em cauda longa e dores específicas (type: "posts").
         
-        const planResult = await modelFlash.generateContent(plannerPrompt);
-        const siloPlan = extractJSON(planResult.response.text());
-        if (!siloPlan || !siloPlan.hub) throw new Error("Falha no planejamento neural do Silo.");
-
-        const siloSummary = `Hub: "${siloPlan.hub.title}", Spokes: ${siloPlan.spokes.map(s => s.title).join(", ")}`;
-        const generatedItems = [];
-
-        // 2. Sequência de Produção (Sequencial para não saturar limites e garantir foco)
-        // Hub primeiro
-        const hubResult = await runProductionLine(siloPlan.hub.topic, null, waNumber, selectedMood, 'pages', siloSummary);
-        generatedItems.push({ ...siloPlan.hub, html: hubResult.html, success: hubResult.success });
-
-        // Spokes
-        for(const spoke of siloPlan.spokes) {
-            const spokeResult = await runProductionLine(spoke.topic, null, waNumber, selectedMood, 'posts', siloSummary);
-            generatedItems.push({ ...spoke, html: spokeResult.html, success: spokeResult.success });
+        REGRAS DE CÓDIGO:
+        - O HTML deve usar seções modulares (<section>) com estilos inline (Tailwind).
+        - Substitua links genéricos por links reais ou placeholders lógicos.
+        - Não use aspas duplas não escapadas dentro do HTML para não quebrar o JSON.
+        
+        RETORNE EXCLUSIVAMENTE UM JSON VÁLIDO NESTE FORMATO:
+        {
+          "mainTopic": "Tema Central Escolhido",
+          "items": [
+            {
+              "title": "Título Estratégico",
+              "type": "pages",
+              "html": "<section>...</section>"
+            },
+            {
+              "title": "Título do Artigo 1",
+              "type": "posts",
+              "html": "<section>...</section>"
+            }
+            // ... (restante dos itens)
+          ]
         }
+        `;
 
-        res.json({ 
-            success: true, 
-            message: "Silo/Cluster gerado com sucesso!",
-            mainTopic: theme,
-            items: generatedItems 
+        const result = await modelPro.generateContent(systemPrompt);
+        const responseText = result.response.text();
+        
+        // Limpa a formatação markdown se a IA colocar
+        const cleanJson = responseText.replace(/```json/g, '').replace(/```/g, '').trim();
+        
+        const clusterData = JSON.parse(cleanJson);
+        clusterData.success = true;
+
+        res.status(200).json(clusterData);
+
+    } catch (error) {
+        console.error("🚨 Erro na geração do Cluster:", error);
+        res.status(500).json({ 
+            success: false, 
+            error: "Falha no Hemisfério Pro ao orquestrar o Silo. Verifique os logs do servidor." 
         });
-    } catch (e) {
-        console.error("❌ [CLUSTER ERROR]", e);
-        res.status(500).json({ error: e.message });
     }
 });
 

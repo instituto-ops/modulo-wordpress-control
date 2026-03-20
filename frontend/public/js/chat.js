@@ -1848,7 +1848,12 @@ RETORNE APENAS O JSON, sem comentários.`;
                 body: JSON.stringify({ theme, moodId, whatsapp: waNumber })
             });
             
-            const data = await response.json();
+            // TRAVA DE SEGURANÇA: Verifica se a resposta não é um erro HTTP (como 404 ou 500)
+            if (!response.ok) {
+                throw new Error(`O Mission Control respondeu com erro ${response.status}`);
+            }
+            
+            const data = await response.json(); // Agora é seguro dar parse
 
             if (data.success && data.items) {
                 let msg = `✅ **MISSION CONTROL: CLUSTER CONCLUÍDO!**\n\nForam criados 6 rascunhos estratégicos para o Silo **"${data.mainTopic}"**. Clique em cada um para carregar no canvas e revisar:\n\n<div style="background:#f8fafc; border: 1px solid #e2e8f0; border-radius: 8px; padding: 10px; margin-top: 10px;">`;
