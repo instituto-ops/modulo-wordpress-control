@@ -181,27 +181,18 @@ const callWP = async (method, endpoint, data = null, params = {}) => {
 };
 
 // Endpoints Genéricos (GET, POST, PUT, DELETE)
-app.get('/api/wp/:type', async (req, res) => {
+const handleWPProxy = async (res, method, endpoint, data = null, params = {}) => {
     try {
-        const response = await callWP('GET', `/${req.params.type}`, null, req.query);
+        const response = await callWP(method, endpoint, data, params);
         res.json(response.data);
-    } catch (e) { res.status(e.response?.status || 500).json(e.response?.data || {error: e.message}); }
-});
+    } catch (e) {
+        res.status(e.response?.status || 500).json(e.response?.data || {error: e.message});
+    }
+};
 
-app.post('/api/wp/:type', async (req, res) => {
-    try {
-        const response = await callWP('POST', `/${req.params.type}`, req.body);
-        res.json(response.data);
-    } catch (e) { res.status(e.response?.status || 500).json(e.response?.data || {error: e.message}); }
-});
-
-app.all('/api/wp/:type/:id', async (req, res) => {
-    try {
-        const { type, id } = req.params;
-        const response = await callWP(req.method, `/${type}/${id}`, req.body, req.query);
-        res.json(response.data);
-    } catch (e) { res.status(e.response?.status || 500).json(e.response?.data || {error: e.message}); }
-});
+app.get('/api/wp/:type', (req, res) => handleWPProxy(res, 'GET', `/${req.params.type}`, null, req.query));
+app.post('/api/wp/:type', (req, res) => handleWPProxy(res, 'POST', `/${req.params.type}`, req.body));
+app.all('/api/wp/:type/:id', (req, res) => handleWPProxy(res, req.method, `/${req.params.type}/${req.params.id}`, req.body, req.query));
 
 // ──────────────────────────────────────────────────────────────────────────────
 // ENDPOINT DEDICADO: Busca conteúdo completo contornando WAF/ModSecurity 403
