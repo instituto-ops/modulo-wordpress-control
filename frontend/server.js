@@ -932,10 +932,25 @@ async function runConstructor(userInput, feedback = null, waNumber, moodId = "1_
     return result.response.text().replace(/```html|```/g, '').trim();
 }
 
-async function runAbidosInspector(html) {
-    console.log(`🔍 [AGENTE 2] Auditando Estrutura e SEO (Abidos Gate)...`);
+async function runInspector(html, logMessage, promptPrefix) {
+    console.log(logMessage);
     const model = genAI.getGenerativeModel({ model: VISION_MODEL });
-    let prompt = `
+    let prompt = `${promptPrefix}
+
+        HTML PARA AUDITORIA:
+        ${html}
+    `;
+    const result = await model.generateContent(prompt);
+    try {
+        return JSON.parse(result.response.text().replace(/```json|```/g, '').trim());
+    } catch (e) {
+        return { status: "REPROVOU", motivo: "Erro na resposta do inspetor. Tente novamente." };
+    }
+}
+
+async function runAbidosInspector(html) {
+    const logMessage = `🔍 [AGENTE 2] Auditando Estrutura e SEO (Abidos Gate)...`;
+    const promptPrefix = `
         🔍 AGENTE 2: Inspetor Abidos (Auditor de Estrutura e SEO V4)
         Papel: Você é um Auditor de SEO Técnico implacável e Revisor Semântico.
         Comportamento: Leia o HTML gerado e procure falhas contra a Hierarquia Abidos.
@@ -947,23 +962,13 @@ async function runAbidosInspector(html) {
         4. **ABIDOS-WRAPPER**: O código está encapsulado na div class="abidos-wrapper"?
         5. **ALT TAGS**: As imagens possuem alt text estratégico e geo-localizado?
 
-        Output Exigido (JSON APENAS): {"status": "PASSOU"} OU {"status": "REPROVOU", "motivo": "Coloque a seção de dor em um <h2> e verifique a falta de alt tags geo-localizadas"}.
-        
-        HTML PARA AUDITORIA:
-        ${html}
-    `;
-    const result = await model.generateContent(prompt);
-    try {
-        return JSON.parse(result.response.text().replace(/\`\`\`json|\`\`\`/g, '').trim());
-    } catch (e) {
-        return { status: "REPROVOU", motivo: "Erro na resposta do inspetor. Tente novamente." };
-    }
+        Output Exigido (JSON APENAS): {"status": "PASSOU"} OU {"status": "REPROVOU", "motivo": "Coloque a seção de dor em um <h2> e verifique a falta de alt tags geo-localizadas"}.`;
+    return await runInspector(html, logMessage, promptPrefix);
 }
 
 async function runClinicalInspector(html) {
-    console.log(`🧠 [AGENTE 3] Auditando E-E-A-T e Ética (Clinical Gate)...`);
-    const model = genAI.getGenerativeModel({ model: VISION_MODEL });
-    let prompt = `
+    const logMessage = `🧠 [AGENTE 3] Auditando E-E-A-T e Ética (Clinical Gate)...`;
+    const promptPrefix = `
         🧠 AGENTE 3: Inspetor Clínico (Auditor de E-E-A-T e Ética YMYL)
         Papel: Você é um Revisor do Conselho Federal de Psicologia (CFP) e especialista nas diretrizes YMYL do Google. Você não escreve código, apenas audita o texto gerado.
         Comportamento: Leia toda a copy (texto) embutida no HTML. O nicho é saúde mental sensível.
@@ -971,23 +976,13 @@ async function runClinicalInspector(html) {
         1. Existe alguma promessa de "cura rápida", "garantia de resultado" ou jargão de marketing agressivo como "Compre agora"? (Se sim, REPROVOU).
         2. A autoridade E-E-A-T do Dr. Victor Lawrence (CRP 09/012681, Mestrado pela UFU) está explicitamente citada? (Se não, REPROVOU).
         3. A linguagem é empática e gera baixa fricção cognitiva? (Se não, REPROVOU).
-        Output Exigido: Responda APENAS no formato JSON: {"status": "PASSOU"} OU {"status": "REPROVOU", "motivo": "Substitua a frase X por um tom mais clínico e acolhedor"}.
-        
-        HTML PARA AUDITORIA:
-        ${html}
-    `;
-    const result = await model.generateContent(prompt);
-    try {
-        return JSON.parse(result.response.text().replace(/\`\`\`json|\`\`\`/g, '').trim());
-    } catch (e) {
-        return { status: "REPROVOU", motivo: "Erro na resposta do inspetor. Tente novamente." };
-    }
+        Output Exigido: Responda APENAS no formato JSON: {"status": "PASSOU"} OU {"status": "REPROVOU", "motivo": "Substitua a frase X por um tom mais clínico e acolhedor"}.`;
+    return await runInspector(html, logMessage, promptPrefix);
 }
 
 async function runDesignInspector(html) {
-    console.log(`🎨 [AGENTE 4] Auditando UI/UX Tailwind (Design Gate)...`);
-    const model = genAI.getGenerativeModel({ model: VISION_MODEL });
-    let prompt = `
+    const logMessage = `🎨 [AGENTE 4] Auditando UI/UX Tailwind (Design Gate)...`;
+    const promptPrefix = `
         🎨 AGENTE 4: Inspetor de Design (Auditor de UI/UX Tailwind)
         Papel: Você é um Engenheiro de Neuromarketing Visual especializado em Tailwind v4. Você não cria design, apenas revisa.
         Comportamento: Leia as classes Tailwind no código para garantir que o Design System do Método Abidos foi respeitado.
@@ -995,17 +990,8 @@ async function runDesignInspector(html) {
         1. O Glassmorphism está aplicado corretamente com a fórmula de backdrop-filter? (Se não, REPROVOU).
         2. Os textos em parágrafos usam font-normal (peso 400) para evitar cansaço visual? (Se não, REPROVOU).
         3. Existe risco de colisão mobile (ex: botões com textos gigantes que quebram a linha)? (Se sim, REPROVOU).
-        Output Exigido: Responda APENAS no formato JSON: {"status": "PASSOU"} OU {"status": "REPROVOU", "motivo": "Adicione a classe '!whitespace-nowrap' no botão Y"}.
-
-        HTML PARA AUDITORIA:
-        ${html}
-    `;
-    const result = await model.generateContent(prompt);
-    try {
-        return JSON.parse(result.response.text().replace(/\`\`\`json|\`\`\`/g, '').trim());
-    } catch (e) {
-        return { status: "REPROVOU", motivo: "Erro na resposta do inspetor. Tente novamente." };
-    }
+        Output Exigido: Responda APENAS no formato JSON: {"status": "PASSOU"} OU {"status": "REPROVOU", "motivo": "Adicione a classe '!whitespace-nowrap' no botão Y"}.`;
+    return await runInspector(html, logMessage, promptPrefix);
 }
 
 /**
