@@ -132,9 +132,17 @@ function antigravity_get_settings() {
 function antigravity_update_settings($request) {
     $params = $request->get_json_params();
     
-    if (isset($params['site_title'])) update_option('blogname', sanitize_text_field($params['site_title']));
-    if (isset($params['site_description'])) update_option('blogdescription', sanitize_text_field($params['site_description']));
-    if (isset($params['antigravity_whatsapp'])) update_option('antigravity_whatsapp', sanitize_text_field($params['antigravity_whatsapp']));
+    $settings_map = array(
+        'site_title'           => 'blogname',
+        'site_description'     => 'blogdescription',
+        'antigravity_whatsapp' => 'antigravity_whatsapp',
+    );
+
+    foreach ($settings_map as $param_key => $option_name) {
+        if (isset($params[$param_key])) {
+            update_option($option_name, sanitize_text_field($params[$param_key]));
+        }
+    }
     
     // Atualiza Astra Settings (preservando estrutura de array)
     if (isset($params['astra_settings']) && is_array($params['astra_settings'])) {
