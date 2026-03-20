@@ -391,6 +391,20 @@ AMBIENTE CONSULTÓRIO:
 - https://hipnolawrence.com/wp-content/uploads/2026/03/98593981-F8A7-4F8E-86A4-BBF2C04F704C.jpg
 `;
 
+// ============================================================================
+// ÉTICA ABIDOS — Proibições absolutas injetadas em TODOS os prompts de geração
+// ============================================================================
+const ETICA_ABIDOS = `
+[DIRETRIZES ÉTICAS ABSOLUTAS — PROIBIÇÕES SEM EXCEÇÃO]
+- PROIBIDO oferecer, mencionar ou sugerir SESSÃO GRATUITA ou AVALIAÇÃO GRATUITA sob qualquer forma.
+- PROIBIDO prometer cura, garantia de resultado ou melhora garantida.
+- PROIBIDO fazer diagnósticos pela internet.
+- PROIBIDO linguagem de "marketing agressivo" (ex: "mude sua vida", "transformação instantânea").
+- PROIBIDO incluir números de WhatsApp, e-mail, preços ou endereços diretamente no texto (use apenas os links reais fornecidos).
+- PROIBIDO usar formatação markdown no texto visível (sem **, *, #, etc.).
+- O CTA de agendamento DEVE levar ao link: https://hipnolawrence.com/agendamento/
+`;
+
 const CLIMAS_CLINICOS = {
   "1_introspeccao_profunda": {
     "nome_amigavel": "Introspecção Profunda (Ultra-Dark)",
@@ -643,19 +657,36 @@ app.post('/api/agents/generate-pipeline', async (req, res) => {
 
         // NÓ 1: Agente Gerador (RAG & Pesquisa + Personalidade Aprendida)
         console.log(`📡 [NÓ 1] Agente de Pesquisa (Voz Dr. Victor)...`);
+        const dnaInjetadoPipeline = getDnaContext();
+        const moodPipeline = CLIMAS_CLINICOS['1_introspeccao_profunda'];
         const pGerador = `
-        VOCÊ É O CLONE DE VOZ DO DR. VICTOR LAWRENCE.
-        
-        PERFIL DE VOZ APRENDIDO:
-        - Estilo: ${voiceProfile.learned_style}
-        - Ritmo: ${voiceProfile.rhythm}
-        - Vocabulário Favorecido: ${voiceProfile.vocabulary.join(', ')}
-        - Termos Proibidos: ${voiceProfile.prohibited_terms.join(', ')}
-        
-        TAREFA: Escreva um rascunho de landing page sobre "${topic}" focado em Goiânia. 
-        Mantenha a autoridade clínica, evite clichês de marketing robótico.
-        Use tags HTML simples (h2, h3, p). PROIBIDO H1 e PROIBIDO wrappers como <div class="lw-page-wrapper">.
-        ` ;
+Você é o Arquiteto Visual Sênior do Protocolo Abidos. Gere uma Landing Page HTML/Tailwind PREMIUM sobre "${topic}" para o Dr. Victor Lawrence em Goiânia.
+
+[WRAPPER OBRIGATÓRIO]
+Inicie com: <div class="abidos-wrapper antialiased px-4 py-8 md:px-12 lg:px-24 bg-[#05080f] min-h-screen font-inter text-slate-300">
+
+[REGRAS DE DESIGN — PROIBIÇÕES ABSOLUTAS]
+- PROIBIDO H1 manual dentro de HTML gerado (o tema do WordPress já injeta um H1 automático).
+- PROIBIDO tags puras sem classes Tailwind.
+- PROIBIDO inventar URLs. Use APENAS as listadas abaixo.
+
+[ESTÉTICA PREMIUM]
+- CARDS: "bg-white/5 backdrop-blur-xl border border-white/10 rounded-[2rem] p-6 md:p-10 shadow-2xl hover:border-teal-500/50 transition-all"
+- H2 (GRADIENTE): "font-outfit font-bold text-3xl md:text-5xl leading-tight text-transparent bg-clip-text bg-gradient-to-r from-teal-400 to-blue-500 mb-6"
+- GRIDS: "grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6"
+- BOTOÕES CTA WhatsApp: "inline-flex items-center gap-3 px-8 py-4 bg-teal-500 hover:bg-teal-400 text-[#05080f] font-bold rounded-full transition-all hover:scale-105 shadow-[0_0_25px_rgba(45,212,191,0.35)]"
+- GLOW ORB: <div class="absolute -z-10 w-96 h-96 bg-teal-500/10 blur-[150px] rounded-full"></div>
+
+[DNA LITERÁRIO]
+${dnaInjetadoPipeline || 'Use linguagem ericksoniana perm issiva, cadência reflexiva.'}
+
+[ASSETS REAIS]
+${REAL_ASSETS}
+
+${ETICA_ABIDOS}
+
+Gere as <section> modulares (py-16 md:py-32). Feche com </div>. Sem markdown.
+        `;
         const resGerador = await model.generateContent(pGerador);
         const rascunhoPrimario = resGerador.response.text();
 
@@ -1387,49 +1418,49 @@ app.post('/api/blueprint/cluster', async (req, res) => {
             return res.status(500).json({ error: "Hemisfério Pro não carregado no servidor." });
         }
 
+        const dnaInjetadoCluster = getDnaContext();
+        const moodCluster = tema && tema.toLowerCase().includes('tea') ? CLIMAS_CLINICOS['3_conforto_neurodivergente'] : CLIMAS_CLINICOS['1_introspeccao_profunda'];
+
         const systemPrompt = `
-        Você é o Arquiteto Abidos (Gemini 2.5 Pro). Sua missão é criar um Cluster SEO (Silo Semântico) de alta conversão para o psicólogo Victor Lawrence sobre o tema: "${theme}".
-        
-        Você deve gerar EXATAMENTE 4 conteúdos interligados:
-        - 1 Página Pilar (Hub) de Vendas (type: "pages").
-        - 3 Artigos de Blog (Spokes) focados em cauda longa e dores específicas (type: "posts").
-        
-        REGRAS DE CÓDIGO:
-        - O HTML deve usar seções modulares (<section>) com estilos inline (Tailwind).
-        - Substitua links genéricos por links reais ou placeholders lógicos.
-        - Não use aspas duplas não escapadas dentro do HTML para não quebrar o JSON.
-        
-        RETORNE EXCLUSIVAMENTE UM JSON VÁLIDO NESTE FORMATO:
-        {
-          "mainTopic": "${theme}",
-          "items": [
-            {
-              "title": "Título do Hub",
-              "type": "pages",
-              "html": "<section>...</section>"
-            },
-            {
-              "title": "Artigo 1",
-              "type": "posts",
-              "html": "<section>...</section>"
-            },
-            {
-              "title": "Artigo 2",
-              "type": "posts",
-              "html": "<section>...</section>"
-            },
-            {
-              "title": "Artigo 3",
-              "type": "posts",
-              "html": "<section>...</section>"
-            }
-          ]
-        }
+Você é o Arquiteto Abidos (Gemini 2.5 Pro). Crie um Cluster SEO de alta conversão para o Dr. Victor Lawrence (tema: "${theme}").
+
+Gere EXATAMENTE 4 conteúdos:
+- 1 Página Pilar (Hub) de vendas (type: "pages")
+- 3 Artigos de Blog (Spokes) em cauda longa (type: "posts")
+
+[DESIGN OBRIGATÓRIO PARA CADA ITEM HTML]
+- WRAPPER: <div class="abidos-wrapper antialiased px-4 py-8 md:px-12 lg:px-24 ${moodCluster.fundo_principal} min-h-screen font-inter ${moodCluster.texto_principal}">
+- CARDS: bg-white/5 backdrop-blur-xl border border-white/10 rounded-[2rem] p-6 md:p-10 shadow-2xl hover:border-teal-500/50 transition-all
+- H2 GRADIENTE: font-outfit font-bold text-3xl md:text-5xl text-transparent bg-clip-text bg-gradient-to-r from-teal-400 to-blue-500
+- GRIDS: grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6
+- BOTOÕES CTA: inline-flex px-8 py-4 bg-teal-500 hover:bg-teal-400 text-[#05080f] font-bold rounded-full hover:scale-105 shadow-[0_0_25px_rgba(45,212,191,0.35)]
+- GLOW ORB: <div class="absolute -z-10 w-96 h-96 bg-teal-500/10 blur-[150px] rounded-full"></div>
+- EFEITO DO MOOD: ${moodCluster.efeitos_obrigatorios}
+- PROIBIDO H1 manual, PROIBIDO URLs inventadas, PROIBIDO tags puras.
+
+[DNA LITERÁRIO]
+${dnaInjetadoCluster || 'Use linguagem ericksoniana permissiva.'}
+
+[LINKS E IMAGENS REAIS — USE OBRIGATORIAMENTE]
+${REAL_ASSETS}
+
+${ETICA_ABIDOS}
+
+RETORNE EXCLUSIVAMENTE UM JSON VÁLIDO:
+{
+  "mainTopic": "${theme}",
+  "items": [
+    { "title": "Título do Hub", "type": "pages", "html": "<div class=\\"abidos-wrapper...\\">...</div>" },
+    { "title": "Artigo 1", "type": "posts", "html": "<div class=\\"abidos-wrapper...\\">...</div>" },
+    { "title": "Artigo 2", "type": "posts", "html": "<div class=\\"abidos-wrapper...\\">...</div>" },
+    { "title": "Artigo 3", "type": "posts", "html": "<div class=\\"abidos-wrapper...\\">...</div>" }
+  ]
+}
         `;
 
         const result = await modelPro.generateContent(systemPrompt);
         const responseText = result.response.text();
-        
+
         const clusterData = extractJSON(responseText);
         if (!clusterData || !clusterData.items) {
             console.error("❌ Falha ao extrair JSON do Cluster. Resposta bruta:", responseText);
@@ -1575,20 +1606,43 @@ PERGUNTA DO PACIENTE:
 app.post('/api/studio/gerar-rascunho', async (req, res) => {
     try {
         const { tema, formato, publico } = req.body;
-        const memory = getVictorStyle();
-        const dnaRules = (memory.style_rules || []).map(r => `[${r.categoria}]: ${r.titulo} -> ${r.regra}`).join('\n');
+        const dnaInjetado = getDnaContext();
+        // Detecta mood pelo tema
+        const moodKey = tema && (tema.toLowerCase().includes('tea') || tema.toLowerCase().includes('autis'))
+            ? '3_conforto_neurodivergente'
+            : tema && tema.toLowerCase().includes('hipno')
+            ? '1_introspeccao_profunda'
+            : '1_introspeccao_profunda';
+        const mood = CLIMAS_CLINICOS[moodKey];
 
         const systemPrompt = `
-        VOCÊ É O AVATAR LITERÁRIO DO DR. VICTOR LAWRENCE (Mestre UFU, Ericksoniano).
-        ESCREVA CONTEÚDO SOBRE: "${tema}" para "${publico}". Formato: ${formato}.
-        
-        Siga estas REGRAS DE DNA extraídas do Dr. Victor:
-        ${dnaRules || "Escreva com tom clínico profissional e empático."}
-        
-        REGRAS UNIVERSAIS:
-        1. Sem promessas de cura.
-        2. Linguagem permissiva Ericksoniana.
-        3. Saída em HTML semântico.
+Você é o Arquiteto Visual Sênior do Protocolo Abidos. Sua missão: gerar código HTML/Tailwind IMPECÁVEL, TOTALMENTE RESPONSIVO e com DESIGN PREMIUM para o conteúdo "${tema}" (formato: ${formato}, público: ${publico}).
+
+[REGRAS DE LAYOUT DINÂMICO — OBRIGATÓRIO]
+1. WRAPPER MESTRE: Todo o conteúdo DEVE começar com: <div class="abidos-wrapper antialiased px-4 py-8 md:px-12 lg:px-24 ${mood.fundo_principal} min-h-screen font-inter ${mood.texto_principal}">
+2. MOBILE-FIRST: 1 coluna no mobile, expandindo com 'md:' e 'lg:' breakpoints.
+3. GRIDS: Benefícios/dores: "grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6". Autoridade: "flex flex-col lg:flex-row items-center gap-12".
+4. PROIBIDO TAGS PURAS: Nenhum <h1>, <p> ou <a> sem classes Tailwind obrigatórias.
+
+[ESTÉTICA PREMIUM]
+- CARDS: "bg-white/5 backdrop-blur-xl border border-white/10 rounded-[2rem] p-6 md:p-10 shadow-2xl transition-all hover:border-teal-500/50"
+- H1/H2 (GRADIENTE): "font-outfit font-bold text-4xl md:text-6xl lg:text-7xl leading-tight text-transparent bg-clip-text bg-gradient-to-r from-teal-400 to-blue-500 mb-6"
+- H3: "font-outfit font-bold text-2xl md:text-3xl ${mood.texto_destaque} mb-4"
+- ÓRBITAS DE LUZ (GLOW ORBS — opcional, para profundidade): <div class="absolute -z-10 w-96 h-96 ${mood.cor_acao.replace('!bg-', 'bg-')}/10 blur-[150px] rounded-full"></div>
+- BOTOÕES MAGNÉTICOS (CTA WhatsApp): "inline-flex items-center justify-center px-8 py-4 ${mood.cor_acao.replace('!bg-', 'bg-')} hover:opacity-90 text-[#05080f] font-bold rounded-full transition-all hover:scale-105 shadow-[0_0_25px_rgba(45,212,191,0.35)] text-lg"
+- EFEITO OBRIGATÓRIO DO MOOD: ${mood.efeitos_obrigatorios}
+
+[DNA LITERÁRIO DO DR. VICTOR — APLIQUE NO TEXTO VISÍVEL]
+${dnaInjetado || '(Sem regras de DNA ainda. Use linguagem ericksoniana perm issiva e empática.)'}
+
+[ASSETS REAIS — USE OBRIGATORIAMENTE]
+${REAL_ASSETS}
+
+${ETICA_ABIDOS}
+
+[OBJETIVO FINAL]
+Gere as <section> modulares com padding vertical generoso (py-16 md:py-32). No mobile texto centralizado. No desktop alinhamento estratégico lateral. Feche o wrapper com </div> ao final.
+NÃO inclua <!DOCTYPE>, <html>, <head>, <body> ou markdown. Apenas as seções HTML.
         `;
 
         const result = await modelPro.generateContent(systemPrompt);
