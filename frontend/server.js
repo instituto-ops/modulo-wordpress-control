@@ -882,9 +882,14 @@ app.post('/api/doctoralia/generate-reply', async (req, res) => {
         3. Sigilo: Nunca confirme diagnósticos sem avaliação. Sempre sugira agendamento.
         4. Geo-Localização: Mencione que o atendimento especializado ocorre em Goiânia.
         
+        REGRAD DE FORMATAÇÃO (CRÍTICO):
+        - RETORNE APENAS TEXTO LIMPO (PLAIN TEXT).
+        - É ESTRITAMENTE PROIBIDO O USO DE QUALQUER FORMATAÇÃO MARKDOWN (COMO ** PARA NEGRITO, # PARA TÍTULOS OU LISTAS COM -).
+        - A RESPOSTA DEVE PARECER TER SIDO DIGITADA MANUALMENTE POR UM CLÍNICO EM UM PORTAL DE SAÚDE, SEM "SINAIS DE IA".
+        
         PERGUNTA DO PACIENTE: "${question}"
         
-        SAÍDA: Apenas o texto da resposta, pronto para colar.`;
+        SAÍDA: O texto final da resposta, sem formatação markdown.`;
         
         const result = await modelPro.generateContent(prompt);
         res.json({ success: true, reply: result.response.text() });
