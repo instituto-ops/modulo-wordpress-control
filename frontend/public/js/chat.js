@@ -980,7 +980,10 @@ window.chatApp = {
             } else {
                 throw new Error("Checklist não retornado.");
             }
-            alert("🚨 Erro na auditoria. Verifique a conexão com o node.");
+        } catch (error) {
+            console.error("Audit Error:", error);
+            alert("🚨 Erro na auditoria. Verifique a conexão com o servidor local.");
+            this.addMessage("❌ Falha ao rodar Auditoria Abidos.");
         }
         
         this.addAuditLog("Agente Auditor", "Auditoria de SEO Local e Autoridade (Abidos) concluída.", "ia");
@@ -2139,7 +2142,7 @@ RETORNE APENAS O JSON, sem comentários.`;
             this.addMessage("❌ Falha ao orquestrar agentes para o Blueprint.");
             console.error(e);
         }
-    },
+    }, // Fim da função generateBlueprint(tema)
 
     async createCluster() {
         const titleInput = document.getElementById('ai-studio-new-title');
@@ -2306,16 +2309,15 @@ RETORNE APENAS O JSON, sem comentários.`;
         preview.insertAdjacentHTML('beforeend', imgHtml);
         this.addMessage("🖼️ Imagem inserida.");
     }
-};
+}; 
 
-// Global Helpers (Refatorado para suportar Append-Only)
+// Helpers globais fora do objeto chatApp
 window.injectCode = function(btn) {
     const code = decodeURIComponent(btn.getAttribute('data-code'));
     const preview = document.getElementById('live-preview');
     const modeSelect = btn.parentElement.querySelector('.injection-mode');
     const mode = modeSelect ? modeSelect.value : 'replace';
 
-    // Se o preview tiver o texto placeholder, limpa antes de injetar
     const placeholder = document.getElementById('canvas-placeholder');
     if (placeholder || preview.innerText.includes('Crie algo novo') || preview.innerText.includes('Comece a escrever')) {
         preview.innerHTML = '';
@@ -2327,7 +2329,7 @@ window.injectCode = function(btn) {
         preview.insertAdjacentHTML('afterbegin', code);
     } else {
         preview.innerHTML = code;
-        window.chatApp.lastGeneratedHtml = code; // [AUTO-DNA] Salva base para aprendizado
+        window.chatApp.lastGeneratedHtml = code;
     }
 
     window.chatApp.updateAbidusScore();
