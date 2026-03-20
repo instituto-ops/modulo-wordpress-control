@@ -1,5 +1,6 @@
 require('dotenv').config({ path: '../.env' });
 const { GoogleGenerativeAI } = require('@google/generative-ai');
+const fs = require('fs');
 
 async function testDraft() {
     try {
