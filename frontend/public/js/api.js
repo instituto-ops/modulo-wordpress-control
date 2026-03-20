@@ -3,7 +3,19 @@ const wpAPI = {
     // Nenhuma credencial (senha/chave) é armazenada no frontend.
     baseUrl: "/api",
     
+    getSecret() {
+        let secret = localStorage.getItem('API_SECRET');
+        if (!secret) {
+            secret = prompt('Por favor, insira a Chave da API (API Secret) para acessar o painel:');
+            if (secret) {
+                localStorage.setItem('API_SECRET', secret);
+            }
+        }
+        return secret || '';
+    },
+
     /**
+
      * Helper para fazer requisições ao Proxy
      */
     async request(endpoint, options = {}) {
@@ -12,6 +24,7 @@ const wpAPI = {
         // Merging headers
         options.headers = {
             "Content-Type": "application/json",
+            "x-api-key": this.getSecret(),
             ...(options.headers || {})
         };
 
@@ -112,7 +125,10 @@ const wpAPI = {
 
             const response = await fetch(`${this.baseUrl}/wp-upload-media`, {
                 method: 'POST',
-                body: formData
+                body: formData,
+                headers: {
+                    "x-api-key": this.getSecret()
+                }
                 // Note: Don't set Content-Type header when using FormData with fetch,
                 // the browser will set it automatically with the boundary string.
             });

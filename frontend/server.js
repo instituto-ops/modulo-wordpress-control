@@ -180,22 +180,38 @@ const callWP = async (method, endpoint, data = null, params = {}) => {
     }
 };
 
+
+// ==============================================================================
+// MIDDLEWARE DE AUTENTICAÇÃO (API SECRET)
+// ==============================================================================
+const requireApiSecret = (req, res, next) => {
+    const apiKey = req.headers['x-api-key'] || req.query.api_key;
+    const expectedKey = process.env.API_SECRET;
+
+    // Se a variável de ambiente não estiver definida, ou se as chaves não baterem
+    if (!expectedKey || apiKey !== expectedKey) {
+        console.warn(`[AUTH FALHA] Tentativa de acesso bloqueada em ${req.method} ${req.originalUrl}`);
+        return res.status(401).json({ error: 'Unauthorized: API Secret inválido ou ausente.' });
+    }
+    next();
+};
+
 // Endpoints Genéricos (GET, POST, PUT, DELETE)
-app.get('/api/wp/:type', async (req, res) => {
+app.get('/api/wp/:type', requireApiSecret, async (req, res) => {
     try {
         const response = await callWP('GET', `/${req.params.type}`, null, req.query);
         res.json(response.data);
     } catch (e) { res.status(e.response?.status || 500).json(e.response?.data || {error: e.message}); }
 });
 
-app.post('/api/wp/:type', async (req, res) => {
+app.post('/api/wp/:type', requireApiSecret, async (req, res) => {
     try {
         const response = await callWP('POST', `/${req.params.type}`, req.body);
         res.json(response.data);
     } catch (e) { res.status(e.response?.status || 500).json(e.response?.data || {error: e.message}); }
 });
 
-app.all('/api/wp/:type/:id', async (req, res) => {
+app.all('/api/wp/:type/:id', requireApiSecret, async (req, res) => {
     try {
         const { type, id } = req.params;
         const response = await callWP(req.method, `/${type}/${id}`, req.body, req.query);
@@ -207,7 +223,7 @@ app.all('/api/wp/:type/:id', async (req, res) => {
 // ENDPOINT DEDICADO: Busca conteúdo completo contornando WAF/ModSecurity 403
 // Estratégia: duas chamadas menores em vez de uma grande com content=HTML
 // ──────────────────────────────────────────────────────────────────────────────
-app.get('/api/api-content/:type/:id', async (req, res) => {
+app.get('/api/api-content/:type/:id', requireApiSecret, async (req, res) => {
     try {
         const { type, id } = req.params;
         console.log(`📄 [CONTENT] Buscando ${type}/${id} com estratégia anti-WAF...`);
@@ -251,7 +267,7 @@ app.get('/api/api-content/:type/:id', async (req, res) => {
 });
 
 // Endpoints de Configuração AntiGravity
-app.get('/api/wp-settings', async (req, res) => {
+app.get('/api/wp-settings', requireApiSecret, async (req, res) => {
     try {
         const response = await axios.get(`${WP_URL}/wp-json/antigravity/v1/settings`, {
             headers: { 'Authorization': `Basic ${WP_AUTH}` }
@@ -260,7 +276,7 @@ app.get('/api/wp-settings', async (req, res) => {
     } catch (e) { res.status(500).json({ error: e.message }); }
 });
 
-app.post('/api/wp-settings', async (req, res) => {
+app.post('/api/wp-settings', requireApiSecret, async (req, res) => {
     try {
         const response = await axios.post(`${WP_URL}/wp-json/antigravity/v1/settings`, req.body, {
             headers: { 'Authorization': `Basic ${WP_AUTH}`, 'Content-Type': 'application/json' }
@@ -269,7 +285,7 @@ app.post('/api/wp-settings', async (req, res) => {
     } catch (e) { res.status(500).json({ error: e.message }); }
 });
 // Endpoint especial para Upload de Mídia (Multipart/Form-Data)
-app.post('/api/wp-upload-media', upload.single('file'), async (req, res) => {
+app.post('/api/wp-upload-media', requireApiSecret, upload.single('file'), async (req, res) => {
     try {
         if (!req.file) throw new Error("Nenhum arquivo enviado.");
 
