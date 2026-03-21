@@ -1,4 +1,4 @@
-Aqui está o Relatório Descritivo Definitivo do Sistema NeuroEngine (Mission Control) V4.
+Aqui está o Relatório Descritivo Definitivo do Sistema NeuroEngine (Mission Control) v2.0, refletindo a transição para a arquitetura Jamstack.
 
 Este documento foi inteiramente reestruturado para refletir exclusivamente as versões mais recentes e maduras do desenvolvimento. Ideias defasadas (como o uso de Elementor/Astra, a geração de 15 paletas de cores ou o processamento paralelo caótico de agentes) foram substituídas pela arquitetura definitiva de Esteira Sequencial, Código Nativo Headless e o Gêmeo Digital Clínico.
 
@@ -13,17 +13,19 @@ O NeuroEngine (Mission Control) deixou de ser um mero gerador de textos para se 
 
 O Dr. Victor Lawrence atua unicamente como Diretor Clínico e Estrategista (Curadoria), enquanto o sistema assume 100% da engenharia de front-end, design, publicação e blindagem SEO. O objetivo é dominar o tráfego hiperlocal em nichos de alta intenção (Autismo Adulto, Hipnose Ericksoniana) combinando E-E-A-T (Expertise, Autoridade e Confiança) com um Custo Por Aquisição (CPA) marginal.
 
-2. Arquitetura Técnica: O Paradigma Headless e "Zero-Touch"
+2. Nova Arquitetura Técnica: Transição para o Modelo Jamstack
 
-A dependência de construtores visuais legados (Elementor, Astra) foi completamente eliminada. O sistema opera na vanguarda do desenvolvimento web:
+A dependência de construtores visuais legados e servidores compartilhados (Hostinger) foi completamente eliminada. O sistema opera agora sob a infraestrutura de Soberania Tecnológica:
 
-Backend (WordPress como Repositório): O WP atua apenas como banco de dados via REST API. A autenticação usa JWT (JSON Web Tokens) para segurança stateless.
+**Core:** Next.js 15 + TypeScript para uma estrutura de código tipada e segura.
 
-Geração Nativa em Tailwind CSS v4: A IA gera código HTML5 semântico e Tailwind v4 compilado. O sistema agora cria nativamente o Cabeçalho (Header) e o Rodapé (Footer Abidos) com 4 colunas (Identidade, Navegação, Silos, NAP consistente com o Google Meu Negócio).
+**Interface:** Tailwind CSS e Framer Motion para animações de nível cinematográfico e design "Dark Premium".
 
-Entrega via WPCodeBox 2: A publicação não usa a interface do WordPress. O sistema empacota o código perfeito e o injeta diretamente como um Plugin de Funcionalidade (Functionality Plugin), garantindo tempo de carregamento instantâneo, "Zero CLS" e imunidade a quebras de layout.
+**Deploy & Hosting:** Vercel (Infraestrutura Global) conectada ao repositório GitHub para Continuous Deployment (CD).
 
-Wrapper de Imunidade: Todo código gerado é encapsulado em <div class="abidos-wrapper"> com uso tático do !important no Tailwind para blindar a página contra qualquer resquício de CSS legado do WordPress.
+**SEO e Branding:** Implementação de metadataBase, Sitemaps automáticos e Robots.txt configurados para indexação prioritária. Branding integrado com logotipo oficial e tipografia curada (Fraunces & Manrope).
+
+**Integração NeuroStrategy OS:** Conexão direta a APIs e bancos de dados (como Supabase ou Prisma) para áreas de membros e dashboards em tempo real.
 
 3. Core AI: A Esteira Sequencial de Agentes (A Linha de Montagem)
 

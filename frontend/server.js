@@ -57,9 +57,23 @@ const genAI = new GoogleGenerativeAI(process.env.GEMINI_API_KEY || "DUMMY");
 const VISION_MODEL = "gemini-2.5-flash"; // Modelo ultra-rápido para o Studio
 const HEAVY_MODEL = "gemini-2.5-pro";    // Modelo denso para Clústeres e Auditorias
 
-// Modelos Base (Configuração flexível)
-const modelFlash = genAI.getGenerativeModel({ model: VISION_MODEL });
-const modelPro = genAI.getGenerativeModel({ model: HEAVY_MODEL });
+// Hemisfério Esquerdo (FLASH): Rápido, Multimodal e Estruturado
+// Perfeito para ouvir seu áudio em tempo real e cuspir o JSON das regras.
+const modelFlash = genAI.getGenerativeModel({ 
+    model: VISION_MODEL, 
+    generationConfig: { 
+        responseMimeType: "application/json" 
+    }
+});
+
+// Hemisfério Direito (PRO): Denso, Analítico e Criativo
+// Perfeito para o Doctoralia Assistant e AI Studio (textos profundos e E-E-A-T).
+const modelPro = genAI.getGenerativeModel({ 
+    model: HEAVY_MODEL,
+    generationConfig: {
+        temperature: 0.7 
+    }
+});
 const draftsDb = []; // In-memory store for newly generated drafts before WP sync
 
 // Helper robust JSON parser
