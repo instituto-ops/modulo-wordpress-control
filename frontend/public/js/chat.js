@@ -1658,13 +1658,25 @@ window.chatApp = {
 
         try {
             const rawResponse = await gemini.callAPI(prompt);
+            if (!rawResponse) throw new Error("Resposta vazia da IA.");
             
-            // BLINDAGEM JSON
-            const cleanJson = rawResponse.replace(/```json|```/g, "").trim();
+            // BLINDAGEM DE PARSE V5: Sanitização em múltiplas camadas
+            // 1. Remove blocos de código markdown
+            let cleanJson = rawResponse.replace(/```json\s*/gi, '').replace(/```\s*/g, '').trim();
+            // 2. Extrai apenas o objeto JSON (entre o primeiro { e o último })
             const jsonMatch = cleanJson.match(/\{[\s\S]*\}/);
-            const data = JSON.parse(jsonMatch ? jsonMatch[0] : cleanJson);
+            if (!jsonMatch) throw new Error("Nenhum JSON encontrado na resposta.");
+            let jsonStr = jsonMatch[0];
+            // 3. Sanitiza aspas duplas problemáticas dentro de valores de string
+            // Substitui aspas não escapadas que quebravam o JSON.parse
+            jsonStr = jsonStr.replace(/:\s*"([\s\S]*?)(?<!\\)"(?=\s*[,}])/g, (match, val) => {
+                const safeVal = val.replace(/(?<!\\)"/g, '\\"');
+                return `: "${safeVal}"`;
+            });
+            
+            const data = JSON.parse(jsonStr);
 
-                if (data?.title) {
+            if (data?.title) {
                 const titleInput = document.getElementById('ai-studio-new-title');
                 const slugInput = document.getElementById('seo-slug');
                 const tagInput = document.getElementById('seo-title-tag');
