@@ -401,15 +401,15 @@ window.chatApp = {
         const btnSend = document.getElementById('btn-send-chat');
         const btnSnap = document.getElementById('btn-snap-error');
 
-        btnSend??.addEventListener('click', () => this.sendMessage(false));
-        btnSnap??.addEventListener('click', () => {
+        btnSend?.addEventListener('click', () => this.sendMessage(false));
+        btnSnap?.addEventListener('click', () => {
             if (chatInput && !chatInput.value.trim()) {
                 chatInput.value = "Por favor, olhe como a página está ficando. Pode corrigir a formatação?";
             }
             this.sendMessage(true);
         });
 
-        chatInput??.addEventListener('keypress', (e) => {
+        chatInput?.addEventListener('keypress', (e) => {
             if (e.key === 'Enter' && !e.shiftKey) {
                 e.preventDefault();
                 this.sendMessage(false);
@@ -1753,9 +1753,9 @@ window.chatApp = {
             formData.append('message', prompt);
             formData.append('currentKeyword', kw);
             
-            // Timeout de 15 segundos para resiliência
+            // Timeout de 60 segundos para resiliência (Gemini 2.5 Pro é mais lento)
             const controller = new AbortController();
-            const timeoutId = setTimeout(() => controller.abort(), 15000);
+            const timeoutId = setTimeout(() => controller.abort(), 60000);
 
             try {
                 const response = await fetch('/api/chat', {
@@ -2196,12 +2196,9 @@ RETORNE APENAS O JSON, sem comentários.`;
         };
 
         try {
-            // Em vez de fetch direto, vamos usar o wpAPI que é o padrão atual
             const result = await wpAPI.saveContent(payload.type, payload, this.currentItemId);
-            
-            if (btn) { btn.innerHTML = "Exportar como Rascunho"; btn.disabled = false; }
-            if (stepBtn) { stepBtn.disabled = false; }
 
+            if (result && result.id) {
                 this.currentItemId = result.id;
                 this.addMessage(`✅ **PUBLICAÇÃO CONCLUÍDA NO WP!**\n\nID: #${result.id}\nStatus: Enviado como Rascunho.\nLink: [Ver no Painel WP](${result.link})`);
                 this.addMessage(`<br><a href="${result.link}" target="_blank" class="btn btn-primary" style="display:inline-block; margin-top:5px; background:#10b981; border:none; color:white;">👁️ Ver no WordPress</a>`);
